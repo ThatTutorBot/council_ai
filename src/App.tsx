@@ -77,13 +77,17 @@ export default function App() {
         const updatedSession = { ...currentSession, currentRound: 'critique' as const };
         processNextStep('critique', updatedSession);
       } else if (round === 'critique') {
-        const openingMessages = currentSession.messages.filter(m => m.round === 'opening');
+        const currentMessages = [...currentSession.messages];
         for (const advisor of ADVISORS) {
-          const critique = await CouncilService.getCritique(advisor.id, currentSession.userQuestion, openingMessages);
+          // Pass the latest messages including previous critiques in this round
+          const critique = await CouncilService.getCritique(advisor.id, currentSession.userQuestion, currentMessages);
+          currentMessages.push(critique);
           setSession(prev => prev ? ({
             ...prev,
             messages: [...prev.messages, critique],
           }) : null);
+          // Wait a bit to simulate "typing" for the next advisor in the chat
+          await new Promise(r => setTimeout(r, 1000));
         }
         setSession(prev => prev ? ({ ...prev, currentRound: 'synthesis' }) : null);
         processNextStep('synthesis', { ...currentSession, currentRound: 'synthesis' });
@@ -261,114 +265,144 @@ export default function App() {
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto scroll-smooth">
-            <div className="max-w-7xl mx-auto p-1 grid grid-cols-1 md:grid-cols-3 gap-1 bg-white/5">
-              {/* Show advisor columns only for discussion phases */}
-              {ADVISORS.map((advisor) => {
-                const advisorMessages = session.messages.filter(m => m.advisorId === advisor.id);
-                
-                return (
-                  <section key={advisor.id} className="bg-[#111116] flex flex-col p-8 relative group overflow-hidden border border-white/5 min-h-[600px]">
-                    {/* Decorative Title Character */}
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                      <span className="text-[120px] font-serif leading-none italic">{advisor.name.match(/\((.*?)\)/)?.[1] || advisor.name[0]}</span>
-                    </div>
-
-                    <div className="mb-10 relative z-10">
-                      <div className={`w-14 h-14 rounded-full mb-4 flex items-center justify-center border transition-all ${
-                        advisor.id === 'zhuge-liang' ? 'bg-blue-500/10 border-blue-400/30 text-blue-200' :
-                        advisor.id === 'cao-cao' ? 'bg-red-500/10 border-red-400/30 text-red-200' :
-                        'bg-purple-500/10 border-purple-400/30 text-purple-200'
-                      }`}>
-                        <Avatar className="w-12 h-12">
-                          <AvatarImage src={advisor.avatar} />
-                          <AvatarFallback className="text-lg font-serif">
-                            {advisor.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
+            {/* Rounds 1 & 2: Structural Grid */}
+            {(session.currentRound === 'clarifying' || session.currentRound === 'opening' || session.messages.some(m => m.round === 'opening')) && (
+              <div className="max-w-7xl mx-auto p-1 grid grid-cols-1 md:grid-cols-3 gap-1 bg-white/5 border-b border-white/5">
+                {ADVISORS.map((advisor) => {
+                  const advisorMessages = session.messages.filter(m => m.round === 'clarifying' || m.round === 'opening').filter(m => m.advisorId === advisor.id);
+                  
+                  return (
+                    <section key={advisor.id} className="bg-[#111116] flex flex-col p-8 relative group overflow-hidden border border-white/5 min-h-[500px]">
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+                        <span className="text-[120px] font-serif leading-none italic">{advisor.name.match(/\((.*?)\)/)?.[1] || advisor.name[0]}</span>
                       </div>
-                      <h2 className="text-xl font-serif text-white">{advisor.name}</h2>
-                      <p className={`text-[10px] uppercase tracking-[0.2em] font-bold mt-1 ${
-                        advisor.id === 'zhuge-liang' ? 'text-blue-400/80' :
-                        advisor.id === 'cao-cao' ? 'text-red-400/80' :
-                        'text-purple-400/80'
-                      }`}>{advisor.title}</p>
-                    </div>
 
-                    <div className="flex-1 space-y-8 relative z-10">
-                      <AnimatePresence>
-                        {advisorMessages.map((msg, midx) => (
-                          <motion.div 
-                            key={midx}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="space-y-4 pb-8 border-b border-white/5 last:border-0"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-[9px] uppercase tracking-widest font-bold text-amber-500/50">{msg.round} round</span>
-                              <span className="text-[8px] font-mono text-zinc-600">
+                      <div className="mb-10 relative z-10">
+                        <div className={`w-14 h-14 rounded-full mb-4 flex items-center justify-center border transition-all ${
+                          advisor.id === 'zhuge-liang' ? 'bg-blue-500/10 border-blue-400/30 text-blue-200' :
+                          advisor.id === 'cao-cao' ? 'bg-red-500/10 border-red-400/30 text-red-200' :
+                          'bg-purple-500/10 border-purple-400/30 text-purple-200'
+                        }`}>
+                          <Avatar className="w-12 h-12">
+                            <AvatarImage src={advisor.avatar} />
+                          </Avatar>
+                        </div>
+                        <h2 className="text-xl font-serif text-white">{advisor.name}</h2>
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-bold mt-1 text-zinc-500">{advisor.title}</p>
+                      </div>
+
+                      <div className="flex-1 space-y-8 relative z-10">
+                        <AnimatePresence>
+                          {advisorMessages.map((msg, midx) => (
+                            <motion.div 
+                              key={midx}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="space-y-4 pb-8 border-b border-white/5 last:border-0"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className={`text-[9px] uppercase tracking-widest font-bold ${msg.round === 'opening' ? 'text-amber-500' : 'text-zinc-500'}`}>{msg.round}</span>
+                              </div>
+                              
+                              <div className="space-y-3">
+                                <p className="text-base md:text-lg italic leading-relaxed text-slate-100 font-serif">
+                                  &quot;{msg.contentPrimary}&quot;
+                                </p>
+                                <p className="text-[12px] leading-relaxed text-slate-500 font-light tracking-wide">
+                                  {msg.contentSecondary}
+                                </p>
+                              </div>
+
+                              {msg.round === 'clarifying' && session.clarifyingAnswers[advisor.id] && (
+                                <div className="mt-4 bg-white/[0.02] border border-white/5 p-4 rounded-lg">
+                                  <span className="block text-[8px] uppercase tracking-widest text-zinc-500 mb-1 font-bold">Your Response</span>
+                                  <p className="text-xs text-zinc-300 font-light italic">&quot;{session.clarifyingAnswers[advisor.id]}&quot;</p>
+                                </div>
+                              )}
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+
+                        {session.currentRound === 'clarifying' && session.currentAdvisorIndex === ADVISORS.findIndex(a => a.id === advisor.id) && !loading && (
+                          <div className="mt-6 p-4 bg-[#1a1a20] rounded-lg border border-amber-500/20">
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-amber-500 block mb-2">Provide Clarification</span>
+                            <div className="flex gap-2">
+                              <Input 
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                placeholder="Answer..."
+                                className="h-10 bg-black text-sm"
+                                onKeyDown={(e) => e.key === 'Enter' && submitClarifyingAnswer()}
+                              />
+                              <Button onClick={submitClarifyingAnswer} size="sm" className="bg-amber-600 text-black">
+                                <Send className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </section>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Critique Round: Unified Group Chat */}
+            {(session.currentRound === 'critique' || session.messages.some(m => m.round === 'critique')) && (
+              <div className="max-w-4xl mx-auto py-16 px-6 space-y-12 bg-black/40 min-h-[400px]">
+                 <div className="flex flex-col items-center gap-4 mb-8">
+                    <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+                    <h3 className="text-xs uppercase tracking-[0.3em] font-bold text-amber-500/70">The Great Debate / 辩论</h3>
+                    <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+                 </div>
+
+                 <div className="space-y-10">
+                    {session.messages.filter(m => m.round === 'critique').map((msg, idx) => {
+                      const advisor = getAdvisor(msg.advisorId);
+                      return (
+                        <motion.div 
+                          key={idx}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="flex gap-5 items-start max-w-3xl"
+                        >
+                          <Avatar className="w-12 h-12 border border-white/10 shrink-0">
+                            <AvatarImage src={advisor?.avatar} />
+                          </Avatar>
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] font-bold uppercase tracking-widest text-[#576b95]">{advisor?.name}</span>
+                              <span className="text-[9px] text-zinc-600 font-mono">
                                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
-                            
-                            <div className="space-y-3">
-                              <p className="text-base md:text-lg italic leading-relaxed text-slate-100 font-serif">
-                                &quot;{msg.contentPrimary}&quot;
-                              </p>
-                              <p className="text-[12px] leading-relaxed text-slate-500 font-light tracking-wide">
-                                {msg.contentSecondary}
-                              </p>
-                            </div>
-
-                            {msg.round === 'clarifying' && session.clarifyingAnswers[advisor.id] && (
-                              <div className="mt-4 bg-white/[0.02] border border-white/5 p-4 rounded-lg">
-                                <span className="block text-[8px] uppercase tracking-widest text-zinc-500 mb-1 font-bold">Your Response</span>
-                                <p className="text-xs text-zinc-300 font-light italic">&quot;{session.clarifyingAnswers[advisor.id]}&quot;</p>
-                              </div>
-                            )}
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-
-                      {/* Interaction Area (if current advisor) */}
-                      {session.currentRound === 'clarifying' && session.currentAdvisorIndex === ADVISORS.findIndex(a => a.id === advisor.id) && !loading && (
-                        <motion.div 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="mt-6 space-y-4"
-                        >
-                          <div className="p-[1px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent rounded-lg">
-                            <div className="bg-[#1a1a20] p-4 rounded-[7px] space-y-3">
-                              <span className="text-[10px] uppercase tracking-widest font-bold text-amber-500">Provide Clarification</span>
-                              <div className="flex gap-2">
-                                <Input 
-                                  value={input}
-                                  onChange={(e) => setInput(e.target.value)}
-                                  placeholder="Type your response..."
-                                  className="h-10 bg-black/40 border-white/10 text-sm focus-visible:ring-amber-500"
-                                  onKeyDown={(e) => e.key === 'Enter' && submitClarifyingAnswer()}
-                                />
-                                <Button onClick={submitClarifyingAnswer} className="h-10 px-4 bg-amber-600 text-zinc-950 hover:bg-amber-500 font-bold uppercase tracking-widest text-[9px]">
-                                  Send
-                                </Button>
+                            <div className="group relative">
+                              <div className="bg-[#2c2c2c] text-slate-100 p-4 rounded-2xl rounded-tl-none border border-white/5 shadow-lg max-w-[85%] md:max-w-[70%]">
+                                <p className="text-base font-serif italic mb-3 leading-relaxed">&quot;{msg.contentPrimary}&quot;</p>
+                                <Separator className="bg-white/10 my-2" />
+                                <p className="text-[11px] text-slate-400 font-light leading-relaxed">{msg.contentSecondary}</p>
                               </div>
                             </div>
                           </div>
                         </motion.div>
-                      )}
+                      );
+                    })}
+                    
+                    {loading && session.currentRound === 'critique' && (
+                       <div className="flex gap-4 items-center pl-16">
+                          <div className="flex gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+                          </div>
+                          <span className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold">The council is dynamic...</span>
+                       </div>
+                    )}
+                 </div>
+              </div>
+            )}
 
-                      {loading && session.currentRound !== 'clarifying' && (
-                         <div className="flex items-center gap-2 py-4">
-                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" />
-                            <span className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold animate-pulse">Deliberating...</span>
-                         </div>
-                      )}
-                    </div>
-                  </section>
-                );
-              })}
-            </div>
-
-            {/* Synthesis Section (Horizontal spanning) */}
+            {/* Synthesis Section */}
             {session.messages.some(m => m.round === 'synthesis') && (
               <div className="max-w-7xl mx-auto p-1 bg-white/5 border-t border-white/5">
                 {session.messages.filter(m => m.round === 'synthesis').map((msg, idx) => (

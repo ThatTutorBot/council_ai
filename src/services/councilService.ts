@@ -115,21 +115,28 @@ export class CouncilService {
   static async getCritique(
     advisorId: string,
     userQuestion: string,
-    allOpenings: CouncilMessage[]
+    history: CouncilMessage[]
   ): Promise<CouncilMessage> {
     const advisor = ADVISORS.find(a => a.id === advisorId)!;
-    const openingsStr = allOpenings
-      .filter(m => m.advisorId !== advisorId)
-      .map(m => `${ADVISORS.find(a => a.id === m.advisorId)?.name} said: ${m.contentPrimary}`)
+    
+    const contextStr = history
+      .map(m => {
+        const name = m.advisorId === 'council-scribe' ? 'Scribe' : ADVISORS.find(a => a.id === m.advisorId)?.name;
+        return `${name} (${m.round}): ${m.contentPrimary}`;
+      })
       .join('\n\n');
       
     const systemPrompt = `User Question: "${userQuestion}"
-    Other advisors have given these opening statements:
-    ${openingsStr}
     
-    Critique their views. Challenge their assumptions or offer a different perspective based on your own values.`;
+    CURRENT CONVERSATION LOG:
+    ${contextStr}
     
-    const resp = await this.generateBilingualResponse(advisor, systemPrompt, "Offer your critique.");
+    You are now in the CRITIQUE ROUND. This is a group debate.
+    Review what others have meta-critiqued or stated. 
+    Contribute to the conversation. If someone just spoke, you can address them directly.
+    Be sharp, be brief, and stay in character.`;
+    
+    const resp = await this.generateBilingualResponse(advisor, systemPrompt, "Add your voice to the debate.");
     
     return {
       advisorId,
