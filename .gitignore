@@ -6,3 +6,12 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Local AI tooling/project metadata
+.claude/
+.cursor/
+.trellis/
+AGENT.md
+AGENTS.md
+
+

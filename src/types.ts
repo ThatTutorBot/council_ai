@@ -3,6 +3,7 @@ export type Language = 'zh' | 'en';
 export interface AdvisorPersona {
   id: string;
   name: string;
+  shortName: string;
   title: string;
   avatar: string;
   primaryLang: Language;
@@ -11,12 +12,23 @@ export interface AdvisorPersona {
   personaInstructions: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  senderId: 'user' | string;
+  senderName: string;
+  avatar?: string;
+  content: string;
+  translation?: string;
+  timestamp: number;
+}
+
 export const ADVISORS: AdvisorPersona[] = [
   {
     id: 'zhuge-liang',
     name: 'Zhuge Liang (诸葛亮)',
+    shortName: 'Zhuge',
     title: 'The Loyal Chancellor',
-    avatar: '/attachments/input_file_1.png',
+    avatar: '/avatars/zhuge.jpg',
     primaryLang: 'zh',
     secondaryLang: 'en',
     bio: 'Legendary strategist and Chancellor of Shu Han. Known for wisdom, loyalty, and calculated risks.',
@@ -28,8 +40,9 @@ export const ADVISORS: AdvisorPersona[] = [
   {
     id: 'cao-cao',
     name: 'Cao Cao (曹操)',
+    shortName: 'Cao Cao',
     title: 'The Great Warlord',
-    avatar: '/attachments/input_file_0.png',
+    avatar: '/avatars/cao-cao.jpg',
     primaryLang: 'zh',
     secondaryLang: 'en',
     bio: 'Founder of Wei. A brilliant, pragmatic, and sometimes ruthless leader who values talent and raw power.',
@@ -41,8 +54,9 @@ export const ADVISORS: AdvisorPersona[] = [
   {
     id: 'marcus-aurelius',
     name: 'Marcus Aurelius',
+    shortName: 'Marcus',
     title: 'The Philosopher Emperor',
-    avatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Marcus_Aurelius_Bust_6.jpg/480px-Marcus_Aurelius_Bust_6.jpg',
+    avatar: '/avatars/macus.jpg',
     primaryLang: 'en',
     secondaryLang: 'zh',
     bio: 'Roman Emperor and Stoic philosopher. Focuses on virtue, reason, and accepting what is outside one\'s control.',

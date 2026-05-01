@@ -1,102 +1,115 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Send, 
-  User, 
-  MessageSquare, 
-  ArrowRight, 
-  RotateCcw,
-  Sparkles,
-  ChevronDown
+import {
+  Send,
+  Plus,
+  Smile,
+  Image as ImageIcon,
+  Phone,
+  Video,
+  MoreHorizontal,
+  Search,
+  MessageSquare,
+  Users,
+  Settings,
+  Circle
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 
-import { ADVISORS, AdvisorPersona } from './types';
-import { CouncilService, CouncilMessage, CouncilSession } from './services/councilService';
+import { ADVISORS, AdvisorPersona, ChatMessage } from './types';
+import { ChatService } from './services/chatService';
 
 export default function App() {
-  const [session, setSession] = useState<CouncilSession | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeAdvisorIds, setActiveAdvisorIds] = useState<string[]>(ADVISORS.map(a => a.id));
+  const [typingAdvisors, setTypingAdvisors] = useState<string[]>([]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [userName, setUserName] = useState('Lord');
+  const [userAvatar, setUserAvatar] = useState('https://api.dicebear.com/7.x/initials/svg?seed=Salin');
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [showMentions, setShowMentions] = useState(false);
+  const [currentView, setCurrentView] = useState<'chats' | 'contacts' | 'moments'>('chats');
+  const [selectedContact, setSelectedContact] = useState<AdvisorPersona | null>(null);
+  const [moments, setMoments] = useState<{ id: string, authorId: string, content: string, timestamp: number }[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMoments([
+      { id: '1', authorId: 'zhuge-liang', content: '淡泊以明志，宁静以致远。 Strategy is the art of seeing what is invisible to others.', timestamp: Date.now() - 3600000 },
+      { id: '2', authorId: 'marcus-aurelius', content: 'The happiness of your life depends upon the quality of your thoughts. Stay virtuous.', timestamp: Date.now() - 7200000 },
+      { id: '3', authorId: 'cao-cao', content: '宁我负人，毋人负我。 Power is the only currency that never devalues.', timestamp: Date.now() - 10800000 },
+    ]);
+  }, []);
+
+  const COMMON_EMOJIS = ["👍", "🙏", "😮", "🤔", "😅", "🔥", "💯", "🍵", "🏮", "⚔️", "🏛️", "📜"];
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [session?.messages]);
+  }, [messages, typingAdvisors]);
 
-  const startNewSession = () => {
-    if (!input.trim()) return;
-    
-    setSession({
-      userQuestion: input,
-      messages: [],
-      clarifyingAnswers: {},
-      currentRound: 'clarifying',
-      currentAdvisorIndex: 0,
-    });
-    setInput('');
-    processNextStep('clarifying', {
-      userQuestion: input,
-      messages: [],
-      clarifyingAnswers: {},
-      currentRound: 'clarifying',
-      currentAdvisorIndex: 0,
-    });
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setInput(val);
+
+    if (val.endsWith('@')) {
+      setShowMentions(true);
+    } else if (!val.includes('@') || val.endsWith(' ')) {
+      setShowMentions(false);
+    }
   };
 
-  const processNextStep = async (round: string, currentSession: CouncilSession) => {
+  const insertMention = (name: string) => {
+    setInput(prev => prev + name + ' ');
+    setShowMentions(false);
+  };
+
+  const handleSendMessage = async () => {
+    if (!input.trim() || loading) return;
+
+    const userMessage: ChatMessage = {
+      id: Math.random().toString(36).substring(7),
+      senderId: 'user',
+      senderName: userName,
+      content: input,
+      timestamp: Date.now(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
     setLoading(true);
+
     try {
-      if (round === 'clarifying') {
-        const advisor = ADVISORS[currentSession.currentAdvisorIndex];
-        const question = await CouncilService.getClarifyingQuestion(advisor.id, currentSession.userQuestion);
-        setSession(prev => prev ? ({
-          ...prev,
-          messages: [...prev.messages, question],
-        }) : null);
-      } else if (round === 'opening') {
-        // Sequential opening statements
-        for (const advisor of ADVISORS) {
-          const opening = await CouncilService.getOpeningStatement(advisor.id, currentSession.userQuestion, currentSession.clarifyingAnswers);
-          setSession(prev => prev ? ({
-            ...prev,
-            messages: [...prev.messages, opening],
-          }) : null);
+      const currentHistory = [...messages, userMessage];
+      const responders = await ChatService.decideWhoResponds(currentHistory, activeAdvisorIds);
+
+      for (const advisorId of responders) {
+        setTypingAdvisors(prev => [...prev, advisorId]);
+        await new Promise(r => setTimeout(r, 1500 + Math.random() * 2000));
+
+        const response = await ChatService.getAdvisorResponse(advisorId, [...currentHistory]);
+        setMessages(prev => [...prev, response]);
+        currentHistory.push(response);
+        setTypingAdvisors(prev => prev.filter(id => id !== advisorId));
+
+        if (Math.random() > 0.6) {
+          const othersInGroup = activeAdvisorIds.filter(id => id !== advisorId);
+          if (othersInGroup.length > 0) {
+            const nextResponder = othersInGroup[Math.floor(Math.random() * othersInGroup.length)];
+            setTypingAdvisors(prev => [...prev, nextResponder]);
+            await new Promise(r => setTimeout(r, 1500 + Math.random() * 2000));
+            const followUp = await ChatService.getAdvisorResponse(nextResponder, [...currentHistory]);
+            setMessages(prev => [...prev, followUp]);
+            currentHistory.push(followUp);
+            setTypingAdvisors(prev => prev.filter(id => id !== nextResponder));
+          }
         }
-        setSession(prev => prev ? ({ ...prev, currentRound: 'critique' }) : null);
-        // Instant trigger critique after opening
-        const updatedSession = { ...currentSession, currentRound: 'critique' as const };
-        processNextStep('critique', updatedSession);
-      } else if (round === 'critique') {
-        const currentMessages = [...currentSession.messages];
-        for (const advisor of ADVISORS) {
-          // Pass the latest messages including previous critiques in this round
-          const critique = await CouncilService.getCritique(advisor.id, currentSession.userQuestion, currentMessages);
-          currentMessages.push(critique);
-          setSession(prev => prev ? ({
-            ...prev,
-            messages: [...prev.messages, critique],
-          }) : null);
-          // Wait a bit to simulate "typing" for the next advisor in the chat
-          await new Promise(r => setTimeout(r, 1000));
-        }
-        setSession(prev => prev ? ({ ...prev, currentRound: 'synthesis' }) : null);
-        processNextStep('synthesis', { ...currentSession, currentRound: 'synthesis' });
-      } else if (round === 'synthesis') {
-        const synthesis = await CouncilService.getSynthesis(currentSession.userQuestion, currentSession.messages);
-        setSession(prev => prev ? ({
-          ...prev,
-          messages: [...prev.messages, synthesis],
-        }) : null);
       }
     } catch (err) {
       console.error(err);
@@ -105,383 +118,411 @@ export default function App() {
     }
   };
 
-  const submitClarifyingAnswer = () => {
-    if (!input.trim() || !session) return;
-    
-    const advisorId = ADVISORS[session.currentAdvisorIndex].id;
-    const newAnswers = { ...session.clarifyingAnswers, [advisorId]: input };
-    const isLastAdvisor = session.currentAdvisorIndex === ADVISORS.length - 1;
-    
-    const nextSession: CouncilSession = {
-      ...session,
-      clarifyingAnswers: newAnswers,
-      currentAdvisorIndex: isLastAdvisor ? 0 : session.currentAdvisorIndex + 1,
-      currentRound: isLastAdvisor ? 'opening' : 'clarifying',
-    };
-    
-    setSession(nextSession);
-    setInput('');
-    
-    if (isLastAdvisor) {
-      processNextStep('opening', nextSession);
-    } else {
-      processNextStep('clarifying', nextSession);
-    }
+  const toggleAdvisor = (id: string) => {
+    setActiveAdvisorIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
   };
 
-  const getAdvisor = (id: string) => ADVISORS.find(a => a.id === id);
-
   return (
-    <div className="min-h-screen bg-[#0c0c0e] text-slate-200 font-sans selection:bg-amber-500/30 relative flex flex-col overflow-x-hidden">
-      {/* Atmospheric Background Overlays */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/10 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-red-900/10 blur-[120px] rounded-full"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_transparent_0%,_#0c0c0e_80%)]"></div>
-      </div>
-
-      {/* Header: The Inquiry */}
-      <header className="relative z-20 p-6 border-b border-white/5 bg-black/20 backdrop-blur-md sticky top-0">
-        <div className="max-w-7xl mx-auto flex justify-between items-center mb-2">
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-zinc-950" />
-            </div>
-            <span className="text-[10px] tracking-[0.2em] uppercase text-amber-500/70 font-semibold">Council AI / 议事厅</span>
-          </div>
-          <div className="flex gap-4 items-center">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
-              <span className="text-[10px] uppercase tracking-widest opacity-60">Live Council Session</span>
-            </div>
-            {session && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setSession(null)}
-                className="h-7 text-[10px] uppercase tracking-widest text-zinc-400 hover:text-zinc-100 border border-white/5 bg-white/5"
-              >
-                <RotateCcw className="w-3 h-3 mr-2" />
-                Reset
-              </Button>
-            )}
-          </div>
+    <div className="h-screen w-full bg-[#f5f5f5] flex overflow-hidden font-sans text-black">
+      <aside className="w-[64px] bg-[#2e2e2e] flex flex-col items-center py-6 gap-8 shrink-0">
+        <div className="w-9 h-9 bg-zinc-600 rounded-md overflow-hidden p-0.5">
+          <img src={userAvatar} className="w-full h-full rounded" />
         </div>
-        {session && (
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-xl md:text-2xl font-serif italic text-white leading-tight mt-2 max-w-4xl">
-              &quot;{session.userQuestion}&quot;
-            </h1>
-          </div>
-        )}
-      </header>
+        <div className="flex flex-col gap-8 text-[#9b9b9b]">
+          <MessageSquare
+            className={`w-6 h-6 cursor-pointer transition-colors ${currentView === 'chats' ? 'text-[#07c160]' : 'hover:text-white'}`}
+            onClick={() => setCurrentView('chats')}
+          />
+          <Users
+            className={`w-6 h-6 cursor-pointer transition-colors ${currentView === 'contacts' ? 'text-[#07c160]' : 'hover:text-white'}`}
+            onClick={() => setCurrentView('contacts')}
+          />
+          <Circle
+            className={`w-6 h-6 cursor-pointer transition-colors ${currentView === 'moments' ? 'text-[#07c160]' : 'hover:text-white'}`}
+            onClick={() => setCurrentView('moments')}
+          />
+          <Settings className="w-6 h-6 hover:text-white transition-colors cursor-pointer mb-auto" />
+        </div>
+      </aside>
 
-      {/* Council Progress Stepper */}
-      {session && (
-        <nav className="relative z-20 flex border-b border-white/5 bg-white/[0.02] sticky top-[104px] md:top-[128px]">
-          <div className={`flex-1 py-3 px-6 border-r border-white/5 flex items-center gap-3 transition-colors ${session.currentRound === 'clarifying' ? 'bg-amber-500/10' : 'opacity-40'}`}>
-            <span className={`font-mono text-xs ${session.currentRound === 'clarifying' ? 'text-amber-500' : ''}`}>01</span>
-            <span className={`text-[11px] uppercase tracking-tighter ${session.currentRound === 'clarifying' ? 'text-amber-200' : ''}`}>Clarification</span>
+      <aside className="w-[300px] bg-[#e6e5e4] border-r border-[#d6d6d6] flex flex-col shrink-0">
+        <div className="p-4 flex gap-2">
+          <div className="flex-1 bg-[#dbd9d8] flex items-center px-2 rounded-md h-7">
+            <Search className="w-4 h-4 text-[#666] mr-1" />
+            <input placeholder="Search" className="bg-transparent border-none outline-none text-[12px] w-full" />
           </div>
-          <div className={`flex-1 py-3 px-6 border-r border-white/5 flex items-center gap-3 transition-colors ${session.currentRound === 'opening' ? 'bg-amber-500/10' : 'opacity-40'}`}>
-            <span className={`font-mono text-xs ${session.currentRound === 'opening' ? 'text-amber-500' : ''}`}>02</span>
-            <span className={`text-[11px] uppercase tracking-tighter ${session.currentRound === 'opening' ? 'text-amber-200' : ''}`}>Opening Round</span>
-          </div>
-          <div className={`flex-1 py-3 px-6 border-r border-white/5 flex items-center gap-3 transition-colors ${session.currentRound === 'critique' ? 'bg-amber-500/10' : 'opacity-40'}`}>
-            <span className={`font-mono text-xs ${session.currentRound === 'critique' ? 'text-amber-500' : ''}`}>03</span>
-            <span className={`text-[11px] uppercase tracking-tighter ${session.currentRound === 'critique' ? 'text-amber-200' : ''}`}>Critique Round</span>
-          </div>
-          <div className={`flex-1 py-3 px-6 flex items-center gap-3 transition-colors ${session.currentRound === 'synthesis' ? 'bg-amber-500/10' : 'opacity-40'}`}>
-            <span className={`font-mono text-xs ${session.currentRound === 'synthesis' ? 'text-amber-500' : ''}`}>04</span>
-            <span className={`text-[11px] uppercase tracking-tighter ${session.currentRound === 'synthesis' ? 'text-amber-200' : ''}`}>Synthesis</span>
-          </div>
-        </nav>
-      )}
+          <Button variant="ghost" size="icon" className="w-7 h-7 bg-[#dbd9d8]">
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
 
-      <main className="relative z-10 flex-1 flex flex-col">
-        {!session ? (
-          <div className="flex-1 flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-2xl w-full space-y-12 text-center"
+        <ScrollArea className="flex-1">
+          {currentView === 'chats' ? (
+            <div
+              className={`p-3 flex gap-3 cursor-pointer transition-colors border-b border-black/5 ${currentView === 'chats' ? 'bg-[#c6c5c4]' : 'hover:bg-[#d6d6d6]'}`}
+              onClick={() => setCurrentView('chats')}
             >
-              <div className="space-y-4">
-                <h2 className="text-5xl md:text-7xl font-serif text-white tracking-tight leading-none italic">
-                  Invoke the Council
-                </h2>
-                <p className="text-zinc-400 text-lg font-light tracking-wide">
-                  Submit your inquiry to the assembly of historical masterminds.
-                </p>
-              </div>
-
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
-                <div className="relative bg-black/40 border border-white/10 backdrop-blur-xl p-8 rounded-2xl shadow-2xl space-y-6">
-                  <div className="flex flex-wrap gap-4 justify-center">
-                    {ADVISORS.map(a => (
-                      <div key={a.id} className="flex items-center gap-2 bg-white/5 border border-white/5 px-3 py-1.5 rounded-full">
-                        <Avatar className="w-5 h-5">
-                          <AvatarImage src={a.avatar} />
-                        </Avatar>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-400">{a.name.split(' ')[0]}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="relative">
-                    <Input 
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="Present your inquiry to the ages..."
-                      className="h-16 pl-6 pr-40 bg-white/5 border-white/10 text-lg font-light placeholder:text-zinc-600 focus-visible:ring-amber-500 focus-visible:bg-white/10 rounded-xl transition-all"
-                    />
-                    <Button 
-                      onClick={startNewSession}
-                      disabled={!input.trim() || loading}
-                      className="absolute right-2 top-2 h-12 px-8 bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold uppercase tracking-widest text-[10px] rounded-lg transition-all"
-                    >
-                      Begin Session
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center gap-12 text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-bold">
-                <span className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500/50 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-                  Strategy
-                </span>
-                <span className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-500/50 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                  Power
-                </span>
-                <span className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500/50 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
-                  Virtue
-                </span>
-              </div>
-            </motion.div>
-          </div>
-        ) : (
-          <div className="flex-1 overflow-y-auto scroll-smooth">
-            {/* Rounds 1 & 2: Structural Grid */}
-            {(session.currentRound === 'clarifying' || session.currentRound === 'opening' || session.messages.some(m => m.round === 'opening')) && (
-              <div className="max-w-7xl mx-auto p-1 grid grid-cols-1 md:grid-cols-3 gap-1 bg-white/5 border-b border-white/5">
-                {ADVISORS.map((advisor) => {
-                  const advisorMessages = session.messages.filter(m => m.round === 'clarifying' || m.round === 'opening').filter(m => m.advisorId === advisor.id);
-                  
-                  return (
-                    <section key={advisor.id} className="bg-[#111116] flex flex-col p-8 relative group overflow-hidden border border-white/5 min-h-[500px]">
-                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                        <span className="text-[120px] font-serif leading-none italic">{advisor.name.match(/\((.*?)\)/)?.[1] || advisor.name[0]}</span>
-                      </div>
-
-                      <div className="mb-10 relative z-10">
-                        <div className={`w-14 h-14 rounded-full mb-4 flex items-center justify-center border transition-all ${
-                          advisor.id === 'zhuge-liang' ? 'bg-blue-500/10 border-blue-400/30 text-blue-200' :
-                          advisor.id === 'cao-cao' ? 'bg-red-500/10 border-red-400/30 text-red-200' :
-                          'bg-purple-500/10 border-purple-400/30 text-purple-200'
-                        }`}>
-                          <Avatar className="w-12 h-12">
-                            <AvatarImage src={advisor.avatar} />
-                          </Avatar>
-                        </div>
-                        <h2 className="text-xl font-serif text-white">{advisor.name}</h2>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-bold mt-1 text-zinc-500">{advisor.title}</p>
-                      </div>
-
-                      <div className="flex-1 space-y-8 relative z-10">
-                        <AnimatePresence>
-                          {advisorMessages.map((msg, midx) => (
-                            <motion.div 
-                              key={midx}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className="space-y-4 pb-8 border-b border-white/5 last:border-0"
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className={`text-[9px] uppercase tracking-widest font-bold ${msg.round === 'opening' ? 'text-amber-500' : 'text-zinc-500'}`}>{msg.round}</span>
-                              </div>
-                              
-                              <div className="space-y-3">
-                                <p className="text-base md:text-lg italic leading-relaxed text-slate-100 font-serif">
-                                  &quot;{msg.contentPrimary}&quot;
-                                </p>
-                                <p className="text-[12px] leading-relaxed text-slate-500 font-light tracking-wide">
-                                  {msg.contentSecondary}
-                                </p>
-                              </div>
-
-                              {msg.round === 'clarifying' && session.clarifyingAnswers[advisor.id] && (
-                                <div className="mt-4 bg-white/[0.02] border border-white/5 p-4 rounded-lg">
-                                  <span className="block text-[8px] uppercase tracking-widest text-zinc-500 mb-1 font-bold">Your Response</span>
-                                  <p className="text-xs text-zinc-300 font-light italic">&quot;{session.clarifyingAnswers[advisor.id]}&quot;</p>
-                                </div>
-                              )}
-                            </motion.div>
-                          ))}
-                        </AnimatePresence>
-
-                        {session.currentRound === 'clarifying' && session.currentAdvisorIndex === ADVISORS.findIndex(a => a.id === advisor.id) && !loading && (
-                          <div className="mt-6 p-4 bg-[#1a1a20] rounded-lg border border-amber-500/20">
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-amber-500 block mb-2">Provide Clarification</span>
-                            <div className="flex gap-2">
-                              <Input 
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                placeholder="Answer..."
-                                className="h-10 bg-black text-sm"
-                                onKeyDown={(e) => e.key === 'Enter' && submitClarifyingAnswer()}
-                              />
-                              <Button onClick={submitClarifyingAnswer} size="sm" className="bg-amber-600 text-black">
-                                <Send className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </section>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Critique Round: Unified Group Chat */}
-            {(session.currentRound === 'critique' || session.messages.some(m => m.round === 'critique')) && (
-              <div className="max-w-4xl mx-auto py-16 px-6 space-y-12 bg-black/40 min-h-[400px]">
-                 <div className="flex flex-col items-center gap-4 mb-8">
-                    <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-                    <h3 className="text-xs uppercase tracking-[0.3em] font-bold text-amber-500/70">The Great Debate / 辩论</h3>
-                    <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-                 </div>
-
-                 <div className="space-y-10">
-                    {session.messages.filter(m => m.round === 'critique').map((msg, idx) => {
-                      const advisor = getAdvisor(msg.advisorId);
-                      return (
-                        <motion.div 
-                          key={idx}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="flex gap-5 items-start max-w-3xl"
-                        >
-                          <Avatar className="w-12 h-12 border border-white/10 shrink-0">
-                            <AvatarImage src={advisor?.avatar} />
-                          </Avatar>
-                          <div className="space-y-2 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[11px] font-bold uppercase tracking-widest text-[#576b95]">{advisor?.name}</span>
-                              <span className="text-[9px] text-zinc-600 font-mono">
-                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </div>
-                            <div className="group relative">
-                              <div className="bg-[#2c2c2c] text-slate-100 p-4 rounded-2xl rounded-tl-none border border-white/5 shadow-lg max-w-[85%] md:max-w-[70%]">
-                                <p className="text-base font-serif italic mb-3 leading-relaxed">&quot;{msg.contentPrimary}&quot;</p>
-                                <Separator className="bg-white/10 my-2" />
-                                <p className="text-[11px] text-slate-400 font-light leading-relaxed">{msg.contentSecondary}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                    
-                    {loading && session.currentRound === 'critique' && (
-                       <div className="flex gap-4 items-center pl-16">
-                          <div className="flex gap-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-bounce" style={{ animationDelay: '300ms' }} />
-                          </div>
-                          <span className="text-[9px] uppercase tracking-widest text-zinc-600 font-bold">The council is dynamic...</span>
-                       </div>
-                    )}
-                 </div>
-              </div>
-            )}
-
-            {/* Synthesis Section */}
-            {session.messages.some(m => m.round === 'synthesis') && (
-              <div className="max-w-7xl mx-auto p-1 bg-white/5 border-t border-white/5">
-                {session.messages.filter(m => m.round === 'synthesis').map((msg, idx) => (
-                  <motion.div 
-                    key={idx}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#0c0c0e] p-12 border border-white/5 relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(245,158,11,0.5)]" />
-                    
-                    <div className="max-w-4xl mx-auto space-y-12">
-                      <div className="text-center space-y-2">
-                        <span className="text-[10px] uppercase tracking-[0.4em] text-amber-500 font-bold">The Great Synthesis / 总结</span>
-                        <h2 className="text-4xl font-serif text-white italic">The Council&apos;s Final Verdict</h2>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div className="space-y-6">
-                           <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-500 border-b border-white/10 pb-2">Collective Insight</h3>
-                           <div className="prose prose-invert prose-amber max-w-none">
-                              <p className="text-xl text-slate-100 font-serif leading-relaxed italic">
-                                {msg.contentPrimary}
-                              </p>
-                           </div>
-                        </div>
-                        <div className="space-y-6">
-                           <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-500 border-b border-white/10 pb-2">A Path Forward</h3>
-                           <div className="bg-white/[0.02] border border-white/5 p-8 rounded-2xl relative">
-                              <Sparkles className="absolute top-4 right-4 w-5 h-5 text-amber-500/30" />
-                              <p className="text-lg text-slate-300 font-light leading-relaxed tracking-wide">
-                                {msg.contentSecondary}
-                              </p>
-                           </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-center pt-8">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => setSession(null)}
-                          className="px-12 h-14 bg-transparent border-white/10 text-white hover:bg-white/5 font-bold uppercase tracking-[0.2em] text-[10px]"
-                        >
-                          Address New Inquiry
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
+              <div className="w-10 h-10 bg-zinc-300 rounded grid grid-cols-2 gap-0.5 p-0.5 shrink-0 overflow-hidden">
+                {ADVISORS.map(a => (
+                  <img key={a.id} src={a.avatar} className="w-full h-full object-cover" />
                 ))}
               </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start">
+                  <span className="font-medium text-sm truncate">History Masterminds</span>
+                  <span className="text-[10px] text-[#999]">14:24</span>
+                </div>
+                <p className="text-[12px] text-[#999] truncate">
+                  {messages.length > 0 ? messages[messages.length - 1].content : "No messages yet"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <div className="px-4 py-2 text-[10px] uppercase text-[#999] font-bold tracking-wider">Historical Masters</div>
+              {ADVISORS.map(a => (
+                <div
+                  key={a.id}
+                  className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-colors border-b border-black/5 ${selectedContact?.id === a.id ? 'bg-[#c6c5c4]' : 'hover:bg-[#d6d6d6]'}`}
+                  onClick={() => setSelectedContact(a)}
+                >
+                  <Avatar className="w-9 h-9 rounded">
+                    <AvatarImage src={a.avatar} className="rounded" />
+                    <AvatarFallback className="rounded bg-zinc-300">{a.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium">{a.name.split(' (')[0]}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </aside>
+
+      <main className="flex-1 flex flex-col bg-[#f5f5f5] relative">
+        {currentView === 'chats' ? (
+          <>
+            <AnimatePresence>
+              {showMentions && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute bottom-[200px] left-6 w-[200px] bg-white border border-[#e1e1e1] shadow-xl rounded-md z-[100] overflow-hidden"
+                >
+                  {ADVISORS.filter(a => activeAdvisorIds.includes(a.id)).map(a => (
+                    <button
+                      key={a.id}
+                      onClick={() => insertMention(a.shortName)}
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-[#f2f2f2] transition-colors"
+                    >
+                      <Avatar className="w-6 h-6 rounded">
+                        <AvatarImage src={a.avatar} className="rounded" />
+                      </Avatar>
+                      <span className="text-sm font-medium">{a.shortName}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <header className="h-[60px] border-b border-[#e1e1e1] flex items-center justify-between px-6 bg-[#f5f5f5] shrink-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-medium">History Masterminds ({activeAdvisorIds.length + 1})</h1>
+              </div>
+              <div className="flex items-center gap-6 text-[#666] relative">
+                <Phone className="w-5 h-5 cursor-pointer hover:text-black" />
+                <Video className="w-5 h-5 cursor-pointer hover:text-black" />
+                <div className="relative">
+                  <MoreHorizontal
+                    className={`w-6 h-6 cursor-pointer hover:text-black ${showSettings ? 'text-black' : ''}`}
+                    onClick={() => setShowSettings(!showSettings)}
+                  />
+
+                  <AnimatePresence>
+                    {showSettings && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowSettings(false)}
+                        />
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute right-0 top-10 w-[280px] bg-white border border-[#e1e1e1] shadow-xl rounded-md z-50 p-4"
+                        >
+                          <h3 className="text-[12px] font-bold text-[#999] uppercase tracking-wider mb-4">My Profile</h3>
+                          <div className="space-y-4 mb-6 pt-2">
+                            <div className="flex items-center gap-4">
+                              <Avatar className="w-12 h-12 rounded bg-zinc-100">
+                                <AvatarImage src={userAvatar} className="rounded" />
+                              </Avatar>
+                              <div className="flex-1 space-y-1">
+                                  <label className="text-[10px] uppercase text-[#999]">Lord Name</label>
+                                  <input
+                                    value={userName}
+                                    onChange={(e) => setUserName(e.target.value)}
+                                    className="w-full text-sm font-medium border-b border-[#f0f0f0] outline-none pb-1"
+                                    placeholder="Enter name..."
+                                  />
+                              </div>
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <label className="text-[10px] uppercase text-[#999]">Avatar URL</label>
+                              <input
+                                value={userAvatar}
+                                onChange={(e) => setUserAvatar(e.target.value)}
+                                className="w-full text-[10px] border-b border-[#f0f0f0] outline-none pb-1 font-mono"
+                                placeholder="Image URL..."
+                              />
+                            </div>
+                          </div>
+
+                          <h3 className="text-[12px] font-bold text-[#999] uppercase tracking-wider mb-4">Group Members</h3>
+                          <div className="space-y-3">
+                            {ADVISORS.map(a => (
+                              <div key={a.id} className="flex items-center gap-3">
+                                <Avatar className="w-8 h-8 rounded shrink-0">
+                                  <AvatarImage src={a.avatar} className="rounded" />
+                                </Avatar>
+                                <span className="text-sm flex-1">{a.name.split(' (')[0]}</span>
+                                <button
+                                  onClick={() => toggleAdvisor(a.id)}
+                                  className={`px-3 py-1 rounded text-[10px] transition-all border ${
+                                    activeAdvisorIds.includes(a.id)
+                                    ? 'bg-[#07c160] border-[#07c160] text-white'
+                                    : 'bg-[#f5f5f5] border-[#ddd] text-zinc-400 hover:border-zinc-400'
+                                  }`}
+                                >
+                                  {activeAdvisorIds.includes(a.id) ? 'Added' : 'Add'}
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-6 pt-4 border-t border-[#f0f0f0]">
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 text-[12px] h-8 p-0 px-2"
+                              onClick={() => {
+                                setMessages([]);
+                                setShowSettings(false);
+                              }}
+                            >
+                              Clear Chat History
+                            </Button>
+                          </div>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {messages.length === 0 && (
+                <div className="text-center py-10">
+                  <span className="bg-[#dadada] text-white text-[11px] px-2 py-1 rounded-sm">
+                    Welcome to "History Masterminds". Start your quest.
+                  </span>
+                </div>
+              )}
+
+              <AnimatePresence>
+                {messages.map((msg) => {
+                  const isUser = msg.senderId === 'user';
+                  return (
+                    <motion.div
+                      key={msg.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+                    >
+                      <Avatar className="w-10 h-10 rounded shrink-0">
+                        <AvatarImage src={isUser ? userAvatar : msg.avatar} className="rounded" />
+                        <AvatarFallback className="rounded bg-zinc-300">{msg.senderName[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className={`flex flex-col gap-1 max-w-[70%] ${isUser ? 'items-end' : 'items-start'}`}>
+                        {!isUser && (
+                          <span className="text-[11px] text-[#666] ml-1">{msg.senderName}</span>
+                        )}
+                        <div
+                          className={`relative p-3 rounded-md text-[14px] leading-relaxed shadow-sm ${
+                            isUser
+                              ? 'bg-[#95ec69] text-black rounded-tr-none'
+                              : 'bg-white text-black rounded-tl-none'
+                          }`}
+                        >
+                          <div className={`absolute top-0 w-0 h-0 border-[6px] border-transparent ${
+                            isUser
+                              ? 'border-t-[#95ec69] right-[-11px] border-l-[#95ec69]'
+                              : 'border-t-white left-[-11px] border-r-white'
+                          }`} />
+
+                          <p>{msg.content}</p>
+                          {msg.translation && (
+                            <div className="mt-2 text-[12px] opacity-60 border-t border-black/5 pt-2">
+                              {msg.translation}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+
+              {typingAdvisors.length > 0 && (
+                <div className="flex gap-3">
+                  <Avatar className="w-10 h-10 rounded shrink-0 grayscale opacity-50">
+                    <AvatarFallback className="rounded bg-zinc-200">...</AvatarFallback>
+                  </Avatar>
+                  <div className="bg-[#dbdbdb] px-3 py-2 rounded-md flex gap-1 items-center mt-4">
+                    <div className="w-1.5 h-1.5 bg-[#888] rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <div className="w-1.5 h-1.5 bg-[#888] rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <div className="w-1.5 h-1.5 bg-[#888] rounded-full animate-bounce" />
+                  </div>
+                </div>
+              )}
+
+              <div ref={scrollRef} />
+            </div>
+
+            <footer className="h-[200px] border-t border-[#e1e1e1] bg-white flex flex-col relative">
+              <AnimatePresence>
+                {showEmoji && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowEmoji(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute bottom-12 left-6 bg-white border border-[#e1e1e1] p-3 shadow-xl rounded-md z-50 w-[240px]"
+                    >
+                      <div className="grid grid-cols-4 gap-2">
+                        {COMMON_EMOJIS.map(e => (
+                          <button
+                            key={e}
+                            onClick={() => { setInput(prev => prev + e); setShowEmoji(false); }}
+                            className="text-2xl hover:bg-zinc-100 p-2 rounded transition-colors"
+                          >
+                            {e}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+
+              <div className="h-10 flex items-center px-6 gap-6 text-[#666]">
+                <Smile className={`w-5 h-5 cursor-pointer hover:text-black ${showEmoji ? 'text-black' : ''}`} onClick={() => setShowEmoji(!showEmoji)} />
+                <ImageIcon className="w-5 h-5 cursor-pointer hover:text-black" />
+                <Search className="w-5 h-5 cursor-pointer hover:text-black" />
+                <Plus className="w-5 h-5 cursor-pointer hover:text-black" />
+              </div>
+              <div className="flex-1 p-6 pt-0">
+                <textarea
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  className="w-full h-full resize-none border-none outline-none text-[15px] placeholder:text-[#ccc]"
+                  placeholder="Type a message... (Use @ to mention)"
+                />
+              </div>
+              <div className="h-12 px-6 flex justify-end items-start pb-4">
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!input.trim() || loading}
+                  className="bg-[#f5f5f5] hover:bg-[#e1e1e1] text-[#999] hover:text-[#07c160] h-8 px-8 border border-[#e1e1e1] font-normal rounded-sm"
+                >
+                  Send (S)
+                </Button>
+              </div>
+            </footer>
+          </>
+        ) : currentView === 'moments' ? (
+          <div className="flex-1 overflow-y-auto bg-white">
+            <header className="h-[60px] border-b border-[#e1e1e1] flex items-center px-6 bg-[#f5f5f5] sticky top-0 z-10 shrink-0">
+               <h1 className="text-lg font-medium">Moments</h1>
+            </header>
+            <div className="max-w-[600px] mx-auto py-10 px-6 space-y-12">
+               {moments.map(moment => {
+                 const advisor = ADVISORS.find(a => a.id === moment.authorId);
+                 return (
+                   <div key={moment.id} className="flex gap-4 border-b border-[#f0f0f0] pb-8">
+                     <Avatar className="w-10 h-10 rounded shrink-0">
+                       <AvatarImage src={advisor?.avatar} className="rounded" />
+                     </Avatar>
+                     <div className="flex-1 space-y-2">
+                       <h3 className="text-[#576b95] font-bold text-[14px]">{advisor?.name}</h3>
+                       <p className="text-[15px] leading-relaxed text-black">{moment.content}</p>
+                       <div className="flex justify-between items-center pt-2">
+                         <span className="text-[11px] text-[#999]">
+                           {new Date(moment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                         </span>
+                         <div className="bg-[#f7f7f7] p-1 rounded cursor-pointer hover:bg-[#e1e1e1]">
+                           <MoreHorizontal className="w-4 h-4 text-[#576b95]" />
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 );
+               })}
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex overflow-hidden">
+            {selectedContact ? (
+              <motion.div
+                key={selectedContact.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex-1 flex flex-col items-center pt-[100px] bg-[#f5f5f5]"
+              >
+                <div className="w-full max-w-[400px] flex flex-col items-center">
+                  <div className="flex items-start w-full gap-5 border-b border-[#e1e1e1] pb-10 mb-8">
+                     <Avatar className="w-[64px] h-[64px] rounded">
+                        <AvatarImage src={selectedContact.avatar} className="rounded" />
+                        <AvatarFallback className="rounded bg-zinc-300">{selectedContact.name[0]}</AvatarFallback>
+                     </Avatar>
+                     <div className="flex-1">
+                        <h2 className="text-xl font-bold mb-1">{selectedContact.name}</h2>
+                        <p className="text-sm text-[#999] mb-4">Master ID: {selectedContact.id}</p>
+                        <div className="flex flex-col gap-2">
+                           <div className="text-[13px]"><span className="text-[#999] mr-4">Title</span> {selectedContact.title}</div>
+                           <div className="text-[13px]"><span className="text-[#999] mr-4">Region</span> {selectedContact.id === 'marcus-aurelius' ? 'Rome' : 'China'}</div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="w-full px-6 text-sm text-center italic text-[#666] mb-10 leading-relaxed">
+                    "{selectedContact.bio}"
+                  </div>
+
+                  <Button
+                    className="bg-[#07c160] hover:bg-[#06ae56] text-white px-10 py-5 h-auto text-[15px] font-medium rounded-sm"
+                    onClick={() => setCurrentView('chats')}
+                  >
+                    Messages
+                  </Button>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center bg-[#f5f5f5]">
+                 <Users className="w-24 h-24 text-[#e1e1e1]" />
+              </div>
             )}
-            
-            <div ref={scrollRef} className="h-1" />
           </div>
         )}
       </main>
-
-      {/* Floating Synthesis Trigger Footer */}
-      {session && session.currentRound === 'synthesis' && !loading && !session.messages.some(m => m.round === 'synthesis') && (
-         <footer className="fixed bottom-0 left-0 w-full z-50 bg-black/80 backdrop-blur-xl border-t border-white/10 p-6 flex flex-col items-center">
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-            <div className="max-w-xl text-center space-y-4">
-              <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">All viewpoints have been explored.</p>
-              <button 
-                onClick={() => processNextStep('synthesis', session)}
-                className="group relative px-12 py-4 bg-amber-600 text-zinc-950 font-bold uppercase tracking-[0.3em] text-[10px] hover:bg-amber-500 transition-all hover:scale-105 rounded-full overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500" />
-                <span className="relative flex items-center gap-3">
-                  <Sparkles className="w-4 h-4" />
-                  Generate Final Verdict
-                </span>
-              </button>
-            </div>
-         </footer>
-      )}
-
-      {/* Visual Accents */}
-      <div className="fixed bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent pointer-events-none" />
     </div>
   );
 }
