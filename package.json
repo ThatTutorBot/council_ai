@@ -2,7 +2,11 @@
   "name": "react-example",
   "private": true,
   "version": "0.0.0",
+  "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "concurrently -n api,web \"npm:dev:api\" \"npm:dev:web\"",
     "dev:web": "vite --port=3000 --host=0.0.0.0",
@@ -16,8 +20,8 @@
   "dependencies": {
     "@base-ui/react": "^1.4.1",
     "@fontsource-variable/geist": "^5.2.8",
-    "@google/genai": "^1.29.0",
     "@honeyhive/logger": "^0.1.13",
+    "@openai/agents": "^0.8.5",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "class-variance-authority": "^0.7.1",
@@ -33,7 +37,8 @@
     "shadcn": "^4.5.0",
     "tailwind-merge": "^3.5.0",
     "tw-animate-css": "^1.4.0",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "zod": "^4.4.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

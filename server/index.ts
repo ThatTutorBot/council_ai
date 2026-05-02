@@ -1,24 +1,34 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { GoogleGenAI } from '@google/genai';
+import type { z } from 'zod';
+import { run, MaxTurnsExceededError } from '@openai/agents';
 import { start as startHoneyHiveSession, log as logHoneyHiveEvent } from '@honeyhive/logger';
 import { ADVISORS } from '../src/types';
 import type { AdvisorPersona, ChatMessage } from '../src/types';
+import { createAdvisorAgents, createCoordinatorAgent } from './agents/councilAgents';
+import {
+  bilingualResponseSchema,
+  decideResponseSchema,
+  type BilingualResponse,
+  type DecideResponse,
+} from './agents/schemas';
+import { configureOpenAIProviderFromEnv } from './llm/configureOpenAIProvider';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();
 
-const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-  throw new Error('Missing GEMINI_API_KEY in environment.');
-}
+const llmEndpoint = configureOpenAIProviderFromEnv();
 
-const ai = new GoogleGenAI({ apiKey });
+const fastModel = process.env.OPENAI_MODEL_FAST ?? process.env.OPENAI_DEFAULT_MODEL ?? 'gpt-4.1-mini';
+const decideModel =
+  process.env.OPENAI_MODEL_DECIDE ?? process.env.OPENAI_DEFAULT_MODEL ?? fastModel;
+
+const advisorAgents = createAdvisorAgents(fastModel);
+const coordinatorAgent = createCoordinatorAgent(decideModel);
+
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
-const fastModel = process.env.GEMINI_MODEL_FAST ?? 'gemini-3-flash-preview';
-const decideModel = process.env.GEMINI_MODEL_DECIDE ?? fastModel;
 const honeyHiveApiKey = process.env.HONEYHIVE_API_KEY;
 const honeyHiveProject = process.env.HONEYHIVE_PROJECT ?? 'Great Council';
 const honeyHiveSource = process.env.HONEYHIVE_SOURCE ?? process.env.NODE_ENV ?? 'dev';
@@ -38,17 +48,29 @@ function sanitizeText(input: unknown): string {
   return typeof input === 'string' ? input.trim().slice(0, 3000) : '';
 }
 
-function parseJsonText(text: string): Record<string, unknown> {
-  const cleaned = text.trim().replace(/^```json/, '').replace(/```$/, '');
-  return JSON.parse(cleaned) as Record<string, unknown>;
-}
-
 function advisorById(advisorId: string): AdvisorPersona {
   const advisor = ADVISORS.find((a) => a.id === advisorId);
   if (!advisor) {
     throw new Error(`Unknown advisor id: ${advisorId}`);
   }
   return advisor;
+}
+
+function formatHistoryForPrompt(history: ChatMessage[]): string {
+  return history
+    .map(
+      (m) =>
+        `${m.senderName}: ${sanitizeText(m.content)}${m.translation ? ` (${sanitizeText(m.translation)})` : ''}`,
+    )
+    .join('\n\n');
+}
+
+function parseStructuredOutput<T>(schema: z.ZodType<T>, raw: unknown, label: string): T {
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) {
+    throw new Error(`Invalid ${label} output from model`);
+  }
+  return parsed.data;
 }
 
 async function trackModelCall(params: {
@@ -108,56 +130,108 @@ async function generateBilingualResponse(
     sessionId?: string;
     eventName?: string;
   },
-): Promise<{ content: string; translation: string }> {
-  const model = fastModel;
-  const historyStr = history
-    .map((m) => `${m.senderName}: ${sanitizeText(m.content)}${m.translation ? ` (${sanitizeText(m.translation)})` : ''}`)
-    .join('\n\n');
-  const prompt = `
-    ${advisor.personaInstructions}
+): Promise<BilingualResponse> {
+  const agent = advisorAgents.get(advisor.id);
+  if (!agent) {
+    throw new Error(`No agent configured for advisor: ${advisor.id}`);
+  }
 
-    ACTUAL CHAT HISTORY:
-    ${historyStr}
+  const userTurn = `ACTUAL CHAT HISTORY:
 
-    You are responding to the latest message in the chat.
-    Stay in character. Be concise as it is a mobile chat.
+${formatHistoryForPrompt(history)}
 
-    RESPONSE FORMAT (strictly JSON):
-    {
-      "content": "Your response in ${advisor.primaryLang === 'zh' ? 'Chinese' : 'English'}",
-      "translation": "A brief ${advisor.secondaryLang === 'zh' ? 'Chinese' : 'English'} translation/summary"
-    }
-  `;
+You are responding to the latest message in the chat.`;
 
   const startedAt = Date.now();
-  const result = await ai.models.generateContent({
-    model,
-    contents: prompt,
-    config: { responseMimeType: 'application/json' },
-  });
-  const raw = parseJsonText(result.text ?? '{}');
-  const response = {
-    content: sanitizeText(raw.content),
-    translation: sanitizeText(raw.translation),
-  };
-  await trackModelCall({
-    sessionId: traceContext?.sessionId,
-    eventName: traceContext?.eventName ?? 'chat.advisor.response',
-    provider: 'google',
-    model,
-    inputs: {
-      advisorId: advisor.id,
-      history,
-    },
-    outputs: response,
-    durationMs: Date.now() - startedAt,
-  });
+  try {
+    const result = await run(agent, userTurn, { maxTurns: 10 });
+    const structured = parseStructuredOutput(
+      bilingualResponseSchema,
+      result.finalOutput,
+      'advisor response',
+    );
+    const response: BilingualResponse = {
+      content: sanitizeText(structured.content),
+      translation: sanitizeText(structured.translation),
+    };
 
-  return response;
+    await trackModelCall({
+      sessionId: traceContext?.sessionId,
+      eventName: traceContext?.eventName ?? 'chat.advisor.response',
+      provider: 'openai',
+      model: fastModel,
+      inputs: {
+        advisorId: advisor.id,
+        history,
+      },
+      outputs: response,
+      durationMs: Date.now() - startedAt,
+    });
+
+    return response;
+  } catch (error) {
+    if (error instanceof MaxTurnsExceededError) {
+      throw new Error('Advisor response exceeded maximum turns; try again.');
+    }
+    throw error;
+  }
+}
+
+async function runDecide(
+  history: ChatMessage[],
+  activeAdvisorIds: string[],
+  sessionId: string | undefined,
+): Promise<string[]> {
+  const advisorContext = ADVISORS.filter((a) => activeAdvisorIds.includes(a.id))
+    .map((a) => `${a.id} (${a.shortName}: ${a.title})`)
+    .join(', ');
+
+  const userTurn = `ADVISORS CURRENTLY IN THE GROUP: ${advisorContext}
+
+CONVERSATION CONTEXT (last messages):
+${history.map((m) => `${m.senderName}: ${sanitizeText(m.content)}`).join('\n')}
+
+Decide which advisor(s) should respond next.
+If the user spoke last, someone MUST respond. Usually pick 1 or 2 ids from the active list only.`;
+
+  const startedAt = Date.now();
+  try {
+    const result = await run(coordinatorAgent, userTurn, { maxTurns: 10 });
+    const structured = parseStructuredOutput(decideResponseSchema, result.finalOutput, 'decide');
+    const parsed: DecideResponse = { ids: structured.ids ?? [] };
+
+    let ids = (parsed.ids ?? []).filter((id) => activeAdvisorIds.includes(id));
+    if (ids.length === 0 && activeAdvisorIds.length > 0 && history.at(-1)?.senderId === 'user') {
+      ids = [activeAdvisorIds[Math.floor(Math.random() * activeAdvisorIds.length)]];
+    }
+
+    await trackModelCall({
+      sessionId,
+      eventName: 'chat.decide.responders',
+      provider: 'openai',
+      model: decideModel,
+      inputs: {
+        history,
+        activeAdvisorIds,
+      },
+      outputs: { ids },
+      durationMs: Date.now() - startedAt,
+    });
+
+    return ids;
+  } catch (error) {
+    if (error instanceof MaxTurnsExceededError) {
+      throw new Error('Coordinator exceeded maximum turns; try again.');
+    }
+    throw error;
+  }
 }
 
 app.get('/healthz', (_req, res) => {
-  res.status(200).json({ ok: true });
+  res.status(200).json({
+    ok: true,
+    ...(llmEndpoint.baseURL ? { llmProxy: llmEndpoint.baseURL } : {}),
+  });
 });
 
 app.post('/api/chat/respond', async (req, res) => {
@@ -195,48 +269,7 @@ app.post('/api/chat/decide', async (req, res) => {
     const activeAdvisorIds = ((req.body?.activeAdvisorIds ?? []) as string[]).filter((id) =>
       ADVISORS.some((a) => a.id === id),
     );
-    const advisorContext = ADVISORS.filter((a) => activeAdvisorIds.includes(a.id))
-      .map((a) => `${a.id} (${a.shortName}: ${a.title})`)
-      .join(', ');
-    const prompt = `
-      You are a group chat coordinator.
-      ADVISORS CURRENTLY IN THE GROUP: ${advisorContext}
-
-      CONVERSATION CONTEXT (last messages):
-      ${history.map((m) => `${m.senderName}: ${sanitizeText(m.content)}`).join('\n')}
-
-      Decide which advisor(s) should respond next.
-      If user spoke last, someone MUST respond. Usually pick 1 or 2 IDs.
-
-      Output JSON only:
-      {
-        "ids": ["cao-cao", "zhuge-liang"]
-      }
-    `;
-    const startedAt = Date.now();
-    const result = await ai.models.generateContent({
-      model: decideModel,
-      contents: prompt,
-      config: { responseMimeType: 'application/json' },
-    });
-    const text = result.text ?? '{"ids": []}';
-    const parsed = JSON.parse(text) as { ids?: string[] };
-    let ids = (parsed.ids ?? []).filter((id) => activeAdvisorIds.includes(id));
-    if (ids.length === 0 && activeAdvisorIds.length > 0 && history.at(-1)?.senderId === 'user') {
-      ids = [activeAdvisorIds[Math.floor(Math.random() * activeAdvisorIds.length)]];
-    }
-    await trackModelCall({
-      sessionId,
-      eventName: 'chat.decide.responders',
-      provider: 'google',
-      model: decideModel,
-      inputs: {
-        history,
-        activeAdvisorIds,
-      },
-      outputs: { ids },
-      durationMs: Date.now() - startedAt,
-    });
+    const ids = await runDecide(history, activeAdvisorIds, sessionId);
     res.status(200).json({ ids });
   } catch (error) {
     res.status(400).json({ error: error instanceof Error ? error.message : 'Request failed' });
