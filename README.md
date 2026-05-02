@@ -1,6 +1,10 @@
 # Council AI
 
-A **group-chat style web app** where you talk with several **AI advisors** at once—each with a fixed persona, bilingual replies (Chinese / English depending on the character), and a coordinator model that picks who speaks next. The UI is inspired by mobile messaging; the backend uses the **OpenAI Agents SDK** (TypeScript) behind a small Express API.
+A **group-chat style web app** where you talk with several **AI advisors** at once—each with a fixed persona, bilingual replies (Chinese / English depending on the character), and a coordinator model that picks who speaks next. The UI is inspired by mobile messaging.
+
+The **backend** is Express + TypeScript. LLM calls can use **OpenAI** (OpenAI Agents SDK), **Google Gemini**, or **Anthropic Claude** via env-based routing—**or** point the OpenAI stack at **LiteLLM** for a single proxy.
+
+**Docs index:** [docs/README.md](docs/README.md)
 
 ---
 
@@ -10,7 +14,8 @@ A **group-chat style web app** where you talk with several **AI advisors** at on
 - **Coordinator** — After your message, the backend decides which advisor(s) should reply (with a fallback if the model returns nothing valid).
 - **Bilingual messages** — Each advisor reply includes primary text plus a short translation, matching persona language settings.
 - **Client-side chat UX** — Scrollable thread, mentions, optional HoneyHive session ids for observability.
-- **LiteLLM-ready** — Use [LiteLLM](https://github.com/BerriAI/litellm) (or any OpenAI-compatible proxy) so you can route to many providers via model strings, without adding per-vendor SDKs in Node.
+- **Multi-provider** — Set **`LLM_VENDOR_ADVISOR`** / **`LLM_VENDOR_DECIDE`** (or **`LLM_VENDOR`**) to `openai`, `gemini`, or `anthropic`; use each vendor’s API key. See **[docs/native-providers.md](docs/native-providers.md)**.
+- **Optional LiteLLM** — When the **openai** path is used, **`LITELLM_BASE_URL`** can route to a [LiteLLM](https://github.com/BerriAI/litellm) proxy. See **[docs/litellm-setup.md](docs/litellm-setup.md)**.
 
 ---
 
@@ -18,22 +23,22 @@ A **group-chat style web app** where you talk with several **AI advisors** at on
 
 | Layer | Stack |
 |--------|--------|
-| Frontend | **React 19**, **Vite 6**, **Tailwind CSS**, **Motion**, UI primitives under `components/` |
-| Backend | **Express**, **TypeScript**, **`@openai/agents`** (`Agent` per advisor + coordinator), **`zod`** for structured outputs |
-| LLM transport | Default **OpenAI API**, or **`LITELLM_BASE_URL` / `OPENAI_BASE_URL`** for a compatible proxy |
+| Frontend | **React 19**, **Vite 6**, **Tailwind CSS**, **Motion**, UI under `components/` |
+| Backend | **Express**, **TypeScript** — vendor routing in **`server/index.ts`** |
+| LLM (OpenAI path) | **`@openai/agents`**, **`zod`** structured outputs; optional **LiteLLM** via `LITELLM_BASE_URL` |
+| LLM (Gemini / Claude) | **`@google/genai`**, **`@anthropic-ai/sdk`** when vendors are `gemini` / `anthropic` |
 
 ```
-Browser (Vite dev server, port 3000)
-    → proxies /api → Express (port 3001)
-          → OpenAI-compatible endpoint (OpenAI or LiteLLM)
+Browser (Vite :3000)  →  /api proxy  →  Express (:3001)
+                              →  OpenAI API | Gemini API | Anthropic API  (or LiteLLM → upstream)
 ```
 
 ---
 
 ## Prerequisites
 
-- **Node.js 22+** (`@openai/agents` and `package.json` `engines`)
-- An **OpenAI API key**, or a **LiteLLM proxy** (or similar) with a key your proxy expects
+- **Node.js 22+** (`package.json` `engines`; required by `@openai/agents`)
+- API keys for whichever vendors you select — see **[docs/native-providers.md](docs/native-providers.md)**
 
 ---
 
@@ -42,31 +47,42 @@ Browser (Vite dev server, port 3000)
 ```bash
 npm install
 cp .env.example .env.local
-# Edit .env.local — set OPENAI_API_KEY (and optional LITELLM_BASE_URL / models)
+# Edit .env.local — LLM_VENDOR_* and keys; see docs/native-providers.md (and docs/litellm-setup.md if using LiteLLM)
 npm run dev
 ```
 
 - **Web UI:** http://localhost:3000  
 - **API:** http://localhost:3001 (or `PORT` from env)
 
-`npm run dev` runs the API and the Vite dev server together (`concurrently`). The Vite config proxies `/api` to the backend so the browser can call `/api/chat/*` on the same origin.
+`npm run dev` runs the API and Vite together; Vite proxies `/api` to the backend.
 
 ---
 
 ## Environment variables
 
-See **`.env.example`** for the full list. Common entries:
+See **`.env.example`** and **[docs/README.md](docs/README.md)**.
+
+### Native vendors
 
 | Variable | Purpose |
 |----------|---------|
-| `OPENAI_API_KEY` | Required. Sent only from the server to your LLM endpoint. |
+| `LLM_VENDOR_ADVISOR` | `openai` \| `gemini` \| `anthropic` — advisor replies (default `openai`). |
+| `LLM_VENDOR_DECIDE` | Same — coordinator (default `openai`). |
+| `LLM_VENDOR` | Sets **both** if the per-route vars are unset. |
+| `OPENAI_API_KEY` | When **openai** is used (direct OpenAI or LiteLLM token if `LITELLM_BASE_URL` is set). |
+| `GEMINI_API_KEY` | When **gemini** is used. |
+| `ANTHROPIC_API_KEY` | When **anthropic** is used. |
+| `OPENAI_MODEL_*`, `GEMINI_MODEL_*`, `ANTHROPIC_MODEL_*` | Model IDs per route — see `.env.example`. |
+
+### LiteLLM (optional; **openai** vendor only)
+
+| Variable | Purpose |
+|----------|---------|
+| `LITELLM_API_KEY` | Proxy bearer token (preferred with LiteLLM). |
+| `LITELLM_BASE_URL` | e.g. `http://127.0.0.1:4000/v1` |
+| `LITELLM_USE_RESPONSES` | See **docs/litellm-setup.md** |
 | `PORT` | API port (default `3001`). |
-| `OPENAI_MODEL_FAST` | Model for advisor replies (default `gpt-4.1-mini` in code if unset). |
-| `OPENAI_MODEL_DECIDE` | Model for the coordinator (defaults follow fast / `OPENAI_DEFAULT_MODEL`). |
-| `LITELLM_BASE_URL` | Optional. OpenAI-compatible base URL (e.g. `http://127.0.0.1:4000/v1`). |
-| `OPENAI_BASE_URL` | Optional alias for the same `baseURL`. |
-| `LITELLM_USE_RESPONSES` | Set `true` only if your proxy supports OpenAI **Responses** API; otherwise the app uses Chat Completions against the proxy. |
-| `HONEYHIVE_*` | Optional LLM tracing via HoneyHive. |
+| `HONEYHIVE_*` | Optional LLM tracing. |
 
 ---
 
@@ -77,8 +93,8 @@ See **`.env.example`** for the full list. Common entries:
 | `npm run dev` | API + web with hot reload |
 | `npm run dev:api` | API only (`tsx watch server/index.ts`) |
 | `npm run dev:web` | Vite only (port 3000) |
-| `npm run build` | Production build of the frontend (`dist/`) |
-| `npm run start` | Run API only (`tsx server/index.ts`) — serve `dist/` separately or use a process manager |
+| `npm run build` | Production build (`dist/`) |
+| `npm run start` | API only (`tsx server/index.ts`) |
 | `npm run lint` | Typecheck (`tsc --noEmit`) |
 | `npm run preview` | Preview Vite production build |
 
@@ -86,34 +102,31 @@ See **`.env.example`** for the full list. Common entries:
 
 ## HTTP API
 
-All routes accept JSON. Rate limiting applies under `/api`.
+All routes use JSON. Rate limiting applies under `/api`.
 
 | Method | Path | Description |
-|--------|------|--------------|
-| `GET` | `/healthz` | Liveness; includes `llmProxy` when a proxy base URL is configured |
-| `POST` | `/api/chat/respond` | Body: `advisorId`, `history`, optional `sessionId` → `{ message, sessionId? }` |
-| `POST` | `/api/chat/decide` | Body: `history`, `activeAdvisorIds`, optional `sessionId` → `{ ids: string[] }` |
+|--------|------|-------------|
+| `GET` | `/healthz` | Liveness; **`llm`**: `{ advisor, decide }` vendors; **`llmProxy`**: set when LiteLLM URL configured |
+| `POST` | `/api/chat/respond` | `advisorId`, `history`, optional `sessionId` → `{ message, sessionId? }` |
+| `POST` | `/api/chat/decide` | `history`, `activeAdvisorIds`, optional `sessionId` → `{ ids }` |
 
-Errors: **`400`** with `{ "error": "..." }` for typical failures.
+Errors: **`400`** with `{ "error": "..." }`.
 
 ---
 
-## LiteLLM (multi-provider routing)
+## LiteLLM (optional proxy for the OpenAI path)
 
-1. Run a [LiteLLM proxy](https://docs.litellm.ai/docs/proxy/quick_start) (or another OpenAI-compatible gateway).
-2. Set **`LITELLM_BASE_URL`** to your proxy’s OpenAI-compatible root (often ends with `/v1`).
-3. Set **`OPENAI_API_KEY`** to whatever that proxy expects (virtual key, master key, etc.).
-4. Set **`OPENAI_MODEL_FAST`** / **`OPENAI_MODEL_DECIDE`** to models your proxy understands (e.g. `gemini/gemini-2.0-flash`, `openai/gpt-4o-mini`).
+Step-by-step: **[docs/litellm-setup.md](docs/litellm-setup.md)**.
 
-More detail is in **`.trellis/spec/backend/llm-configuration.md`** if you use this repo’s Trellis docs.
+Contributor reference: [`.trellis/spec/backend/llm-configuration.md`](.trellis/spec/backend/llm-configuration.md).
 
 ---
 
 ## Security and privacy
 
-- **API keys never go to the browser** — only the Node server reads `OPENAI_API_KEY` and proxy settings.
-- Use **HTTPS** and lock down **`CORS`** / deployment URLs in production.
-- Do not commit **`.env.local`** (keep it gitignored).
+- **API keys stay on the server** — `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, LiteLLM tokens, etc. are read only in Node; never expose them to the browser.
+- Use **HTTPS** and sensible **CORS** in production.
+- Do not commit **`.env.local`**.
 
 ---
 
@@ -121,21 +134,25 @@ More detail is in **`.trellis/spec/backend/llm-configuration.md`** if you use th
 
 ```
 council_ai/
-├── src/                 # React app, types, chat service
+├── src/                   # React app, types, chat service
 ├── server/
-│   ├── index.ts         # Express routes
-│   ├── llm/             # OpenAI provider / LiteLLM base URL wiring
-│   └── agents/          # Advisor + coordinator agents, zod schemas
-├── public/avatars/      # Advisor images
+│   ├── index.ts           # Express, vendor dispatch, HoneyHive
+│   ├── llm/               # configureOpenAIProvider, vendors, models, Gemini/Anthropic natives
+│   └── agents/            # OpenAI Agents + zod schemas
+├── public/avatars/
+├── docs/
+│   ├── README.md          # Doc index
+│   ├── native-providers.md
+│   └── litellm-setup.md
 ├── .env.example
-└── .trellis/            # Optional Trellis task/spec tooling for contributors
+└── .trellis/              # Trellis task/spec tooling (contributors)
 ```
 
 ---
 
 ## Contributing
 
-Issues and pull requests are welcome. Run **`npm run lint`** before submitting. If you change API shapes, update the client (`src/services/chatService.ts`) and this README.
+Issues and pull requests are welcome. Run **`npm run lint`** before submitting. If you change API shapes, update **`src/services/chatService.ts`** and this README / **`docs/`** as needed.
 
 ---
 

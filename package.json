@@ -18,8 +18,10 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.92.0",
     "@base-ui/react": "^1.4.1",
     "@fontsource-variable/geist": "^5.2.8",
+    "@google/genai": "^1.51.0",
     "@honeyhive/logger": "^0.1.13",
     "@openai/agents": "^0.8.5",
     "@tailwindcss/vite": "^4.1.14",
