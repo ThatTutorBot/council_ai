@@ -139,7 +139,7 @@ council_ai/
 │   ├── index.ts           # Express, vendor dispatch, HoneyHive
 │   ├── llm/               # configureOpenAIProvider, vendors, models, Gemini/Anthropic natives
 │   └── agents/            # OpenAI Agents + zod schemas
-├── public/avatars/
+├── public/                  # Static assets (optional; advisor portraits use Wikimedia URLs in code)
 ├── docs/
 │   ├── README.md          # Doc index
 │   ├── native-providers.md

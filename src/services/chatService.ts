@@ -3,9 +3,11 @@ import { ChatMessage } from '../types';
 type DecideResponse = { ids: string[] };
 type AdvisorResponse = { message: ChatMessage; sessionId?: string };
 
+/**
+ * Stateless API client. Pass `sessionId` from the active {@link ChatGroup} for trace continuity;
+ * use the returned `sessionId` from advisor responses to update the group.
+ */
 export class ChatService {
-  private static sessionId?: string;
-
   private static async callApi<T>(route: string, payload: unknown): Promise<T> {
     const response = await fetch(`/api/chat/${route}`, {
       method: 'POST',
@@ -27,23 +29,31 @@ export class ChatService {
     return response.json() as Promise<T>;
   }
 
-  static async getAdvisorResponse(advisorId: string, history: ChatMessage[]): Promise<ChatMessage> {
+  static async getAdvisorResponse(
+    advisorId: string,
+    history: ChatMessage[],
+    sessionId?: string,
+  ): Promise<{ message: ChatMessage; sessionId?: string }> {
     const response = await this.callApi<AdvisorResponse>('respond', {
       advisorId,
       history,
-      sessionId: this.sessionId,
+      sessionId,
     });
-    if (response.sessionId) {
-      this.sessionId = response.sessionId;
-    }
-    return response.message;
+    return {
+      message: response.message,
+      sessionId: response.sessionId,
+    };
   }
 
-  static async decideWhoResponds(history: ChatMessage[], activeAdvisorIds: string[]): Promise<string[]> {
+  static async decideWhoResponds(
+    history: ChatMessage[],
+    activeAdvisorIds: string[],
+    sessionId?: string,
+  ): Promise<string[]> {
     const response = await this.callApi<DecideResponse>('decide', {
       history,
       activeAdvisorIds,
-      sessionId: this.sessionId,
+      sessionId,
     });
     return response.ids ?? [];
   }
