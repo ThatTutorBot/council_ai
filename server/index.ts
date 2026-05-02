@@ -336,6 +336,7 @@ app.post('/api/chat/respond', async (req, res) => {
       ...(sessionId ? { sessionId } : {}),
     });
   } catch (error) {
+    console.error('[POST /api/chat/respond]', error);
     res.status(400).json({ error: error instanceof Error ? error.message : 'Request failed' });
   }
 });
@@ -350,6 +351,7 @@ app.post('/api/chat/decide', async (req, res) => {
     const ids = await runDecide(history, activeAdvisorIds, sessionId);
     res.status(200).json({ ids });
   } catch (error) {
+    console.error('[POST /api/chat/decide]', error);
     res.status(400).json({ error: error instanceof Error ? error.message : 'Request failed' });
   }
 });

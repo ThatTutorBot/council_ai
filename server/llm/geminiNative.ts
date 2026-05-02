@@ -9,7 +9,9 @@ function sanitizeText(input: unknown): string {
 }
 
 function parseJsonText(text: string): Record<string, unknown> {
-  const cleaned = text.trim().replace(/^```json/, '').replace(/```$/, '');
+  let cleaned = text.trim();
+  cleaned = cleaned.replace(/^```(?:json)?\s*/i, '');
+  cleaned = cleaned.replace(/\s*```\s*$/g, '');
   return JSON.parse(cleaned) as Record<string, unknown>;
 }
 
@@ -50,7 +52,14 @@ export async function geminiGenerateBilingual(
     contents: prompt,
     config: { responseMimeType: 'application/json' },
   });
-  const raw = parseJsonText(result.text ?? '{}');
+  let raw: Record<string, unknown>;
+  try {
+    raw = parseJsonText(result.text ?? '{}');
+  } catch {
+    throw new Error(
+      'Advisor reply was not valid JSON. Retry, or set GEMINI_MODEL_FAST / GEMINI_MODEL to a JSON-capable model.',
+    );
+  }
   const response: BilingualResponse = {
     content: sanitizeText(raw.content),
     translation: sanitizeText(raw.translation),
@@ -104,8 +113,17 @@ export async function geminiDecide(
     config: { responseMimeType: 'application/json' },
   });
   const text = result.text ?? '{"ids": []}';
-  const parsed = JSON.parse(text) as { ids?: string[] };
-  let ids = (parsed.ids ?? []).filter((id) => activeAdvisorIds.includes(id));
+  let raw: Record<string, unknown>;
+  try {
+    raw = parseJsonText(text);
+  } catch {
+    raw = { ids: [] };
+  }
+  const idsFromModel = raw.ids;
+  const asList = Array.isArray(idsFromModel)
+    ? idsFromModel.filter((x): x is string => typeof x === 'string')
+    : [];
+  let ids = asList.filter((id) => activeAdvisorIds.includes(id));
   if (ids.length === 0 && activeAdvisorIds.length > 0 && history.at(-1)?.senderId === 'user') {
     ids = [activeAdvisorIds[Math.floor(Math.random() * activeAdvisorIds.length)]];
   }

@@ -13,13 +13,16 @@ export class ChatService {
       body: JSON.stringify(payload),
     });
     if (!response.ok) {
-      const fallback = `Chat API request failed (${response.status}).`;
+      let message = `Chat API request failed (${response.status}).`;
       try {
-        const body = await response.json();
-        throw new Error(body?.error ?? fallback);
+        const body = (await response.json()) as { error?: unknown };
+        if (typeof body?.error === 'string' && body.error.length > 0) {
+          message = body.error;
+        }
       } catch {
-        throw new Error(fallback);
+        /* non-JSON error body */
       }
+      throw new Error(message);
     }
     return response.json() as Promise<T>;
   }

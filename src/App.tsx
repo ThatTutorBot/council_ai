@@ -33,6 +33,7 @@ export default function App() {
   const [userAvatar, setUserAvatar] = useState('https://api.dicebear.com/7.x/initials/svg?seed=Salin');
   const [showEmoji, setShowEmoji] = useState(false);
   const [showMentions, setShowMentions] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'chats' | 'contacts' | 'moments'>('chats');
   const [selectedContact, setSelectedContact] = useState<AdvisorPersona | null>(null);
   const [moments, setMoments] = useState<{ id: string, authorId: string, content: string, timestamp: number }[]>([]);
@@ -72,6 +73,10 @@ export default function App() {
 
   const handleSendMessage = async () => {
     if (!input.trim() || loading) return;
+    if (activeAdvisorIds.length === 0) {
+      setChatError('Turn on at least one advisor in the group settings so someone can reply.');
+      return;
+    }
 
     const userMessage: ChatMessage = {
       id: Math.random().toString(36).substring(7),
@@ -84,10 +89,15 @@ export default function App() {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
+    setChatError(null);
 
     try {
       const currentHistory = [...messages, userMessage];
       const responders = await ChatService.decideWhoResponds(currentHistory, activeAdvisorIds);
+      if (responders.length === 0) {
+        setChatError('No advisor was chosen to reply. Check the API /decide step or try again.');
+        return;
+      }
 
       for (const advisorId of responders) {
         setTypingAdvisors(prev => [...prev, advisorId]);
@@ -113,6 +123,11 @@ export default function App() {
       }
     } catch (err) {
       console.error(err);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'Chat request failed. Is the API running? Try: npm run dev (needs server on port 3001).';
+      setChatError(msg);
     } finally {
       setLoading(false);
     }
@@ -423,7 +438,19 @@ export default function App() {
                 <Search className="w-5 h-5 cursor-pointer hover:text-black" />
                 <Plus className="w-5 h-5 cursor-pointer hover:text-black" />
               </div>
-              <div className="flex-1 p-6 pt-0">
+              <div className="flex-1 p-6 pt-0 flex flex-col gap-2 min-h-0">
+                {chatError && (
+                  <div className="shrink-0 text-[13px] text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2 flex justify-between gap-2 items-start">
+                    <span>{chatError}</span>
+                    <button
+                      type="button"
+                      className="text-red-800 shrink-0 underline"
+                      onClick={() => setChatError(null)}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
                 <textarea
                   value={input}
                   onChange={handleInputChange}
@@ -433,7 +460,7 @@ export default function App() {
                       handleSendMessage();
                     }
                   }}
-                  className="w-full h-full resize-none border-none outline-none text-[15px] placeholder:text-[#ccc]"
+                  className="w-full flex-1 min-h-[80px] resize-none border-none outline-none text-[15px] placeholder:text-[#ccc]"
                   placeholder="Type a message... (Use @ to mention)"
                 />
               </div>
