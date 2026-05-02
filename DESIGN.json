@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-02T18:00:00.000Z",
+  "title": "Design System: Council AI",
+  "extensions": {
+    "colorMeta": {
+      "council-accent": {
+        "role": "primary",
+        "displayName": "Messaging accent",
+        "canonical": "oklch(56% 0.225 152)",
+        "tonalRamp": [
+          "oklch(28% 0.11 152)",
+          "oklch(36% 0.14 152)",
+          "oklch(44% 0.17 152)",
+          "oklch(49% 0.20 152)",
+          "oklch(56% 0.225 152)",
+          "oklch(66% 0.18 152)",
+          "oklch(78% 0.12 152)",
+          "oklch(90% 0.06 152)"
+        ]
+      },
+      "council-rail": {
+        "role": "neutral",
+        "displayName": "Rail top",
+        "canonical": "oklch(19.5% 0.055 155)",
+        "tonalRamp": [
+          "oklch(10% 0.04 158)",
+          "oklch(14.5% 0.048 158)",
+          "oklch(17% 0.052 156)",
+          "oklch(19.5% 0.055 155)",
+          "oklch(26% 0.045 155)",
+          "oklch(38% 0.035 120)",
+          "oklch(55% 0.02 95)",
+          "oklch(72% 0.015 95)"
+        ]
+      },
+      "council-canvas": {
+        "role": "neutral",
+        "displayName": "Canvas fog",
+        "canonical": "oklch(96.8% 0.028 92)",
+        "tonalRamp": [
+          "oklch(42% 0.03 70)",
+          "oklch(55% 0.028 85)",
+          "oklch(72% 0.03 90)",
+          "oklch(82% 0.029 91)",
+          "oklch(88% 0.029 92)",
+          "oklch(92% 0.028 92)",
+          "oklch(95% 0.028 92)",
+          "oklch(96.8% 0.028 92)"
+        ]
+      },
+      "council-bubble-user": {
+        "role": "secondary",
+        "displayName": "User bubble",
+        "canonical": "oklch(88.5% 0.23 124)",
+        "tonalRamp": [
+          "oklch(48% 0.12 124)",
+          "oklch(58% 0.16 124)",
+          "oklch(68% 0.19 124)",
+          "oklch(76% 0.21 124)",
+          "oklch(82% 0.22 124)",
+          "oklch(88.5% 0.23 124)",
+          "oklch(92% 0.18 124)",
+          "oklch(96% 0.08 124)"
+        ]
+      },
+      "council-bubble-advisor": {
+        "role": "neutral",
+        "displayName": "Advisor bubble paper",
+        "canonical": "oklch(99.2% 0.014 95)",
+        "tonalRamp": [
+          "oklch(35% 0.02 90)",
+          "oklch(50% 0.018 93)",
+          "oklch(72% 0.016 94)",
+          "oklch(85% 0.015 95)",
+          "oklch(92% 0.014 95)",
+          "oklch(96% 0.014 95)",
+          "oklch(98% 0.014 95)",
+          "oklch(99.2% 0.014 95)"
+        ]
+      },
+      "council-row-active": {
+        "role": "neutral",
+        "displayName": "List row selected",
+        "canonical": "oklch(83.5% 0.095 142)",
+        "tonalRamp": [
+          "oklch(72% 0.06 142)",
+          "oklch(76% 0.075 142)",
+          "oklch(80% 0.085 142)",
+          "oklch(83.5% 0.095 142)",
+          "oklch(87% 0.07 140)",
+          "oklch(91% 0.05 95)",
+          "oklch(94% 0.035 92)",
+          "oklch(97% 0.025 92)"
+        ]
+      },
+      "council-moments-link": {
+        "role": "tertiary",
+        "displayName": "Moments link blue",
+        "canonical": "oklch(46% 0.14 264)",
+        "tonalRamp": [
+          "oklch(32% 0.12 264)",
+          "oklch(38% 0.13 264)",
+          "oklch(42% 0.135 264)",
+          "oklch(46% 0.14 264)",
+          "oklch(55% 0.12 264)",
+          "oklch(68% 0.09 264)",
+          "oklch(82% 0.06 264)",
+          "oklch(93% 0.03 264)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline-chat": {
+        "displayName": "Chat header title",
+        "purpose": "Active group name; semibold xl, count muted."
+      },
+      "body-chat": {
+        "displayName": "Thread bubble body",
+        "purpose": "Message text ~15px; sender label meta-caption."
+      },
+      "meta-caption": {
+        "displayName": "Section caps",
+        "purpose": "Uppercase extrabold tracked labels in settings and list."
+      }
+    },
+    "shadows": [
+      {
+        "name": "bubble-user-lift",
+        "value": "0 12px 32px -8px rgba(25, 130, 55, 0.28)",
+        "purpose": "Outgoing user bubble shadow (green-tinted)."
+      },
+      {
+        "name": "bubble-advisor-depth",
+        "value": "0 14px 40px -12px rgba(0, 0, 0, 0.14)",
+        "purpose": "Advisor bubble ambient depth."
+      },
+      {
+        "name": "popover-layer",
+        "value": "0 20px 50px -12px rgba(0, 0, 0, 0.18)",
+        "purpose": "Settings flyout and anchored menus."
+      }
+    ],
+    "motion": [
+      {
+        "name": "message-spring",
+        "value": "spring stiffness ~520 damping ~34",
+        "purpose": "New message row entrance in thread."
+      },
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Hover color transitions on list rows and icons."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Messaging primary button",
+      "kind": "button",
+      "refersTo": "chip-member-on",
+      "description": "Accent CTA; uses --council-accent and hover token.",
+      "html": "<button type=\"button\" class=\"ds-btn-messaging-primary\">Messages</button>",
+      "css": ".ds-btn-messaging-primary { background: var(--council-accent); color: var(--council-bubble-advisor); border: none; border-radius: 9999px; padding: 20px 40px; font-family: 'Geist Variable', system-ui, sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 12px 32px -8px rgba(5, 120, 65, 0.35); transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-messaging-primary:hover { background: var(--council-accent-hover); } .ds-btn-messaging-primary:focus-visible { outline: 2px solid var(--council-accent); outline-offset: 3px; }"
+    },
+    {
+      "name": "Send button (ready state)",
+      "kind": "button",
+      "refersTo": "button-send-ready",
+      "description": "Composer send when input non-empty.",
+      "html": "<button type=\"button\" class=\"ds-btn-send-ready\">Send</button>",
+      "css": ".ds-btn-send-ready { background: var(--council-accent); color: var(--council-bubble-advisor); border: none; border-radius: 9999px; padding: 10px 40px; height: 36px; font-family: 'Geist Variable', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 12px 28px -6px rgba(5, 120, 65, 0.4); transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-send-ready:hover { background: var(--council-accent-hover); } .ds-btn-send-ready:focus-visible { outline: 2px solid var(--council-accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Advisor message bubble",
+      "kind": "card",
+      "refersTo": "bubble-advisor",
+      "description": "Warm paper bubble with tail; translation row below.",
+      "html": "<div class=\"ds-bubble-advisor-wrap\"><div class=\"ds-bubble-advisor\">Consider the council's next move.</div></div>",
+      "css": ".ds-bubble-advisor-wrap { max-width: 70%; } .ds-bubble-advisor { position: relative; background: var(--council-bubble-advisor); color: var(--foreground); border-radius: 16px; border-top-left-radius: 8px; padding: 16px; font-size: 15px; line-height: 1.625; box-shadow: 0 14px 40px -12px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.06); font-family: 'Geist Variable', system-ui, sans-serif; } .ds-bubble-advisor::before { content: ''; position: absolute; top: 0; left: -12px; border: 7px solid transparent; border-top-color: var(--council-bubble-advisor); border-right-color: var(--council-bubble-advisor); }"
+    },
+    {
+      "name": "User message bubble",
+      "kind": "card",
+      "refersTo": "bubble-user",
+      "description": "Outgoing bubble; tail matches fill.",
+      "html": "<div class=\"ds-bubble-user-wrap\"><div class=\"ds-bubble-user\">Your message here.</div></div>",
+      "css": ".ds-bubble-user-wrap { max-width: 70%; margin-left: auto; } .ds-bubble-user { position: relative; background: var(--council-bubble-user); color: var(--foreground); border-radius: 16px; border-top-right-radius: 8px; padding: 16px; font-size: 15px; line-height: 1.625; box-shadow: 0 12px 32px -8px rgba(25, 130, 55, 0.28); font-family: 'Geist Variable', system-ui, sans-serif; } .ds-bubble-user::before { content: ''; position: absolute; top: 0; right: -12px; border: 7px solid transparent; border-top-color: var(--council-bubble-user); border-left-color: var(--council-bubble-user); }"
+    },
+    {
+      "name": "Left rail nav",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Gradient rail; icon buttons with active pill.",
+      "html": "<nav class=\"ds-rail\" aria-label=\"Main\"><button type=\"button\" class=\"ds-rail-icon ds-rail-icon--active\" aria-current=\"true\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg></button></nav>",
+      "css": ".ds-rail { width: 64px; background: linear-gradient(180deg, var(--council-rail), var(--council-rail-deep)); display: flex; flex-direction: column; align-items: center; padding-top: 24px; box-shadow: inset -1px 0 0 rgba(0,0,0,0.12); } .ds-rail-icon { background: none; border: none; color: var(--council-rail-icon); padding: 8px; cursor: pointer; border-radius: 12px; transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s cubic-bezier(0.4, 0, 0.2, 1); } .ds-rail-icon:hover { color: #f5f5f4; } .ds-rail-icon--active { color: var(--council-accent); background: rgba(255,255,255,0.12); } .ds-rail-icon:focus-visible { outline: 2px solid var(--council-accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Modal dialog shell",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Create-group style panel on scrim.",
+      "html": "<div class=\"ds-modal-scrim\"><div role=\"dialog\" class=\"ds-modal-panel\" aria-labelledby=\"ds-modal-title\"><h2 id=\"ds-modal-title\" class=\"ds-modal-title\">New council</h2></div></div>",
+      "css": ".ds-modal-scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; padding: 16px; } .ds-modal-panel { width: 100%; max-width: 520px; background: var(--council-bubble-advisor); border: 1px solid var(--council-hairline); border-radius: 12px; box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.18); padding: 16px 24px 24px; font-family: 'Geist Variable', system-ui, sans-serif; } .ds-modal-title { font-size: 16px; font-weight: 600; margin: 0 0 12px; color: var(--foreground); }"
+    },
+    {
+      "name": "Text input (modal field)",
+      "kind": "input",
+      "refersTo": null,
+      "description": "Focus ring uses accent.",
+      "html": "<input type=\"text\" class=\"ds-input-modal\" placeholder=\"Group name\" />",
+      "css": ".ds-input-modal { width: 100%; border: 1px solid var(--council-hairline); border-radius: 8px; padding: 8px 12px; font-size: 14px; font-family: 'Geist Variable', system-ui, sans-serif; outline: none; transition: border-color 0.15s ease, box-shadow 0.15s ease; } .ds-input-modal:focus-visible { border-color: var(--council-accent); box-shadow: 0 0 0 3px rgba(5, 150, 85, 0.25); } .ds-input-modal::placeholder { color: var(--council-text-muted); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Scholar's Rail",
+    "overview": "Council AI reads like a mobile messenger shell adapted for slow deliberation. Canonical council shell colors are OKLCH tokens --council-* on :root in src/index.css, mapped to Tailwind via @theme. One green accent carries navigation and commitment UI; warm neutrals separate rail, list, and canvas without SaaS chrome clichés.",
+    "keyCharacteristics": [
+      "Thread first: chat column and bubbles dominate.",
+      "One green voice: --council-accent for wayfinding and primary actions.",
+      "Warm neutrals: tinted OKLCH grays; advisor bubbles use warm paper token.",
+      "Bolder hierarchy: semibold chat title, tracked section caps, 15 to 16px thread and composer type."
+    ],
+    "rules": [
+      {
+        "name": "The One Green Rule",
+        "body": "--council-accent is the only saturated green for shell chrome and commitment actions.",
+        "section": "colors"
+      },
+      {
+        "name": "The Bubble Contrast Rule",
+        "body": "Advisor bubbles use --council-bubble-advisor on --council-canvas; user bubbles use --council-bubble-user; tails match fills.",
+        "section": "colors"
+      },
+      {
+        "name": "The Thread Width Rule",
+        "body": "Bubble column stays near 70% max width of the chat column.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Rail Rule",
+        "body": "Rail and list avoid decorative shadows; separation is color, rail gradient, and borders.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use --council-* tokens for new shell surfaces.",
+      "Do keep persona flavor in messages and Moments.",
+      "Do use hairlines and tonal steps before shadows on structural columns."
+    ],
+    "donts": [
+      "Don't use gradient text for emphasis.",
+      "Don't add full-panel blur behind the thread by default.",
+      "Don't use thick colored side stripes on rows.",
+      "Don't nest cards around the thread."
+    ]
+  }
+}
