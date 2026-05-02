@@ -1,5 +1,7 @@
+import path from 'node:path';
 import dotenv from 'dotenv';
 import express from 'express';
+import type { Request } from 'express';
 import rateLimit from 'express-rate-limit';
 import type { z } from 'zod';
 import Anthropic from '@anthropic-ai/sdk';
@@ -20,42 +22,118 @@ import { configureOpenAIProviderIfNeeded } from './llm/configureOpenAIProvider';
 import { geminiDecide, geminiGenerateBilingual } from './llm/geminiNative';
 import { modelForAdvisor, modelForDecide } from './llm/models';
 import {
+  type LlmVendor,
   resolveAdvisorVendor,
   resolveDecideVendor,
   usesOpenAiAgents,
 } from './llm/vendors';
-import { validateLlmEnv } from './llm/validateLlmEnv';
+import { getLlmEnvValidationError } from './llm/validateLlmEnv';
+import { mergeIntoEnvLocal } from './mergeEnvLocal';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();
 
-const advisorVendor = resolveAdvisorVendor();
-const decideVendor = resolveDecideVendor();
+let advisorVendor: LlmVendor;
+let decideVendor: LlmVendor;
+let llmEndpoint: { baseURL?: string } = {};
+let openAiFastModel: string;
+let openAiDecideModel: string;
+let advisorAgents: ReturnType<typeof createAdvisorAgents> | null = null;
+let coordinatorAgent: ReturnType<typeof createCoordinatorAgent> | null = null;
+let geminiAi: GoogleGenAI | null = null;
+let anthropicClient: Anthropic | null = null;
+let advisorModelId: string;
+let decideModelId: string;
 
-validateLlmEnv(advisorVendor, decideVendor);
+function initCouncilLlm(): void {
+  advisorVendor = resolveAdvisorVendor();
+  decideVendor = resolveDecideVendor();
+  const envErr = getLlmEnvValidationError(advisorVendor, decideVendor);
 
-const llmEndpoint = configureOpenAIProviderIfNeeded(usesOpenAiAgents(advisorVendor, decideVendor));
+  llmEndpoint = {};
+  geminiAi = null;
+  anthropicClient = null;
+  advisorAgents = null;
+  coordinatorAgent = null;
 
-const openAiFastModel = modelForAdvisor('openai');
-const openAiDecideModel = modelForDecide('openai');
+  openAiFastModel = modelForAdvisor('openai');
+  openAiDecideModel = modelForDecide('openai');
+  advisorModelId = modelForAdvisor(advisorVendor);
+  decideModelId = modelForDecide(decideVendor);
 
-const advisorAgents =
-  advisorVendor === 'openai' ? createAdvisorAgents(openAiFastModel) : null;
-const coordinatorAgent =
-  decideVendor === 'openai' ? createCoordinatorAgent(openAiDecideModel) : null;
+  if (envErr) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(envErr);
+    }
+    console.warn('[council] LLM not configured:', envErr);
+    return;
+  }
 
-const geminiAi =
-  advisorVendor === 'gemini' || decideVendor === 'gemini'
-    ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
-    : null;
+  try {
+    llmEndpoint = configureOpenAIProviderIfNeeded(usesOpenAiAgents(advisorVendor, decideVendor));
+  } catch (e) {
+    console.warn('[council] OpenAI provider setup failed:', e);
+    llmEndpoint = {};
+  }
 
-const anthropicClient =
-  advisorVendor === 'anthropic' || decideVendor === 'anthropic'
-    ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
-    : null;
+  try {
+    advisorAgents =
+      advisorVendor === 'openai' ? createAdvisorAgents(openAiFastModel) : null;
+    coordinatorAgent =
+      decideVendor === 'openai' ? createCoordinatorAgent(openAiDecideModel) : null;
+  } catch (e) {
+    console.warn('[council] OpenAI agent graph init failed:', e);
+    advisorAgents = null;
+    coordinatorAgent = null;
+  }
 
-const advisorModelId = modelForAdvisor(advisorVendor);
-const decideModelId = modelForDecide(decideVendor);
+  try {
+    geminiAi =
+      advisorVendor === 'gemini' || decideVendor === 'gemini'
+        ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
+        : null;
+  } catch (e) {
+    console.warn('[council] Gemini client init failed:', e);
+    geminiAi = null;
+  }
+
+  try {
+    anthropicClient =
+      advisorVendor === 'anthropic' || decideVendor === 'anthropic'
+        ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
+        : null;
+  } catch (e) {
+    console.warn('[council] Anthropic client init failed:', e);
+    anthropicClient = null;
+  }
+}
+
+initCouncilLlm();
+
+function allowRuntimeSetup(req: Request): boolean {
+  if (process.env.COUNCIL_ALLOW_SETUP_API === 'true') return true;
+  if (process.env.NODE_ENV === 'production') return false;
+  const ip = req.ip || req.socket.remoteAddress || '';
+  return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+}
+
+function getLlmNotReadyReason(): string | null {
+  const v = getLlmEnvValidationError(advisorVendor, decideVendor);
+  if (v) return v;
+  if (advisorVendor === 'openai' && !advisorAgents) {
+    return 'OpenAI advisors are not initialized. Save your API key in setup or set OPENAI_API_KEY in .env.local.';
+  }
+  if (decideVendor === 'openai' && !coordinatorAgent) {
+    return 'Coordinator agent is not initialized. Check OPENAI_API_KEY and vendor settings.';
+  }
+  if ((advisorVendor === 'gemini' || decideVendor === 'gemini') && !geminiAi) {
+    return 'Gemini client is not initialized.';
+  }
+  if ((advisorVendor === 'anthropic' || decideVendor === 'anthropic') && !anthropicClient) {
+    return 'Anthropic client is not initialized.';
+  }
+  return null;
+}
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
@@ -64,6 +142,57 @@ const honeyHiveProject = process.env.HONEYHIVE_PROJECT ?? 'Great Council';
 const honeyHiveSource = process.env.HONEYHIVE_SOURCE ?? process.env.NODE_ENV ?? 'dev';
 
 app.use(express.json({ limit: '1mb' }));
+
+app.post('/api/setup/llm', (req, res) => {
+  if (!allowRuntimeSetup(req)) {
+    res.status(403).json({ error: 'Setup API is only available in development from localhost, or when COUNCIL_ALLOW_SETUP_API=true.' });
+    return;
+  }
+  const b = req.body as {
+    vendor?: string;
+    openaiKey?: string;
+    geminiKey?: string;
+    anthropicKey?: string;
+  };
+  const vendor = b?.vendor?.trim().toLowerCase();
+  if (vendor !== 'openai' && vendor !== 'gemini' && vendor !== 'anthropic') {
+    res.status(400).json({ error: 'Body must include vendor: openai | gemini | anthropic' });
+    return;
+  }
+
+  const updates: Record<string, string> = {
+    LLM_VENDOR_ADVISOR: vendor,
+    LLM_VENDOR_DECIDE: vendor,
+  };
+  if (typeof b.openaiKey === 'string' && b.openaiKey.trim()) {
+    updates.OPENAI_API_KEY = b.openaiKey.trim();
+  }
+  if (typeof b.geminiKey === 'string' && b.geminiKey.trim()) {
+    updates.GEMINI_API_KEY = b.geminiKey.trim();
+  }
+  if (typeof b.anthropicKey === 'string' && b.anthropicKey.trim()) {
+    updates.ANTHROPIC_API_KEY = b.anthropicKey.trim();
+  }
+
+  try {
+    mergeIntoEnvLocal(process.cwd(), updates);
+    dotenv.config({ path: path.join(process.cwd(), '.env.local'), override: true });
+    initCouncilLlm();
+    const err = getLlmEnvValidationError(advisorVendor, decideVendor);
+    const ready = err === null && getLlmNotReadyReason() === null;
+    res.status(200).json({
+      ok: true,
+      llmConfigured: ready,
+      message: ready
+        ? 'Saved to .env.local and loaded. You can chat now.'
+        : err ?? getLlmNotReadyReason() ?? 'Still missing credentials for the selected vendor.',
+    });
+  } catch (e) {
+    console.error('[POST /api/setup/llm]', e);
+    res.status(500).json({ error: e instanceof Error ? e.message : 'Failed to save configuration' });
+  }
+});
+
 app.use(
   '/api',
   rateLimit({
@@ -71,6 +200,7 @@ app.use(
     max: 30,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => req.path === '/setup/llm' && req.method === 'POST',
   }),
 );
 
@@ -305,15 +435,23 @@ If the user spoke last, someone MUST respond. Usually pick 1 or 2 ids from the a
 }
 
 app.get('/healthz', (_req, res) => {
+  const ready = getLlmNotReadyReason();
   res.status(200).json({
     ok: true,
+    llmConfigured: ready === null,
     llm: { advisor: advisorVendor, decide: decideVendor },
+    ...(ready ? {} : { llmSetupHint: ready }),
     ...(llmEndpoint.baseURL ? { llmProxy: llmEndpoint.baseURL } : {}),
   });
 });
 
 app.post('/api/chat/respond', async (req, res) => {
   try {
+    const notReady = getLlmNotReadyReason();
+    if (notReady) {
+      res.status(503).json({ error: notReady, code: 'LLM_NOT_READY' });
+      return;
+    }
     const advisorId = sanitizeText(req.body?.advisorId);
     const history = ((req.body?.history ?? []) as ChatMessage[]).slice(-20);
     const sessionId = sanitizeText(req.body?.sessionId) || (await startTraceSession(history.at(-1)?.content ?? ''));
@@ -343,6 +481,11 @@ app.post('/api/chat/respond', async (req, res) => {
 
 app.post('/api/chat/decide', async (req, res) => {
   try {
+    const notReady = getLlmNotReadyReason();
+    if (notReady) {
+      res.status(503).json({ error: notReady, code: 'LLM_NOT_READY' });
+      return;
+    }
     const sessionId = sanitizeText(req.body?.sessionId) || undefined;
     const history = ((req.body?.history ?? []) as ChatMessage[]).slice(-5);
     const activeAdvisorIds = ((req.body?.activeAdvisorIds ?? []) as string[]).filter((id) =>
