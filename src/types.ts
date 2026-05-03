@@ -30,7 +30,9 @@ export interface MomentPost {
   year: number;
   /** 1–12 when known; omit if only the year is reliable. */
   month?: number;
+  /** Main body in the author's {@link AdvisorPersona.primaryLang} (resolve via `authorId`). */
   content: string;
+  /** Gloss in {@link AdvisorPersona.secondaryLang}. */
   translation: string;
   images?: string[];
 }
