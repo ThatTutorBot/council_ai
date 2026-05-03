@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -136,7 +137,20 @@ function getLlmNotReadyReason(): string | null {
 }
 
 const app = express();
-const port = Number(process.env.PORT ?? 3001);
+
+const rawPort = process.env.PORT?.trim() || '3001';
+const port = Number.parseInt(rawPort, 10);
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  console.error(`[council] Invalid PORT="${rawPort}" — use an integer between 1 and 65535 (default 3001).`);
+  process.exit(1);
+}
+
+if (process.env.GEMINI_MODEL_SYNTHESIS?.trim() && !process.env.GEMINI_MODEL_DECIDE?.trim()) {
+  console.warn(
+    '[council] GEMINI_MODEL_SYNTHESIS is ignored; use GEMINI_MODEL_DECIDE for the coordinator (see .env.example).',
+  );
+}
+
 const honeyHiveApiKey = process.env.HONEYHIVE_API_KEY;
 const honeyHiveProject = process.env.HONEYHIVE_PROJECT ?? 'Great Council';
 const honeyHiveSource = process.env.HONEYHIVE_SOURCE ?? process.env.NODE_ENV ?? 'dev';
@@ -499,8 +513,25 @@ app.post('/api/chat/decide', async (req, res) => {
   }
 });
 
+const distDir = path.join(process.cwd(), 'dist');
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      next();
+      return;
+    }
+    if (req.path.startsWith('/api')) {
+      next();
+      return;
+    }
+    res.sendFile(path.join(distDir, 'index.html'), (err) => next(err));
+  });
+}
+
 app.listen(port, () => {
   console.log(
-    `Council API on port ${port} (advisor=${advisorVendor}, decide=${decideVendor})`,
+    `Council API on port ${port} (advisor=${advisorVendor}, decide=${decideVendor})` +
+      (fs.existsSync(distDir) ? '; also serving Vite app from dist/' : ''),
   );
 });

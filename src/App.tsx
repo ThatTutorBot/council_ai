@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, ChangeEvent } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import {
   Send,
   Plus,
@@ -24,6 +24,7 @@ import { ChatService } from './services/chatService';
 import { loadPersistedGroupsState, savePersistedGroupsState, newId } from './storage/groupsPersistence';
 import { EMOJI_CATEGORIES } from './constants/emojiCategories';
 import { CreateGroupModal } from './components/CreateGroupModal';
+import { FloatingCouncilWindow } from './components/FloatingCouncilWindow';
 import { OnboardingFlow } from './components/OnboardingFlow';
 import {
   isOnboardingCompleteForSession,
@@ -33,9 +34,11 @@ import { cn } from '@/lib/utils';
 
 type CouncilShellProps = {
   onOpenWelcomeSetup: () => void;
+  /** When false, fills the parent (floating pane) instead of the viewport */
+  fillViewport?: boolean;
 };
 
-function CouncilShell({ onOpenWelcomeSetup }: CouncilShellProps) {
+function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellProps) {
   const [persistedBundle] = useState(() => loadPersistedGroupsState());
   const [groups, setGroups] = useState<ChatGroup[]>(() => persistedBundle.groups);
   const [activeGroupId, setActiveGroupId] = useState(() => persistedBundle.activeGroupId);
@@ -285,9 +288,19 @@ function CouncilShell({ onOpenWelcomeSetup }: CouncilShellProps) {
   };
 
   return (
-    <div className="h-screen w-full bg-council-canvas flex overflow-hidden font-sans text-foreground">
+    <div
+      className={cn(
+        fillViewport ? 'h-screen w-full' : 'h-full min-h-0 w-full council-chat-float',
+        'bg-council-canvas flex overflow-hidden font-sans text-foreground',
+      )}
+    >
       <aside className="w-[64px] bg-gradient-to-b from-council-rail to-council-rail-deep flex flex-col items-center py-6 gap-5 shrink-0 shadow-[inset_-1px_0_0_oklch(0_0_0/0.12)]">
-        <div className="w-10 h-10 rounded-xl bg-white/10 p-0.5 ring-2 ring-council-accent/35 ring-offset-2 ring-offset-council-rail overflow-hidden motion-safe:transition-transform motion-safe:duration-200 motion-safe:hover:scale-105">
+        <div
+          className={cn(
+            'w-10 h-10 rounded-xl bg-white/10 p-0.5 ring-2 ring-offset-2 ring-offset-council-rail overflow-hidden motion-safe:transition-transform motion-safe:duration-200 motion-safe:hover:scale-105',
+            fillViewport ? 'ring-council-accent/35' : 'ring-white/25',
+          )}
+        >
           <img src={userAvatarUrl} className="w-full h-full rounded-[10px]" alt="" />
         </div>
         <div className="flex flex-col gap-3 items-center text-council-rail-icon">
@@ -351,14 +364,22 @@ function CouncilShell({ onOpenWelcomeSetup }: CouncilShellProps) {
 
       <aside className="w-[300px] bg-council-list border-r border-council-list-border flex flex-col shrink-0">
         <div className="p-4 flex gap-2 border-b border-council-hairline/50">
-          <div className="flex-1 bg-council-search-bg flex items-center px-3 rounded-xl h-9 shadow-inner shadow-black/[0.07] ring-1 ring-council-hairline/40">
+          <div
+            className={cn(
+              'flex-1 bg-council-search-bg flex items-center px-3 h-9 shadow-inner shadow-black/[0.07] ring-1 ring-council-hairline/40',
+              fillViewport ? 'rounded-xl' : 'rounded-full',
+            )}
+          >
             <Search className="w-4 h-4 text-council-text-soft mr-1.5 shrink-0 stroke-[2]" />
             <input placeholder="Search chats" className="bg-transparent border-none outline-none text-[13px] font-medium w-full placeholder:text-council-text-muted placeholder:font-normal" />
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="w-8 h-8 rounded-lg bg-council-search-bg hover:bg-council-row-hover text-council-text-soft shadow-inner shadow-black/5 motion-safe:transition-transform motion-safe:hover:scale-105"
+            className={cn(
+              'w-8 h-8 bg-council-search-bg hover:bg-council-row-hover text-council-text-soft shadow-inner shadow-black/5 motion-safe:transition-transform motion-safe:hover:scale-105',
+              fillViewport ? 'rounded-lg' : 'rounded-full',
+            )}
             type="button"
             onClick={handleOpenCreateGroup}
             title="New group"
@@ -604,9 +625,11 @@ function CouncilShell({ onOpenWelcomeSetup }: CouncilShellProps) {
                                 <button
                                   onClick={() => toggleAdvisor(a.id)}
                                   className={cn(
-                                    'px-3 py-1 rounded-md text-[10px] border motion-safe:transition-all',
+                                    'px-3 py-1 rounded-full text-[10px] border motion-safe:transition-all',
                                     activeAdvisorIds.includes(a.id)
-                                      ? 'bg-council-accent border-council-accent text-white shadow-sm shadow-council-accent/30'
+                                      ? fillViewport
+                                        ? 'bg-council-accent border-council-accent text-white shadow-sm shadow-council-accent/30'
+                                        : 'border-white bg-white text-zinc-950 shadow-sm shadow-black/30'
                                       : 'bg-council-canvas border-council-hairline text-council-text-muted hover:border-council-text-muted/50',
                                   )}
                                 >
@@ -812,7 +835,9 @@ function CouncilShell({ onOpenWelcomeSetup }: CouncilShellProps) {
                   className={cn(
                     'h-10 min-w-[7.5rem] px-11 text-[15px] font-semibold rounded-full motion-safe:transition-all motion-safe:duration-200',
                     input.trim() && !loading
-                      ? '!bg-council-accent !text-white !border-transparent shadow-xl shadow-council-accent/40 hover:!bg-council-accent-hover hover:!shadow-council-accent/50 motion-safe:hover:scale-[1.03] motion-safe:active:scale-[0.98]'
+                      ? fillViewport
+                        ? '!bg-council-accent !text-white !border-transparent shadow-xl shadow-council-accent/40 hover:!bg-council-accent-hover hover:!shadow-council-accent/50 motion-safe:hover:scale-[1.03] motion-safe:active:scale-[0.98]'
+                        : '!bg-white !text-zinc-950 !border-transparent shadow-[0_16px_40px_-12px_rgba(0,0,0,0.45)] hover:!bg-zinc-100 motion-safe:hover:scale-[1.03] motion-safe:active:scale-[0.98]'
                       : '!bg-council-canvas !text-council-text-muted !border-council-hairline hover:!bg-council-row-hover',
                   )}
                 >
@@ -886,7 +911,11 @@ function CouncilShell({ onOpenWelcomeSetup }: CouncilShellProps) {
                   </div>
 
                   <Button
-                    className="!bg-council-accent hover:!bg-council-accent-hover !text-white px-12 py-6 h-auto text-base font-semibold rounded-full shadow-xl shadow-council-accent/40 motion-safe:transition-all motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]"
+                    className={
+                      fillViewport
+                        ? '!bg-council-accent hover:!bg-council-accent-hover !text-white px-12 py-6 h-auto text-base font-semibold rounded-full shadow-xl shadow-council-accent/40 motion-safe:transition-all motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]'
+                        : '!bg-white hover:!bg-zinc-100 !text-zinc-950 px-12 py-6 h-auto text-base font-semibold rounded-full shadow-[0_20px_50px_-16px_rgba(0,0,0,0.45)] motion-safe:transition-all motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]'
+                    }
                     onClick={() => setCurrentView('chats')}
                   >
                     Messages
@@ -923,15 +952,42 @@ function CouncilShell({ onOpenWelcomeSetup }: CouncilShellProps) {
 
 export default function App() {
   const [onboardingDone, setOnboardingDone] = useState(() => isOnboardingCompleteForSession());
-  if (!onboardingDone) {
-    return <OnboardingFlow onComplete={() => setOnboardingDone(true)} />;
-  }
+  const reduceMotion = useReducedMotion();
+
+  const shellTransition = reduceMotion
+    ? { duration: 0 }
+    : { duration: 0.42, ease: [0.16, 1, 0.3, 1] as const };
+
   return (
-    <CouncilShell
-      onOpenWelcomeSetup={() => {
-        resetOnboarding();
-        setOnboardingDone(false);
-      }}
-    />
+    <AnimatePresence mode="wait">
+      {!onboardingDone ? (
+        <motion.div
+          key="onboarding"
+          className="min-h-screen"
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={reduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <OnboardingFlow onComplete={() => setOnboardingDone(true)} />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="council-shell"
+          className="fixed inset-0 z-[100] bg-zinc-300"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={shellTransition}
+        >
+          <FloatingCouncilWindow>
+            <CouncilShell
+              fillViewport={false}
+              onOpenWelcomeSetup={() => {
+                resetOnboarding();
+                setOnboardingDone(false);
+              }}
+            />
+          </FloatingCouncilWindow>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

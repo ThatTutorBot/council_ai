@@ -126,6 +126,67 @@
     --council-moments-link: oklch(46% 0.14 264);
 }
 
+/* Floating chat window: minimal black / white mock (vendor modal aesthetic) */
+.council-chat-float {
+    --foreground: oklch(0.99 0 0);
+    --council-canvas: oklch(0% 0 0);
+    --council-rail: oklch(8% 0 0);
+    --council-rail-deep: oklch(4% 0 0);
+    --council-list: oklch(11% 0 0);
+    --council-list-border: oklch(24% 0 0);
+    --council-search-bg: oklch(16% 0 0);
+    --council-accent: oklch(99% 0 0);
+    --council-accent-hover: oklch(92% 0 0);
+    --council-bubble-user: oklch(99% 0 0);
+    --council-bubble-advisor: oklch(17% 0 0);
+    --council-row-active: oklch(20% 0 0);
+    --council-row-hover: oklch(15% 0 0);
+    --council-hairline: oklch(26% 0 0);
+    --council-text-muted: oklch(62% 0 0);
+    --council-text-soft: oklch(58% 0 0);
+    --council-rail-icon: oklch(72% 0 0);
+    --council-typing-bg: oklch(14% 0 0);
+    --council-typing-dot: oklch(78% 0 0);
+    --council-welcome: oklch(99% 0 0);
+    --council-moments-link: oklch(85% 0 0);
+}
+
+/* User bubbles: light fill needs dark copy */
+.council-chat-float div.bg-council-bubble-user.text-foreground {
+    color: oklch(0.14 0 0);
+}
+
+.council-chat-float div.bg-council-bubble-advisor.text-foreground {
+    color: oklch(0.96 0 0);
+}
+
+/* Welcome pill: white on black → invert label */
+.council-chat-float .bg-council-welcome.text-white {
+    color: oklch(0.12 0 0);
+    background-color: oklch(99% 0 0);
+    border: 1px solid oklch(88% 0 0);
+    box-shadow: 0 18px 48px -12px oklch(0% 0 0 / 0.35);
+}
+
+/* Rail: active tab reads as white pill + black icon (mock primary selection) */
+.council-chat-float aside:first-of-type button[class*="ring-council-accent"] {
+    background-color: oklch(99% 0 0);
+    color: oklch(0.12 0 0);
+    box-shadow: 0 6px 20px oklch(0% 0 0 / 0.35);
+    --tw-ring-color: transparent;
+}
+
+.council-chat-float aside:first-of-type button[class*="ring-council-accent"] svg {
+    color: oklch(0.12 0 0);
+}
+
+/* Inline error on dark UI */
+.council-chat-float .border-red-100.bg-red-50 {
+    background-color: oklch(22% 0.12 25);
+    border-color: oklch(45% 0.2 25);
+    color: oklch(92% 0.02 25);
+}
+
 .dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
@@ -170,29 +231,4 @@
   html {
     @apply font-sans;
     }
-}
-
-/* Onboarding “Meet the council”: infinite horizontal strip (TinyFaces-style slow drift) */
-@keyframes council-advisors-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.council-advisors-marquee {
-  animation: council-advisors-marquee 100s linear infinite;
-  will-change: transform;
-}
-
-.council-advisors-marquee-wrap:hover .council-advisors-marquee {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .council-advisors-marquee {
-    animation: none;
-  }
 }
