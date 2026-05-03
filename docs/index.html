@@ -3,11 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Council AI — embedded live demo (hosted app runs on Render)." />
+    <meta name="description" content="Council AI — interactive embedded demo (full UI; hosted on Render)." />
     <title>Council AI — live demo</title>
     <style>
       :root {
-        color-scheme: dark light;
+        color-scheme: dark;
+        --bg: #070708;
+        --bar: rgba(18, 18, 20, 0.92);
+        --hairline: rgba(255, 255, 255, 0.08);
+        --text: rgba(250, 250, 250, 0.92);
+        --muted: rgba(250, 250, 250, 0.55);
+      }
+      * {
+        box-sizing: border-box;
       }
       html,
       body {
@@ -15,73 +23,124 @@
         margin: 0;
       }
       body {
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        background: var(--bg);
+        background-image:
+          radial-gradient(ellipse 120% 80% at 50% -20%, rgba(120, 80, 200, 0.12), transparent 50%),
+          radial-gradient(ellipse 80% 50% at 100% 50%, rgba(60, 100, 180, 0.08), transparent 45%);
+        color: var(--text);
+      }
+      .page {
+        min-height: 100dvh;
         display: flex;
         flex-direction: column;
-        font-family: ui-sans-serif, system-ui, sans-serif;
       }
       header {
         flex: none;
         display: flex;
         flex-wrap: wrap;
         align-items: center;
+        justify-content: space-between;
         gap: 0.75rem 1.25rem;
-        padding: 0.55rem 1rem;
-        border-bottom: 1px solid rgba(127, 127, 127, 0.35);
-        background: rgba(250, 250, 250, 0.92);
-      }
-      @media (prefers-color-scheme: dark) {
-        header {
-          background: rgba(22, 22, 24, 0.94);
-          border-bottom-color: rgba(255, 255, 255, 0.12);
-        }
+        padding: 0.65rem 1.25rem;
+        border-bottom: 1px solid var(--hairline);
+        background: var(--bar);
+        backdrop-filter: blur(12px);
       }
       header strong {
         font-size: 0.95rem;
-        letter-spacing: -0.02em;
+        font-weight: 600;
+        letter-spacing: -0.03em;
       }
       header nav {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         gap: 0.65rem 1rem;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
+        color: var(--muted);
       }
       header a {
-        color: inherit;
-        text-decoration: underline;
-        text-underline-offset: 0.2em;
+        color: var(--text);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(250, 250, 250, 0.25);
       }
-      main {
+      header a:hover {
+        border-bottom-color: rgba(250, 250, 250, 0.55);
+      }
+      .stage {
         flex: 1;
         min-height: 0;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 1.25rem 1.75rem;
       }
-      iframe {
-        flex: 1;
+      .frame {
+        width: min(1220px, 100%);
+        height: min(calc(100dvh - 5.5rem), 860px);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #111;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.06),
+          0 32px 100px rgba(0, 0, 0, 0.65),
+          0 12px 40px rgba(0, 0, 0, 0.35);
+      }
+      .frame iframe {
         width: 100%;
+        height: 100%;
         border: 0;
+        display: block;
         background: #fff;
+      }
+      .hint {
+        margin-top: 0.75rem;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted);
+        max-width: 42rem;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.45;
+        padding: 0 0.5rem;
       }
     </style>
   </head>
   <body>
-    <header>
-      <strong>Council AI</strong>
-      <nav>
-        <a href="https://council-ai.onrender.com/" target="_blank" rel="noopener noreferrer">Open on Render (new tab)</a>
-        <span aria-hidden="true">·</span>
-        <a href="https://github.com/ThatTutorBot/council_ai" target="_blank" rel="noopener noreferrer">Source &amp; docs</a>
-      </nav>
-    </header>
-    <main>
-      <iframe
-        title="Council AI application"
-        src="https://council-ai.onrender.com/"
-        loading="lazy"
-        referrerpolicy="strict-origin-when-cross-origin"
-        allow="clipboard-read; clipboard-write"
-      ></iframe>
-    </main>
+    <div class="page">
+      <header>
+        <strong>Council AI</strong>
+        <nav>
+          <span>Interactive demo</span>
+          <span aria-hidden="true">·</span>
+          <a
+            href="https://council-ai.onrender.com/?demo=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Open full tab</a
+          >
+          <span aria-hidden="true">·</span>
+          <a href="https://github.com/ThatTutorBot/council_ai" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </nav>
+      </header>
+      <div class="stage">
+        <div class="frame" role="presentation">
+          <iframe
+            title="Council AI — live application"
+            src="https://council-ai.onrender.com/?demo=1"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="clipboard-read; clipboard-write"
+          ></iframe>
+        </div>
+      </div>
+      <p class="hint">
+        GitHub README cannot embed live pages; this site mirrors portfolio showcases like
+        <a href="https://godly.website/" style="color: inherit" target="_blank" rel="noopener noreferrer">Godly</a
+        >— full UI, same window. The app runs on Render; <code style="opacity: 0.85">?demo=1</code> skips the
+        welcome pill for embeds.
+      </p>
+    </div>
   </body>
 </html>

@@ -23,11 +23,15 @@ export function loadOnboardingState(): OnboardingState {
  * Whether the main chat shell should show (onboarding already finished).
  * Survives restarts: completion is in localStorage, not the server.
  * Force the welcome flow with URL `?onboarding` or `?setup`, or (dev) `VITE_SHOW_ONBOARDING=1` in `.env.local`.
+ *
+ * **Embed / README demos:** `?demo=1` or `?embed=1` skips onboarding so GitHub Pages iframes and
+ * hero screenshots show the council UI without the welcome pill (first-time visitors only).
  */
 export function isOnboardingCompleteForSession(): boolean {
   if (typeof window !== 'undefined') {
     const q = new URLSearchParams(window.location.search);
     if (q.has('onboarding') || q.has('setup')) return false;
+    if (q.get('demo') === '1' || q.get('embed') === '1') return true;
     if (import.meta.env.DEV && import.meta.env.VITE_SHOW_ONBOARDING === '1') return false;
   }
   return loadOnboardingState().complete;
