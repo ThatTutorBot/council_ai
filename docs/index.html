@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Council AI — full-page embedded demo (hosted on Render)." />
+    <title>Council AI — live demo</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #070708;
+        --bar: rgba(18, 18, 20, 0.95);
+        --hairline: rgba(255, 255, 255, 0.08);
+        --text: rgba(250, 250, 250, 0.92);
+        --muted: rgba(250, 250, 250, 0.55);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        min-height: 100dvh;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        background: var(--bg);
+        background-image:
+          radial-gradient(ellipse 120% 80% at 50% -20%, rgba(120, 80, 200, 0.12), transparent 50%),
+          radial-gradient(ellipse 80% 50% at 100% 50%, rgba(60, 100, 180, 0.08), transparent 45%);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        flex: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem 1.25rem;
+        padding: 0.65rem 1.25rem;
+        border-bottom: 1px solid var(--hairline);
+        background: var(--bar);
+        backdrop-filter: blur(12px);
+      }
+      header strong {
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+      header nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.65rem 1rem;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      header a {
+        color: var(--text);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(250, 250, 250, 0.25);
+      }
+      header a:hover {
+        border-bottom-color: rgba(250, 250, 250, 0.55);
+      }
+      /* Reserve maximum vertical space for the iframe so the composer is not clipped */
+      .stage {
+        flex: 1 1 auto;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: 0.65rem 1rem 0.75rem;
+        min-height: 0;
+      }
+      .frame {
+        width: min(1220px, 100%);
+        flex: 1;
+        min-height: min(88dvh, 920px);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #111;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.06),
+          0 32px 100px rgba(0, 0, 0, 0.65),
+          0 12px 40px rgba(0, 0, 0, 0.35);
+        touch-action: manipulation;
+      }
+      .frame iframe {
+        width: 100%;
+        height: 100%;
+        min-height: min(88dvh, 920px);
+        border: 0;
+        display: block;
+        background: #fff;
+      }
+      .hints {
+        flex: none;
+        padding: 0.6rem 1.25rem 1.1rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.45;
+        max-width: 52rem;
+        margin: 0 auto;
+        text-align: center;
+      }
+      .hints code {
+        opacity: 0.85;
+        font-size: 0.92em;
+      }
+      .hints kbd {
+        font: inherit;
+        padding: 0.05rem 0.35rem;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Council AI</strong>
+      <nav>
+        <span>Embedded demo</span>
+        <span aria-hidden="true">·</span>
+        <a href="https://council-ai.onrender.com/?demo=1" target="_blank" rel="noopener noreferrer">Open full tab</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/ThatTutorBot/council_ai" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="stage">
+      <div class="frame" role="presentation">
+        <iframe
+          title="Council AI — live application"
+          src="https://council-ai.onrender.com/?demo=1"
+          loading="eager"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="clipboard-read; clipboard-write"
+        ></iframe>
+      </div>
+    </div>
+
+    <div class="hints">
+      <p style="margin: 0 0 0.45rem">
+        <strong style="color: var(--text)">Using this page:</strong> click <em>inside</em> the chat area before typing — browsers often require a tap on the embedded app (cross-origin
+        iframe) before keyboard and scroll fully engage.
+      </p>
+      <p style="margin: 0 0 0.45rem">
+        First load can be slow on a cold Render instance; if sending a message does nothing, wait a few seconds or use
+        <strong>Open full tab</strong>.
+      </p>
+      <p style="margin: 0">
+        The repo’s <strong>README</strong> on <kbd>github.com</kbd> only shows a static screenshot — this <strong>Pages</strong> URL is the interactive embed (similar idea to gallery sites like
+        <a href="https://godly.website/" style="color: inherit" target="_blank" rel="noopener noreferrer">Godly</a>). Query <code>?demo=1</code> skips the welcome pill for demos.
+      </p>
+    </div>
+  </body>
+</html>

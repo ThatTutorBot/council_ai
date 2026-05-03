@@ -11,6 +11,7 @@ A **group-chat style web app** where you talk with several **AI advisors** at on
 - **Bilingual messages** — Each advisor reply includes primary text plus a short translation, matching persona language settings.
 - **Client-side chat UX** — Scrollable thread, mentions, optional HoneyHive session ids for observability.
 - **LiteLLM-ready** — Use [LiteLLM](https://github.com/BerriAI/litellm) (or any OpenAI-compatible proxy) so you can route to many providers via model strings, without adding per-vendor SDKs in Node.
+- **Welcome flow** — Each **full page load** starts the onboarding experience for direct visits. **`?demo=1`** or **`?embed=1`** skips it for embedded previews (e.g. GitHub Pages iframe).
 
 ---
 
@@ -117,6 +118,20 @@ More detail is in **`.trellis/spec/backend/llm-configuration.md`** if you use th
 
 ---
 
+## GitHub Pages embed (`docs/index.html`)
+
+If you publish **`/docs`** with GitHub Pages, **`docs/index.html`** wraps the live Render app in an iframe.
+
+**Not interactive on the repo “landing” itself:** the default GitHub **repository page** only shows markdown + static images — it cannot run embedded apps like gallery sites ([Godly](https://godly.website/)). Use your **`*.github.io`** Pages URL from repository **Settings → Pages** for the full in-page demo.
+
+**If the embed feels “stuck”:**
+
+1. **Click inside** the dark chat area first — many browsers require a tap on a cross-origin iframe before typing or scrolling fully works.
+2. **Cold start:** Render may spin up slowly; wait a few seconds or open **Open full tab** on the embed page.
+3. **API errors:** Ensure the Render deployment has a valid **`OPENAI_API_KEY`** (and models); otherwise sends fail even though the UI loads.
+
+---
+
 ## Repository layout
 
 ```
@@ -126,6 +141,9 @@ council_ai/
 │   ├── index.ts         # Express routes
 │   ├── llm/             # OpenAI provider / LiteLLM base URL wiring
 │   └── agents/          # Advisor + coordinator agents, zod schemas
+├── docs/
+│   ├── index.html       # Optional GitHub Pages shell (iframe → Render + ?demo=1)
+│   └── .nojekyll        # Serve static HTML without Jekyll
 ├── public/avatars/      # Advisor images
 ├── .env.example
 └── .trellis/            # Optional Trellis task/spec tooling for contributors
