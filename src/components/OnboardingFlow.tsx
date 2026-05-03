@@ -1,32 +1,45 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, AudioWaveform, MoreHorizontal, User } from 'lucide-react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type RefObject,
+} from 'react';
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from 'motion/react';
+import { ArrowRight, AudioWaveform, MoreHorizontal, User, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ADVISORS } from '@/src/types';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { type AdvisorPersona, ADVISORS, advisorRegionLabel } from '@/src/types';
 import { saveOnboardingComplete, type OnboardingVendor } from '@/src/storage/onboardingPersistence';
 import { ChatService } from '@/src/services/chatService';
 import { cn } from '@/lib/utils';
 
-type Stage = 'setup' | 'advisors';
-
 /** Survives DevTools reload when `.env.local` changes; paired with Vite `watch.ignored`. */
 const SESSION_UI_KEY = 'council_onboarding_session_ui_v1';
 
-function readSessionUi(): { expanded: boolean; stage: Stage } {
+type SessionUi = { expanded: boolean; previewOpen: boolean };
+
+function readSessionUi(): SessionUi {
   try {
     const raw = sessionStorage.getItem(SESSION_UI_KEY);
-    if (!raw) return { expanded: false, stage: 'setup' };
-    const p = JSON.parse(raw) as { expanded?: boolean; stage?: string };
-    const stage: Stage = p.stage === 'advisors' ? 'advisors' : 'setup';
-    const expanded = Boolean(p.expanded) || stage === 'advisors';
-    return { expanded, stage };
+    if (!raw) return { expanded: false, previewOpen: false };
+    const p = JSON.parse(raw) as { expanded?: boolean; stage?: string; previewOpen?: boolean };
+    const previewOpen = Boolean(p.previewOpen) || p.stage === 'advisors';
+    const expanded = Boolean(p.expanded) || previewOpen;
+    return { expanded, previewOpen };
   } catch {
-    return { expanded: false, stage: 'setup' };
+    return { expanded: false, previewOpen: false };
   }
 }
 
-function writeSessionUi(patch: { expanded: boolean; stage: Stage }) {
-  sessionStorage.setItem(SESSION_UI_KEY, JSON.stringify(patch));
+function writeSessionUi(next: SessionUi) {
+  sessionStorage.setItem(SESSION_UI_KEY, JSON.stringify(next));
 }
 
 function clearSessionUi() {
@@ -39,16 +52,95 @@ const VENDORS: { id: OnboardingVendor; label: string }[] = [
   { id: 'anthropic', label: 'Anthropic' },
 ];
 
-/** Duplicated for seamless CSS marquee loop */
-const ADVISORS_MARQUEE_STRIP = [...ADVISORS, ...ADVISORS];
+/**
+ * Scroll-linked 3D tilt (perspective + rotateX + Z depth), similar in spirit to
+ * Vertical-style GSAP editorial sites ([Godly Vertical](https://godly.website/website/vertical-421)).
+ */
+function CouncilAdvisorPlane({
+  advisor: a,
+  index: i,
+  scrollContainerRef,
+  reduceMotion,
+}: {
+  advisor: AdvisorPersona;
+  index: number;
+  scrollContainerRef: RefObject<HTMLDivElement | null>;
+  reduceMotion: boolean | null;
+}) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const off = Boolean(reduceMotion);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    container: scrollContainerRef,
+    offset: ['start 0.92', 'start 0.28'],
+  });
+
+  const rotateX = useTransform(scrollYProgress, [0, 1], off ? [0, 0] : [17, 0]);
+  const z = useTransform(scrollYProgress, [0, 1], off ? [0, 0] : [-72, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.42], off ? [1, 1] : [0.38, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], off ? [1, 1] : [0.965, 1]);
+
+  const displayName = a.name.split(' (')[0];
+
+  return (
+    <motion.div
+      ref={sectionRef}
+      role="region"
+      aria-label={`Advisor ${displayName}`}
+      style={{
+        rotateX,
+        z,
+        opacity,
+        scale,
+        transformStyle: 'preserve-3d',
+        transformOrigin: '50% 0%',
+      }}
+      className="flex flex-col gap-6 py-14 md:flex-row md:items-start md:gap-12 md:py-20 lg:gap-16 will-change-transform [backface-visibility:hidden]"
+    >
+      <div className="flex shrink-0 md:w-[120px] lg:w-[140px]">
+        <span className="font-mono text-[11px] tabular-nums tracking-[0.2em] text-white/35">
+          {String(i + 1).padStart(2, '0')}
+        </span>
+      </div>
+      <div className="min-w-0 flex-1 space-y-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:gap-8">
+          <Avatar className="h-16 w-16 shrink-0 rounded-full ring-1 ring-white/15 sm:h-20 sm:w-20">
+            <AvatarImage src={a.avatar} className="rounded-full object-cover" alt="" />
+            <AvatarFallback className="rounded-full bg-white/10 text-lg text-white">
+              {displayName[0]}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-sans text-[clamp(2rem,7vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-white">
+              {displayName}
+            </h3>
+            <p className="mt-4 max-w-md text-[11px] font-medium uppercase tracking-[0.22em] text-white/45">
+              {a.title}
+            </p>
+            <p className="mt-2 text-[11px] tracking-[0.14em] text-white/35 uppercase">
+              {advisorRegionLabel(a.id)}
+            </p>
+          </div>
+        </div>
+        <p className="font-heading max-w-2xl text-[clamp(1rem,2.4vw,1.25rem)] italic leading-[1.65] text-white/65 md:leading-[1.7]">
+          {a.bio}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
 
 type Props = {
   onComplete: () => void;
 };
 
 export function OnboardingFlow({ onComplete }: Props) {
-  const [expanded, setExpanded] = useState(() => readSessionUi().expanded);
-  const [stage, setStage] = useState<Stage>(() => readSessionUi().stage);
+  const reduceMotion = useReducedMotion();
+  const councilScrollRef = useRef<HTMLDivElement>(null);
+  const initial = readSessionUi();
+  const [expanded, setExpanded] = useState(initial.expanded);
+  const [previewOpen, setPreviewOpen] = useState(initial.previewOpen);
   const [vendor, setVendor] = useState<OnboardingVendor>('openai');
   const [keys, setKeys] = useState({ openai: '', gemini: '', anthropic: '' });
   const [setupSaving, setSetupSaving] = useState(false);
@@ -65,6 +157,16 @@ export function OnboardingFlow({ onComplete }: Props) {
     },
     [],
   );
+
+  function openCouncilPreview() {
+    setPreviewOpen(true);
+    writeSessionUi({ expanded: true, previewOpen: true });
+  }
+
+  function closeCouncilPreview() {
+    setPreviewOpen(false);
+    writeSessionUi({ expanded, previewOpen: false });
+  }
 
   async function saveToServer() {
     setSetupHint(null);
@@ -87,7 +189,7 @@ export function OnboardingFlow({ onComplete }: Props) {
       setLlmReady(result.llmConfigured);
 
       if (result.llmConfigured) {
-        writeSessionUi({ expanded: true, stage: 'advisors' });
+        writeSessionUi({ expanded: true, previewOpen: true });
         if (advanceAfterSaveRef.current) clearTimeout(advanceAfterSaveRef.current);
         const prefersReduced =
           typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -95,7 +197,7 @@ export function OnboardingFlow({ onComplete }: Props) {
         advanceAfterSaveRef.current = window.setTimeout(() => {
           advanceAfterSaveRef.current = null;
           setSetupHint(null);
-          setStage('advisors');
+          setPreviewOpen(true);
         }, delayMs);
       }
     } catch (e) {
@@ -118,6 +220,7 @@ export function OnboardingFlow({ onComplete }: Props) {
   const openExpanded = (e: MouseEvent) => {
     e.stopPropagation();
     setExpanded(true);
+    writeSessionUi({ expanded: true, previewOpen });
   };
 
   return (
@@ -181,214 +284,225 @@ export function OnboardingFlow({ onComplete }: Props) {
             </div>
           ) : (
             <div className="w-full space-y-8" onClick={(e) => e.stopPropagation()}>
-              <AnimatePresence mode="wait">
-                {stage === 'setup' && (
-                  <motion.div
-                    key="setup"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="space-y-6 text-left"
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="space-y-6 text-left"
+              >
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/50">Before you enter</p>
+                  <h2 className="text-2xl font-semibold tracking-tight md:text-[1.65rem] leading-snug">
+                    Choose your model vendor and API key.
+                  </h2>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {VENDORS.map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      onClick={() => setVendor(v.id)}
+                      className={cn(
+                        'rounded-full px-4 py-2 text-sm font-medium transition',
+                        vendor === v.id
+                          ? 'bg-white text-black'
+                          : 'bg-white/10 text-white/90 ring-1 ring-white/20 hover:bg-white/15',
+                      )}
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="space-y-3">
+                  <label className="block text-xs uppercase tracking-wider text-white/45">API key</label>
+                  {vendor === 'openai' && (
+                    <input
+                      type="password"
+                      autoComplete="off"
+                      value={keys.openai}
+                      onChange={(e) => setKeys((k) => ({ ...k, openai: e.target.value }))}
+                      placeholder="sk-…"
+                      className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
+                    />
+                  )}
+                  {vendor === 'gemini' && (
+                    <input
+                      type="password"
+                      autoComplete="off"
+                      value={keys.gemini}
+                      onChange={(e) => setKeys((k) => ({ ...k, gemini: e.target.value }))}
+                      placeholder="AIza…"
+                      className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
+                    />
+                  )}
+                  {vendor === 'anthropic' && (
+                    <input
+                      type="password"
+                      autoComplete="off"
+                      value={keys.anthropic}
+                      onChange={(e) => setKeys((k) => ({ ...k, anthropic: e.target.value }))}
+                      placeholder="sk-ant-…"
+                      className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
+                    />
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-3 items-center">
+                  <Button
+                    type="button"
+                    disabled={setupSaving}
+                    onClick={saveToServer}
+                    className="!rounded-full !bg-white !text-black hover:!bg-white/90 !px-6 !py-5 !h-auto !text-sm !font-semibold"
                   >
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/50">Before you enter</p>
-                      <h2 className="text-2xl font-semibold tracking-tight md:text-[1.65rem] leading-snug">
-                        Choose your model vendor and API key.
-                      </h2>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {VENDORS.map((v) => (
-                        <button
-                          key={v.id}
-                          type="button"
-                          onClick={() => setVendor(v.id)}
-                          className={cn(
-                            'rounded-full px-4 py-2 text-sm font-medium transition',
-                            vendor === v.id
-                              ? 'bg-white text-black'
-                              : 'bg-white/10 text-white/90 ring-1 ring-white/20 hover:bg-white/15',
-                          )}
-                        >
-                          {v.label}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="space-y-3">
-                      <label className="block text-xs uppercase tracking-wider text-white/45">API key</label>
-                      {vendor === 'openai' && (
-                        <input
-                          type="password"
-                          autoComplete="off"
-                          value={keys.openai}
-                          onChange={(e) => setKeys((k) => ({ ...k, openai: e.target.value }))}
-                          placeholder="sk-…"
-                          className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
-                        />
-                      )}
-                      {vendor === 'gemini' && (
-                        <input
-                          type="password"
-                          autoComplete="off"
-                          value={keys.gemini}
-                          onChange={(e) => setKeys((k) => ({ ...k, gemini: e.target.value }))}
-                          placeholder="AIza…"
-                          className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
-                        />
-                      )}
-                      {vendor === 'anthropic' && (
-                        <input
-                          type="password"
-                          autoComplete="off"
-                          value={keys.anthropic}
-                          onChange={(e) => setKeys((k) => ({ ...k, anthropic: e.target.value }))}
-                          placeholder="sk-ant-…"
-                          className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
-                        />
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-3 items-center">
-                      <Button
-                        type="button"
-                        disabled={setupSaving}
-                        onClick={saveToServer}
-                        className="!rounded-full !bg-white !text-black hover:!bg-white/90 !px-6 !py-5 !h-auto !text-sm !font-semibold"
-                      >
-                        {setupSaving ? 'Saving…' : 'Save & apply'}
-                      </Button>
-                      {llmReady && (
-                        <span className="text-xs font-medium text-emerald-400/95">Ready for chat</span>
-                      )}
-                    </div>
-                    {setupHint && (
-                      <p
-                        className={cn(
-                          'text-sm leading-relaxed',
-                          setupHint.ok ? 'text-white/80' : 'text-amber-300/95',
-                        )}
-                      >
-                        {setupHint.text}
-                      </p>
+                    {setupSaving ? 'Saving…' : 'Save & apply'}
+                  </Button>
+                  {llmReady && (
+                    <span className="text-xs font-medium text-emerald-400/95">Ready for chat</span>
+                  )}
+                </div>
+                {setupHint && (
+                  <p
+                    className={cn(
+                      'text-sm leading-relaxed',
+                      setupHint.ok ? 'text-white/80' : 'text-amber-300/95',
                     )}
-
-                    <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          clearSessionUi();
-                          setExpanded(false);
-                        }}
-                        className="text-sm text-white/45 underline decoration-white/25 underline-offset-4 hover:text-white/80"
-                      >
-                        Collapse
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          writeSessionUi({ expanded: true, stage: 'advisors' });
-                          setStage('advisors');
-                        }}
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-white underline decoration-white/40 underline-offset-[6px] hover:decoration-white"
-                      >
-                        Meet the council
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {stage === 'advisors' && (
-                  <motion.div
-                    key="advisors"
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                    className="space-y-6 text-left"
                   >
-                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/50">Meet the council</p>
-
-                    <div className="council-advisors-marquee-wrap relative -mx-2 md:-mx-1">
-                      <div
-                        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-black to-transparent md:w-14"
-                        aria-hidden
-                      />
-                      <div
-                        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-black to-transparent md:w-14"
-                        aria-hidden
-                      />
-                      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/40 py-8 md:py-10">
-                        <div className="flex council-advisors-marquee w-max items-end gap-8 px-6 md:gap-10 md:px-10">
-                          {ADVISORS_MARQUEE_STRIP.map((a, idx) => (
-                            <div
-                              key={`${a.id}-${idx}`}
-                              className={cn(
-                                'group relative w-[10.5rem] shrink-0 outline-none md:w-[12rem]',
-                                'rounded-2xl focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
-                              )}
-                              tabIndex={0}
-                            >
-                              <div className="relative flex h-[min(52vh,300px)] w-full items-center justify-center overflow-hidden rounded-2xl bg-white/[0.06] ring-1 ring-white/10 md:h-[340px]">
-                                <img
-                                  src={a.avatar}
-                                  alt=""
-                                  className="max-h-full max-w-full object-contain object-center select-none"
-                                  draggable={false}
-                                />
-                                <div
-                                  className={cn(
-                                    'absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-black/88 to-black/25 p-4 opacity-0 transition-opacity duration-300 ease-out',
-                                    'group-hover:opacity-100 group-focus-within:opacity-100',
-                                  )}
-                                >
-                                  <div className="max-h-[min(42vh,240px)] min-h-0 overflow-y-auto overscroll-contain">
-                                    <p className="text-sm font-semibold leading-snug text-white">{a.name}</p>
-                                    <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.12em] text-white/50">
-                                      {a.title}
-                                    </p>
-                                    <p className="mt-3 text-[13px] leading-relaxed text-white/90">{a.bio}</p>
-                                  </div>
-                                </div>
-                              </div>
-                              <p className="mt-2.5 text-center text-[11px] font-medium text-white/55 line-clamp-2 md:text-xs">
-                                {a.name}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          writeSessionUi({ expanded: true, stage: 'setup' });
-                          setStage('setup');
-                        }}
-                        className="text-sm text-white/45 underline decoration-white/25 underline-offset-4 hover:text-white/80 self-start order-2 sm:order-1"
-                      >
-                        Back to setup
-                      </button>
-                      <Button
-                        type="button"
-                        onClick={finish}
-                        className="!rounded-full !bg-white !text-black hover:!bg-white/90 !px-10 !py-6 !h-auto !text-base !font-semibold order-1 sm:order-2 sm:ml-auto w-full sm:w-auto"
-                      >
-                        Enter Council
-                        <ArrowRight className="ml-2 h-5 w-5 inline" />
-                      </Button>
-                    </div>
-                  </motion.div>
+                    {setupHint.text}
+                  </p>
                 )}
-              </AnimatePresence>
+
+                <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clearSessionUi();
+                      setExpanded(false);
+                      setPreviewOpen(false);
+                    }}
+                    className="text-sm text-white/45 underline decoration-white/25 underline-offset-4 hover:text-white/80"
+                  >
+                    Collapse
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openCouncilPreview}
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-white underline decoration-white/40 underline-offset-[6px] hover:decoration-white"
+                  >
+                    Meet the council
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </motion.div>
             </div>
           )}
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {previewOpen && (
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close preview"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[200] bg-black/45 cursor-default"
+              onClick={closeCouncilPreview}
+            />
+            <motion.div
+              key="council-preview"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="council-preview-title"
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              className={cn(
+                'fixed z-[210] flex flex-col overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-black text-white shadow-[0_32px_90px_-28px_rgba(0,0,0,0.55)]',
+                'left-4 right-4 top-[max(1rem,env(safe-area-inset-top))] bottom-[max(1rem,env(safe-area-inset-bottom))]',
+                'md:left-[max(1rem,calc(50%-min(56rem,92vw)/2))] md:right-[max(1rem,calc(50%-min(56rem,92vw)/2))]',
+                'md:top-[max(2rem,calc(50%-min(42rem,75vh)/2))] md:bottom-auto md:h-[min(42rem,75vh)] md:max-h-[85vh]',
+              )}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-white/[0.08] px-5 md:px-8">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-white/40">
+                    Ft. council
+                  </p>
+                  <h2 id="council-preview-title" className="sr-only">
+                    Meet the council
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeCouncilPreview}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white/50 hover:bg-white/[0.06] hover:text-white motion-safe:transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="h-5 w-5 stroke-[1.75]" />
+                </button>
+              </header>
+
+              <div
+                ref={councilScrollRef}
+                className="flex-1 min-h-0 overflow-y-auto scroll-smooth bg-black px-5 pb-8 pt-6 md:px-12 md:pb-12 md:pt-10"
+              >
+                <div className="mx-auto max-w-4xl">
+                  <header className="border-b border-white/[0.08] pb-12 md:pb-16">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/45">
+                      Before you enter
+                    </p>
+                    <p className="mt-5 font-sans text-[clamp(1.85rem,5vw,3rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-white">
+                      Meet the council.
+                    </p>
+                  </header>
+
+                  <div className="[perspective:1400px] [perspective-origin:50%_0%]">
+                    <div className="divide-y divide-white/[0.08]">
+                      {ADVISORS.map((a, i) => (
+                        <div key={a.id}>
+                          <CouncilAdvisorPlane
+                            advisor={a}
+                            index={i}
+                            scrollContainerRef={councilScrollRef}
+                            reduceMotion={reduceMotion}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <footer className="shrink-0 border-t border-white/[0.08] bg-black px-5 py-4 md:px-8">
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <button
+                    type="button"
+                    onClick={closeCouncilPreview}
+                    className="text-sm font-medium text-white/45 underline decoration-white/25 underline-offset-[6px] hover:text-white/85"
+                  >
+                    Back to setup
+                  </button>
+                  <Button
+                    type="button"
+                    onClick={finish}
+                    className="!rounded-full !border-0 !bg-white !text-black hover:!bg-white/90 !px-10 !py-6 !h-auto !text-base !font-semibold shadow-[0_16px_48px_-12px_rgba(0,0,0,0.45)] sm:min-w-[12rem]"
+                  >
+                    Enter the Council
+                    <ArrowRight className="ml-2 h-5 w-5 inline" />
+                  </Button>
+                </div>
+              </footer>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <p className="shrink-0 pb-8 text-center text-[11px] text-neutral-400 px-4">
         Tap the pill to expand · Blue button skips setup

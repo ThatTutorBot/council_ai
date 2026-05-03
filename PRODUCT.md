@@ -14,6 +14,8 @@ Council AI is a group-chat web app where distinct AI advisors (fixed personas) s
 
 Success looks like: threads feel like a coherent council (not noise), the UI stays readable and calm for long conversations, and users keep clear control over who is in the room and what was said.
 
+**First-run continuity:** The path from setup to the thread should not feel like switching products. When someone previews “the council” or completes onboarding, that experience uses the **same product chrome strategy** as the main chat (calm canvas, one accent, shared type rhythm). A compact entry surface for API setup is fine; the **meet advisors / enter chat** moments stay on the Scholar’s Rail vocabulary so users are not trained on a second visual language.
+
 ## Brand Personality
 
 Reflective, clear, quietly confident. A serious tool for thought, not a toy or a hypey demo. Measured, human-scaled tone; advisor character lives in messages; the shell stays neutral and legible.
@@ -29,6 +31,7 @@ Generic AI-product visuals (gradient hero metrics, decorative glass, side-stripe
 3. **Respectful intelligence** — UI and copy signal competence without theatrical AGI branding.
 4. **Personas in content, restraint in chrome** — Character lives in advisor voices; the shell stays readable and consistent.
 5. **Honest affordances** — Show what is happening (who speaks, what is selected) without dark patterns.
+6. **One shell at commitment** — Preview and entry surfaces match the main council UI (tokens, accent, typography labels), so deliberation starts without a jarring handoff.
 
 ## Accessibility & Inclusion
 
