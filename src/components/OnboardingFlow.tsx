@@ -150,7 +150,7 @@ function CouncilAdvisorPlane({
       <div className="min-w-0 flex-1 space-y-6 [transform-style:preserve-3d]">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:gap-8">
           <Avatar className="relative z-10 h-16 w-16 shrink-0 rounded-full ring-1 ring-white/15 sm:h-20 sm:w-20">
-            <AvatarImage src={a.avatar} className="rounded-full object-cover" alt="" />
+            <AvatarImage src={a.avatar} className="rounded-full object-cover object-top" alt="" />
             <AvatarFallback className="rounded-full bg-white/10 text-lg text-white">
               {displayName[0]}
             </AvatarFallback>

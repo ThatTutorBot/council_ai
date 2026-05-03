@@ -1,5 +1,25 @@
 # Council AI
 
+<p align="center">
+  <a href="https://council-ai.onrender.com/" title="Open the live app">
+    <img
+      src="docs/images/council-ai-live.png"
+      alt="Council AI — live UI on Render (welcome / council pill)"
+      width="900"
+    />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://council-ai.onrender.com/"><strong>council-ai.onrender.com</strong></a>
+  — live API + app
+  ·
+  <a href="https://thattutorbot.github.io/council_ai/" title="Embedded demo (GitHub Pages)"><strong>Pages embed</strong></a>
+  <sup><a href="#github-pages-embedded-demo">*</a></sup>
+</p>
+
+---
+
 A **group-chat style web app** where you talk with several **AI advisors** at once—each with a fixed persona, bilingual replies (Chinese / English depending on the character), and a coordinator model that picks who speaks next. The UI is inspired by mobile messaging.
 
 The **backend** is Express + TypeScript. LLM calls can use **OpenAI** (OpenAI Agents SDK), **Google Gemini**, or **Anthropic Claude** via env-based routing—**or** point the OpenAI stack at **LiteLLM** for a single proxy.
@@ -141,7 +161,11 @@ council_ai/
 │   └── agents/            # OpenAI Agents + zod schemas
 ├── public/                  # Static assets (optional; advisor portraits use Wikimedia URLs in code)
 ├── docs/
+│   ├── index.html         # GitHub Pages: full-page iframe → Render (enable Pages from /docs)
+│   ├── .nojekyll          # Disable Jekyll so `index.html` is served as-is
 │   ├── README.md          # Doc index
+│   ├── images/
+│   │   └── council-ai-live.png  # README hero snapshot (regenerate with Playwright; see below)
 │   ├── native-providers.md
 │   └── litellm-setup.md
 ├── .env.example
@@ -153,6 +177,33 @@ council_ai/
 ## Contributing
 
 Issues and pull requests are welcome. Run **`npm run lint`** before submitting. If you change API shapes, update **`src/services/chatService.ts`** and this README / **`docs/`** as needed.
+
+---
+
+## GitHub Pages embedded demo
+
+The static page **`docs/index.html`** embeds the same app at **[council-ai.onrender.com](https://council-ai.onrender.com/)** in a full-height `<iframe>` so visitors can use the **live demo** from your **`*.github.io`** URL without duplicating the backend (still hosted on Render).
+
+**Enable it:** Repository **Settings → Pages → Build and deployment → Branch** → choose **`main`** (or your default branch) and folder **`/docs`**, then save. After the first deploy, the site is typically:
+
+**https://thattutorbot.github.io/council_ai/**
+
+If your GitHub username or repository name differs, update that URL everywhere it appears in this README and the optional **Source** link in **`docs/index.html`**.
+
+---
+
+## Live snapshot (README hero)
+
+The image **`docs/images/council-ai-live.png`** is a capture of the [public demo](https://council-ai.onrender.com/) for the repository landing page (similar in spirit to portfolio shots on [Godly](https://godly.website/)). To refresh it after UI changes:
+
+```bash
+npx playwright@1.49.1 screenshot --viewport-size=1440,900 --wait-for-timeout=5000 \
+  https://council-ai.onrender.com/ docs/images/council-ai-live.png
+```
+
+(`npx playwright install chromium` first if browsers are not cached.)
+
+To change the **social preview image** GitHub shows when the repo link is shared (not the README), add a **1280×640** image under **Repository → Settings → General → Social preview**.
 
 ---
 

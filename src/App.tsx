@@ -495,7 +495,7 @@ function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellP
                   onClick={() => setSelectedContact(a)}
                 >
                   <Avatar className="w-9 h-9 rounded">
-                    <AvatarImage src={a.avatar} className="rounded" />
+                    <AvatarImage src={a.avatar} className="rounded object-top" />
                     <AvatarFallback className="rounded bg-zinc-300">{a.name[0]}</AvatarFallback>
                   </Avatar>
                   <span className="text-[15px] font-semibold">{a.name.split(' (')[0]}</span>
@@ -524,7 +524,7 @@ function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellP
                       className="w-full flex items-center gap-3 px-3 py-2 hover:bg-council-canvas motion-safe:transition-colors"
                     >
                       <Avatar className="w-6 h-6 rounded">
-                        <AvatarImage src={a.avatar} className="rounded" />
+                        <AvatarImage src={a.avatar} className="rounded object-top" />
                       </Avatar>
                       <span className="text-sm font-medium">{a.shortName}</span>
                     </button>
@@ -611,7 +611,7 @@ function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellP
                             {ADVISORS.map(a => (
                               <div key={a.id} className="flex items-center gap-3">
                                 <Avatar className="w-8 h-8 rounded shrink-0">
-                                  <AvatarImage src={a.avatar} className="rounded" />
+                                  <AvatarImage src={a.avatar} className="rounded object-top" />
                                 </Avatar>
                                 <span className="text-sm font-medium flex-1">{a.name.split(' (')[0]}</span>
                                 <button
@@ -686,7 +686,10 @@ function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellP
                       className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
                     >
                       <Avatar className="w-10 h-10 rounded shrink-0">
-                        <AvatarImage src={isUser ? userAvatarUrl : msg.avatar} className="rounded" />
+                        <AvatarImage
+                          src={isUser ? userAvatarUrl : msg.avatar}
+                          className={cn('rounded', !isUser && 'object-top')}
+                        />
                         <AvatarFallback className="rounded bg-zinc-300">{msg.senderName[0]}</AvatarFallback>
                       </Avatar>
                       <div className={`flex flex-col gap-1 max-w-[70%] ${isUser ? 'items-end' : 'items-start'}`}>
@@ -859,7 +862,7 @@ function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellP
                 <div className="w-full max-w-[400px] flex flex-col items-center">
                   <div className="flex items-start w-full gap-5 border-b border-council-hairline pb-10 mb-8">
                      <Avatar className="w-[64px] h-[64px] rounded">
-                        <AvatarImage src={selectedContact.avatar} className="rounded" />
+                        <AvatarImage src={selectedContact.avatar} className="rounded object-top" />
                         <AvatarFallback className="rounded bg-zinc-300">{selectedContact.name[0]}</AvatarFallback>
                      </Avatar>
                      <div className="flex-1">

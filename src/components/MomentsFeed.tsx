@@ -40,7 +40,7 @@ function MomentCard({ post }: { post: MomentPost }) {
   return (
     <div className="flex gap-4 border-b border-council-hairline/60 pb-8 last:border-0">
       <Avatar className="w-10 h-10 rounded shrink-0">
-        <AvatarImage src={advisor?.avatar} className="rounded" />
+        <AvatarImage src={advisor?.avatar} className="rounded object-top" />
       </Avatar>
       <div className="flex-1 space-y-2 min-w-0">
         <h3 className="text-council-moments-link font-bold text-[15px] tracking-tight">{advisor?.name}</h3>
