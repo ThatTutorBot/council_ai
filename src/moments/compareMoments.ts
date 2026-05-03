@@ -1,23 +1,39 @@
 import type { MomentPost } from '../types';
 
-/** Sort key for month: known months 1–12; unknown sorts after December. */
-export function monthSortRank(month: number | undefined): number {
+/** Oldest-first month key: known 1–12; unknown after December. */
+export function monthSortRankOldest(month: number | undefined): number {
   return month ?? 13;
 }
 
+/** Newest-first within a year: December→January, then year-only (unknown month last). */
+export function monthSortRankNewest(month: number | undefined): number {
+  return month ?? 0;
+}
+
 /**
- * Global timeline order: year → month precision → advisor id → post id.
- * Unknown-month posts follow all dated months within the same year.
+ * Oldest → newest (historical forward). Unknown-month posts follow all dated months in that year.
  */
-export function compareMomentPosts(a: MomentPost, b: MomentPost): number {
+export function compareMomentPostsOldestFirst(a: MomentPost, b: MomentPost): number {
   if (a.year !== b.year) return a.year - b.year;
-  const ma = monthSortRank(a.month);
-  const mb = monthSortRank(b.month);
+  const ma = monthSortRankOldest(a.month);
+  const mb = monthSortRankOldest(b.month);
   if (ma !== mb) return ma - mb;
   if (a.authorId !== b.authorId) return a.authorId.localeCompare(b.authorId);
   return a.id.localeCompare(b.id);
 }
 
+/**
+ * Newest → oldest (feed default: latest events at the top). Within a year, later months before earlier ones; year-only posts last.
+ */
+export function compareMomentPostsNewestFirst(a: MomentPost, b: MomentPost): number {
+  if (a.year !== b.year) return b.year - a.year;
+  const ma = monthSortRankNewest(a.month);
+  const mb = monthSortRankNewest(b.month);
+  if (ma !== mb) return mb - ma;
+  if (a.authorId !== b.authorId) return a.authorId.localeCompare(b.authorId);
+  return a.id.localeCompare(b.id);
+}
+
 export function sortMomentPosts(posts: MomentPost[]): MomentPost[] {
-  return [...posts].sort(compareMomentPosts);
+  return [...posts].sort(compareMomentPostsNewestFirst);
 }

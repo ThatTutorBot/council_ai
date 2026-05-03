@@ -26,7 +26,7 @@ export function formatMonthLabel(month: number): string {
 }
 
 /**
- * `posts` must already be sorted with `compareMomentPosts` / `sortMomentPosts`.
+ * `posts` must already be sorted **newest first** (`compareMomentPostsNewestFirst` / `sortMomentPosts`).
  */
 export function groupSortedMomentPosts(posts: MomentPost[]): MomentYearGroup[] {
   if (posts.length === 0) return [];
@@ -38,7 +38,7 @@ export function groupSortedMomentPosts(posts: MomentPost[]): MomentYearGroup[] {
     else years.set(p.year, [p]);
   }
 
-  const yearNums = [...years.keys()].sort((a, b) => a - b);
+  const yearNums = [...years.keys()].sort((a, b) => b - a);
   const result: MomentYearGroup[] = [];
 
   for (const year of yearNums) {

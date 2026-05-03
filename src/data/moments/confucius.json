@@ -3,21 +3,21 @@
     {
       "id": "birth-zou",
       "year": -551,
-      "content": "生于鲁国陬邑。少贫贱而好礼，志于学，志于复周之文。",
-      "translation": "Born in Zou, Lu—poor in youth but devoted to rites; I sought learning and the culture of Zhou."
+      "content": "我生于鲁国陬邑。少年贫贱却好礼——我立志求学，梦想恢复周之文治。",
+      "translation": "I was born in Zou in Lu—poor in youth yet devoted to rites; I swore to study and revive Zhou's culture."
     },
     {
       "id": "travel-courts",
       "year": -497,
       "month": 3,
-      "content": "周游列国，欲以礼乐正名，而诸侯好用诈力，道难行于天下。",
-      "translation": "I wandered the states to set names right with ritual and music; lords loved guile and force—hard road."
+      "content": "我周游列国，想用礼乐正名；诸侯好用诈力，我的道寸步难行——可我仍然在路上。",
+      "translation": "I wandered the courts hoping ritual would set names straight; lords loved force—my road was blocked—but I stayed on it."
     },
     {
       "id": "return-lu",
       "year": -484,
-      "content": "归鲁删诗书、定礼乐，教弟子以仁与敬：己欲立而立人。",
-      "translation": "Returned to Lu, edited the songs and rites, taught ren and deference—what you wish for yourself, grant others.",
+      "content": "我回到鲁国，删诗书、定礼乐，教弟子以仁与敬：己欲立而立人——这话我从心底践行。",
+      "translation": "I returned to Lu, trimmed songs and rites, taught ren and respect—what you wish for yourself, grant others; I meant every word.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Confucius_Tang_Dynasty.jpg/330px-Confucius_Tang_Dynasty.jpg"
       ]
@@ -25,8 +25,8 @@
     {
       "id": "death-kong",
       "year": -479,
-      "content": "卒于鲁。逝者如斯，不舍昼夜；而斯文未丧，在学者相承。",
-      "translation": "Died in Lu. It passes like this river, day and night—and yet the culture endures in those who carry it."
+      "content": "我在鲁国告终。逝者如斯，不舍昼夜——但愿斯文不绝，在我弟子相续的手中。",
+      "translation": "I ended my road in Lu. It passes like this river—yet may the culture live on in those who carry it after me."
     }
   ]
 }

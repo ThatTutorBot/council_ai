@@ -167,7 +167,7 @@ export function CreateGroupModal({ advisors, open, onClose, onConfirm }: Props) 
                     className="w-full flex items-center gap-2 text-left px-2 py-1.5 rounded hover:bg-white border border-transparent hover:border-[#ddd] text-[13px] cursor-grab active:cursor-grabbing"
                   >
                     <GripVertical className="w-4 h-4 text-[#bbb] shrink-0" aria-hidden />
-                    <img src={a.avatar} alt="" className="w-8 h-8 rounded object-cover shrink-0 bg-zinc-200" />
+                    <img src={a.avatar} alt="" className="w-8 h-8 rounded object-cover object-top shrink-0 bg-zinc-200" />
                     <span className="truncate font-medium">{a.shortName}</span>
                   </button>
                 ))}
@@ -198,7 +198,7 @@ export function CreateGroupModal({ advisors, open, onClose, onConfirm }: Props) 
                     className="w-full flex items-center gap-2 text-left px-2 py-1.5 rounded-lg hover:bg-council-bubble-advisor border border-transparent hover:border-council-accent/35 text-[13px] cursor-grab active:cursor-grabbing"
                   >
                     <GripVertical className="w-4 h-4 text-council-accent shrink-0 opacity-80" aria-hidden />
-                    <img src={a.avatar} alt="" className="w-8 h-8 rounded object-cover shrink-0 bg-zinc-200" />
+                    <img src={a.avatar} alt="" className="w-8 h-8 rounded object-cover object-top shrink-0 bg-zinc-200" />
                     <span className="truncate font-medium">{a.shortName}</span>
                   </button>
                 ))}

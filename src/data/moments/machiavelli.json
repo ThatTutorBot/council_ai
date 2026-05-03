@@ -4,21 +4,21 @@
       "id": "florence-birth",
       "year": 1469,
       "month": 5,
-      "content": "Born in Florence when Medici stars rose and fell—politics was the air we breathed.",
-      "translation": "生于佛罗伦萨，美第奇星升星落之际——政治就是我们呼吸的空气。"
+      "content": "我在佛罗伦萨出生，美第奇的星辰时起时落——我从小就知道，呼吸便是政治。",
+      "translation": "I was born in Florence when Medici stars rose and fell—I knew early that every breath was politics."
     },
     {
       "id": "sanzarro-office",
       "year": 1498,
-      "content": "Second Chancellor under the Republic—dispatches, armies, and the gap between what men say and what they do.",
-      "translation": "共和国第二国务厅长——公文、军队，以及人们所言与所行之间的缝隙。"
+      "content": "我在共和国任第二国务厅长：公文、军团调度，以及看清人们嘴上说的与手上做的之间的裂缝。",
+      "translation": "I served the republic as second chancellor—dispatches, armies, and the crack between what men say and what they do."
     },
     {
       "id": "the-prince",
       "year": 1513,
       "month": 12,
-      "content": "Wrote The Prince in exile: fortune is a river; virtue is the dyke and the pilot together.",
-      "translation": "流放中写下《君主论》：时运如河，德性（virtù）是堤也是舵。",
+      "content": "流放中我写下《君主论》：我把时运比作洪流，把德性（virtù）比作堤坝与舵手——冷酷是我对读者的诚实。",
+      "translation": "In exile I wrote The Prince—I called fortune a flood and virtù dike and pilot; cold eyes were my honesty to you.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg/330px-Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg"
       ]
@@ -27,8 +27,8 @@
       "id": "death-florence",
       "year": 1527,
       "month": 6,
-      "content": "Died in Florence. I studied power without illusions; readers confuse cold eyes with a cold heart.",
-      "translation": "卒于佛罗伦萨。我以冷眼读权力，世人却把冷眼当成冷心。"
+      "content": "我在佛罗伦萨离世。我以冷眼解剖权力——世人却把冷眼误认为冷血。",
+      "translation": "I died in Florence. I dissected power without sentiment—you mistook cold eyes for a cold heart."
     }
   ]
 }

@@ -4,21 +4,21 @@
       "id": "born-rome",
       "year": 121,
       "month": 4,
-      "content": "Born in Rome when Hadrian still shaped the world. Family ties drew me early toward duty and study.",
-      "translation": "生于罗马，哈德良尚在世之时。家世早早把我引向责任与学问。"
+      "content": "我在罗马出生，哈德良仍在书写帝国的边界。家族把我推向公职，而我早早懂得：责任先于虚荣。",
+      "translation": "I was born in Rome while Hadrian still drew the empire's edges. My kin pushed me toward office—and I learned early that duty comes before vanity."
     },
     {
       "id": "adoption-line",
       "year": 138,
-      "content": "Adopted into the imperial line—power came not as conquest but as inheritance of burdens.",
-      "translation": "被接入皇室血脉——权力并非征服而来，而是继承重负。"
+      "content": "我被接入皇室血脉。权力落到我身上并非因为我赢了战场，而是因为我继承了别人的重负。",
+      "translation": "I was folded into the imperial line. Power reached me not from conquest but from inheriting another man's burden."
     },
     {
       "id": "meditations-notes",
       "year": 170,
       "month": 2,
-      "content": "Notes to myself in Greek: the soul must stand alone; externals are indifferent—only virtue is good.",
-      "translation": "用希腊文写给自己的笔记：灵魂须自守；外物无所谓——惟有德性为善。",
+      "content": "我用希腊语给自己写备忘：灵魂必须自给自足；外物无所谓好坏——惟有德行在我之内。",
+      "translation": "I scribbled notes to myself in Greek: the soul must stand alone; externals are indifferent—only virtue is truly mine.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/MSR-ra-61-b-1-DM.jpg/330px-MSR-ra-61-b-1-DM.jpg"
       ]
@@ -27,8 +27,8 @@
       "id": "death-vindobona",
       "year": 180,
       "month": 3,
-      "content": "Campaign fever took me on the Danube. Return all to nature—as smoke becomes air, so the rational soul dissolves.",
-      "translation": "征战中病逝于多瑙河畔。把一切都还诸自然——如烟归空，理性之魂亦复如是。"
+      "content": "我在多瑙河畔的病榻上收场。我把躯体还给元素——如烟升入空中，理性亦归于宇宙之流。",
+      "translation": "I closed my story on the Danube's fever. I return my body to the elements—as smoke rises, so my reasoning soul dissolves into the whole."
     }
   ]
 }

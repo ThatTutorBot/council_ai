@@ -3,8 +3,8 @@
     {
       "id": "birth-yangdu",
       "year": 181,
-      "content": "生于琅琊阳都。乱世之中，惟修学与识人可以立身。",
-      "translation": "Born in Yangdu, Langya. In chaotic times, study and knowing people are how you stand firm.",
+      "content": "我生于琅琊阳都。少年时随叔父迁荆州，乱世里我只信一事：修学、识人，而后安身立命。",
+      "translation": "I was born in Yangdu, Langya. As a boy I moved to Jingzhou with my uncle—in chaos I clung to one thing: learn, know people, then find my footing.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
       ]
@@ -13,21 +13,21 @@
       "id": "longzhong",
       "year": 207,
       "month": 3,
-      "content": "隆中对：三分天下之计，先取荆州为家，再图益州成鼎足。",
-      "translation": "Longzhong Plan: divide the realm in three—take Jingzhou as a base, then Yizhou to form a tripod."
+      "content": "我向刘豫州献上隆中对：先取荆州为家，再图益州，与吴合力拒曹，而后待机一统。那是我毕生路线的蓝图。",
+      "translation": "I laid out the Longzhong Plan for Liu Bei: take Jingzhou as home, then Yizhou, ally with Wu against Cao—that blueprint was my life's axis."
     },
     {
       "id": "red-cliffs-era",
       "year": 208,
       "month": 12,
-      "content": "赤壁之后，天下三分之势渐成，联吴抗曹，立足西南。",
-      "translation": "After Red Cliffs the tripartite order took shape; ally with Wu against Cao and hold the southwest."
+      "content": "赤壁之后，三分之势渐成。我辅佐先主取蜀立足，联吴抗曹——那是我肩上最长的担子之一。",
+      "translation": "After Red Cliffs the realm split three ways. I helped my lord take Shu and hold the southwest—one of the longest burdens I carried."
     },
     {
       "id": "death-wuzhang",
       "year": 234,
-      "content": "鞠躬尽瘁，死而后已。星落五丈原。",
-      "translation": "To bend my strength to the task until my heart stops—then fall at Wuzhang Plains."
+      "content": "我自知时日无多，仍欲北伐到底。“鞠躬尽瘁，死而后已”——最终星落五丈原，我把一口气留在了军中。",
+      "translation": "I knew my days were few yet pressed the northern campaigns anyway—\"bend every ounce till death\"—and fell at Wuzhang Plains with my last breath in the army."
     }
   ]
 }

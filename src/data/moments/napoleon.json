@@ -4,22 +4,22 @@
       "id": "ajaccio",
       "year": 1769,
       "month": 8,
-      "content": "Born in Ajaccio—a Corsican boy in a European storm of crowns and bayonets.",
-      "translation": "生于阿雅克肖——欧陆王冠与刺刀风暴里的科西嘉少年。"
+      "content": "我在阿雅克肖出生——欧陆的王冠与刺刀在我头顶翻滚，而我注定要跑得比谁都快。",
+      "translation": "I was born in Ajaccio—crowns and bayonets churned above Europe, and I meant to outrun everyone."
     },
     {
       "id": "toulon",
       "year": 1793,
       "month": 12,
-      "content": "Toulon: artillery, timing, and audacity. Fortune rewards the general who seizes the decisive point.",
-      "translation": "土伦：火炮、时机与胆略。命运奖赏抓住决胜点的人。"
+      "content": "土伦一战：火炮、时机与孤注一掷。我向自己证明——命运眷顾敢于抓住决胜点的人。",
+      "translation": "Toulon—guns, timing, audacity. I proved to myself fortune favors whoever seizes the decisive point."
     },
     {
       "id": "coup-18-brumaire",
       "year": 1799,
       "month": 11,
-      "content": "18 Brumaire: not ceremony but movement—consolidate power before ideas scatter again.",
-      "translation": "雾月十八：要讲仪式更要讲推进——在思潮再度散落前把权力收拢。",
+      "content": "雾月十八日，我用行动而非演说夺取中枢——在思潮再度散乱之前，我必须把权力攥稳。",
+      "translation": "18 Brumaire—I took the center with movement, not speeches; before ideas scattered again I had to grip power.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg/330px-Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg"
       ]
@@ -28,8 +28,8 @@
       "id": "st-helena",
       "year": 1821,
       "month": 5,
-      "content": "Exile on Saint Helena—maps shrink to one island; the mind still campaigns across Europe.",
-      "translation": "流放圣赫勒拿——地图缩成一座岛，心智仍在欧陆征战。"
+      "content": "我被囚于圣赫勒拿——地图缩成一座岛，但我的思绪仍在整个欧洲行军。",
+      "translation": "They caged me on Saint Helena—the map shrank to one island, yet my mind still marched across Europe."
     }
   ]
 }

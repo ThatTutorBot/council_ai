@@ -3,22 +3,22 @@
     {
       "id": "birth-qiao",
       "year": 155,
-      "content": "沛国谯县人。少机警，任侠放荡，而好学多谋。",
-      "translation": "From Qiao in Pei: sharp as a youth, unruly and fond of knightly ways—but hungry to learn and scheme."
+      "content": "我生于沛国谯县。少年时机警任侠，放荡不羁，但我从不掩饰：我要读书，更要读懂人心与时势。",
+      "translation": "I was born in Qiao, Pei—sharp, unruly, fond of swagger—but I never hid that I meant to read books and read men and seasons."
     },
     {
       "id": "unify-north",
       "year": 200,
       "month": 11,
-      "content": "官渡之后，河北渐次平定，挟天子以令诸侯之势愈固。",
-      "translation": "After Guandu the north was slowly pacified; holding the emperor to command the lords grew firmer."
+      "content": "官渡之后，我一步步吞并河北。挟天子以令我固然背负骂名，却也使我号令名正言顺。",
+      "translation": "After Guandu I swallowed the north piece by piece. Holding the emperor earned me blame—and the power to command in the ruler's name."
     },
     {
       "id": "wei-king",
       "year": 216,
       "month": 5,
-      "content": "进魏王。立法度，抑豪强，惟才是举，不问出身。",
-      "translation": "Raised King of Wei: laws, curbing great houses, promoting talent without asking pedigree.",
+      "content": "我进位魏王：立法抑豪强，倡唯才是举。我不问出身，只问能不能替我平定天下。",
+      "translation": "I rose as King of Wei—law to curb great houses, promotion by merit alone. I asked only whether you could help me settle the realm.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Cao_Cao_scth.jpg/330px-Cao_Cao_scth.jpg"
       ]
@@ -26,8 +26,8 @@
     {
       "id": "death-luoyang",
       "year": 220,
-      "content": "卒于洛阳。乱世奸雄之名任人说，功业与诗文自存。",
-      "translation": "Died in Luoyang. Call me villain if you will—work and verse remain."
+      "content": "我在洛阳咽下最后一口气。后人叫我奸雄也罢——我的功业与诗文，我自己交代在这乱世里了。",
+      "translation": "I drew my last breath in Luoyang. Call me villain if you like—I settled my accounts with this age in deeds and verse."
     }
   ]
 }
