@@ -1,21 +1,26 @@
 # Council AI
 
 <p align="center">
-  <a href="https://council-ai.onrender.com/" title="Open the live app">
+  <a href="https://council-ai.onrender.com/?demo=1" title="Open the live app (main council UI)">
     <img
       src="docs/images/council-ai-live.png"
-      alt="Council AI — live UI on Render (welcome / council pill)"
+      alt="Council AI — live council chat UI on Render"
       width="900"
     />
   </a>
 </p>
 
 <p align="center">
-  <a href="https://council-ai.onrender.com/"><strong>council-ai.onrender.com</strong></a>
-  — live API + app
+  <a href="https://council-ai.onrender.com/?demo=1"><strong>council-ai.onrender.com</strong></a>
+  — live API + app (<code>?demo=1</code> skips welcome for demos)
   ·
-  <a href="https://thattutorbot.github.io/council_ai/" title="Embedded demo (GitHub Pages)"><strong>Pages embed</strong></a>
+  <a href="https://thattutorbot.github.io/council_ai/" title="Interactive embed (GitHub Pages)"><strong>Pages embed</strong></a>
   <sup><a href="#github-pages-embedded-demo">*</a></sup>
+</p>
+
+<p align="center">
+  <sub><strong>GitHub README cannot embed live iframes</strong> (unlike gallery sites such as <a href="https://godly.website/">Godly</a>).
+  Use the <strong>Pages embed</strong> link for an in-window interactive demo; the image above is a static snapshot.</sub>
 </p>
 
 ---
@@ -182,7 +187,7 @@ Issues and pull requests are welcome. Run **`npm run lint`** before submitting. 
 
 ## GitHub Pages embedded demo
 
-The static page **`docs/index.html`** embeds the same app at **[council-ai.onrender.com](https://council-ai.onrender.com/)** in a full-height `<iframe>` so visitors can use the **live demo** from your **`*.github.io`** URL without duplicating the backend (still hosted on Render).
+The static page **`docs/index.html`** embeds the app at **`https://council-ai.onrender.com/?demo=1`** inside a framed viewport (same-window interaction, similar in spirit to showcases on [Godly](https://godly.website/)). The **`demo=1`** query skips the onboarding pill so the **main council UI** appears immediately for cold visitors (no duplicate backend; API stays on Render).
 
 **Enable it:** Repository **Settings → Pages → Build and deployment → Branch** → choose **`main`** (or your default branch) and folder **`/docs`**, then save. After the first deploy, the site is typically:
 
@@ -194,14 +199,16 @@ If your GitHub username or repository name differs, update that URL everywhere i
 
 ## Live snapshot (README hero)
 
-The image **`docs/images/council-ai-live.png`** is a capture of the [public demo](https://council-ai.onrender.com/) for the repository landing page (similar in spirit to portfolio shots on [Godly](https://godly.website/)). To refresh it after UI changes:
+The image **`docs/images/council-ai-live.png`** is a capture of the main UI (**[`?demo=1`](https://council-ai.onrender.com/?demo=1)**) for the repository landing page. To refresh it after UI changes:
 
 ```bash
-npx playwright@1.49.1 screenshot --viewport-size=1440,900 --wait-for-timeout=5000 \
-  https://council-ai.onrender.com/ docs/images/council-ai-live.png
+npx playwright@1.49.1 screenshot --viewport-size=1440,900 --wait-for-timeout=8000 \
+  'https://council-ai.onrender.com/?demo=1' docs/images/council-ai-live.png
 ```
 
 (`npx playwright install chromium` first if browsers are not cached.)
+
+If production has not shipped **`?demo=1`** yet, capture against a local preview instead: run **`npm run build`**, start **`npx vite preview --port 4173 --host 127.0.0.1`**, then point Playwright at **`http://127.0.0.1:4173/?demo=1`**.
 
 To change the **social preview image** GitHub shows when the repo link is shared (not the README), add a **1280×640** image under **Repository → Settings → General → Social preview**.
 
