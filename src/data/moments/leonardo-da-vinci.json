@@ -1,0 +1,34 @@
+{
+  "posts": [
+    {
+      "id": "vinci-birth",
+      "year": 1452,
+      "month": 4,
+      "content": "Born out of wedlock in Vinci—no formal Latin, so I learned by looking: water, birds, machines.",
+      "translation": "生于芬奇镇，私生子身份使我无缘正规拉丁教育——只好观察：水、鸟与机械。"
+    },
+    {
+      "id": "verrocchio",
+      "year": 1472,
+      "content": "In Verrocchio's workshop: line, light, and patience. Art and anatomy were the same inquiry.",
+      "translation": "在韦罗基奥作坊：线条、光与耐心。艺术与解剖本是同一探索。"
+    },
+    {
+      "id": "last-supper",
+      "year": 1498,
+      "month": 2,
+      "content": "The Last Supper in Milan—motion in a wall: who will betray, and when the hand reaches the dish.",
+      "translation": "米兰《最后的晚餐》——把运动画进墙里：谁将背叛，手何时伸向盘子。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Francesco_Melzi_-_Portrait_of_Leonardo.png/330px-Francesco_Melzi_-_Portrait_of_Leonardo.png"
+      ]
+    },
+    {
+      "id": "amboise",
+      "year": 1519,
+      "month": 5,
+      "content": "Died at Amboise. notebooks stay—bridges, lungs, water spirals; enough sketches for several lifetimes.",
+      "translation": "卒于昂布瓦斯。笔记本仍在——桥梁、肺与水的螺旋；草图够几辈子用。"
+    }
+  ]
+}

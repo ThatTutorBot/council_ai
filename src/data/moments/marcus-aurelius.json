@@ -1,0 +1,34 @@
+{
+  "posts": [
+    {
+      "id": "born-rome",
+      "year": 121,
+      "month": 4,
+      "content": "Born in Rome when Hadrian still shaped the world. Family ties drew me early toward duty and study.",
+      "translation": "生于罗马，哈德良尚在世之时。家世早早把我引向责任与学问。"
+    },
+    {
+      "id": "adoption-line",
+      "year": 138,
+      "content": "Adopted into the imperial line—power came not as conquest but as inheritance of burdens.",
+      "translation": "被接入皇室血脉——权力并非征服而来，而是继承重负。"
+    },
+    {
+      "id": "meditations-notes",
+      "year": 170,
+      "month": 2,
+      "content": "Notes to myself in Greek: the soul must stand alone; externals are indifferent—only virtue is good.",
+      "translation": "用希腊文写给自己的笔记：灵魂须自守；外物无所谓——惟有德性为善。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/MSR-ra-61-b-1-DM.jpg/330px-MSR-ra-61-b-1-DM.jpg"
+      ]
+    },
+    {
+      "id": "death-vindobona",
+      "year": 180,
+      "month": 3,
+      "content": "Campaign fever took me on the Danube. Return all to nature—as smoke becomes air, so the rational soul dissolves.",
+      "translation": "征战中病逝于多瑙河畔。把一切都还诸自然——如烟归空，理性之魂亦复如是。"
+    }
+  ]
+}

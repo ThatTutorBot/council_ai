@@ -1,0 +1,32 @@
+{
+  "posts": [
+    {
+      "id": "birth-zou",
+      "year": -551,
+      "content": "生于鲁国陬邑。少贫贱而好礼，志于学，志于复周之文。",
+      "translation": "Born in Zou, Lu—poor in youth but devoted to rites; I sought learning and the culture of Zhou."
+    },
+    {
+      "id": "travel-courts",
+      "year": -497,
+      "month": 3,
+      "content": "周游列国，欲以礼乐正名，而诸侯好用诈力，道难行于天下。",
+      "translation": "I wandered the states to set names right with ritual and music; lords loved guile and force—hard road."
+    },
+    {
+      "id": "return-lu",
+      "year": -484,
+      "content": "归鲁删诗书、定礼乐，教弟子以仁与敬：己欲立而立人。",
+      "translation": "Returned to Lu, edited the songs and rites, taught ren and deference—what you wish for yourself, grant others.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Confucius_Tang_Dynasty.jpg/330px-Confucius_Tang_Dynasty.jpg"
+      ]
+    },
+    {
+      "id": "death-kong",
+      "year": -479,
+      "content": "卒于鲁。逝者如斯，不舍昼夜；而斯文未丧，在学者相承。",
+      "translation": "Died in Lu. It passes like this river, day and night—and yet the culture endures in those who carry it."
+    }
+  ]
+}
