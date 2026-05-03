@@ -44,9 +44,17 @@ function MomentCard({ post }: { post: MomentPost }) {
       </Avatar>
       <div className="flex-1 space-y-2 min-w-0">
         <h3 className="text-council-moments-link font-bold text-[15px] tracking-tight">{advisor?.name}</h3>
-        <p className="text-[16px] leading-relaxed font-medium text-foreground">{post.content}</p>
+        <p
+          lang={advisor?.primaryLang === 'zh' ? 'zh-Hans' : 'en'}
+          className="text-[16px] leading-relaxed font-medium text-foreground"
+        >
+          {post.content}
+        </p>
         {post.translation && (
-          <div className="text-[12px] font-medium text-council-text-soft border-t border-black/[0.07] pt-2.5">
+          <div
+            lang={advisor?.secondaryLang === 'zh' ? 'zh-Hans' : 'en'}
+            className="text-[12px] font-medium text-council-text-soft border-t border-black/[0.07] pt-2.5"
+          >
             {post.translation}
           </div>
         )}

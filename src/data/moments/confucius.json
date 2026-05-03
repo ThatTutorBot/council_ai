@@ -3,8 +3,8 @@
     {
       "id": "early-life-zou",
       "year": -551,
-      "content": "I was born in Zou, Lu. Though my family was poor and my station low, at fifteen I set my heart on learning. Even in small tasks like managing granaries and livestock, I found the true essence of ritual.",
-      "translation": "我生于鲁国陬邑。虽然家境贫寒，地位卑微，但我十有五而志于学。在这些繁琐的委吏与乘田差事中，我看到了礼的真谛。",
+      "content": "我生于鲁国陬邑。虽然家境贫寒，地位卑微，但我十有五而志于学。在这些繁琐的委吏与乘田差事中，我看到了礼的真谛。",
+      "translation": "I was born in Zou, Lu. Though my family was poor and my station low, at fifteen I set my heart on learning. Even in small tasks like managing granaries and livestock, I found the true essence of ritual.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Confucius_Tang_Dynasty.jpg/330px-Confucius_Tang_Dynasty.jpg"
       ]
@@ -12,26 +12,26 @@
     {
       "id": "jing-learning",
       "year": -533,
-      "content": "In my teens I buried myself in the Six Arts—ritual, music, archery, chariot-driving, calligraphy, and numbers—because I believed a gentleman must train body and mind together.",
-      "translation": "少年时我浸淫六艺——礼、乐、射、御、书、数——因为我相信君子必须身心并练。"
+      "content": "少年时我浸淫六艺——礼、乐、射、御、书、数——因为我相信君子必须身心并练。",
+      "translation": "In my teens I buried myself in the Six Arts—ritual, music, archery, chariot-driving, calligraphy, and numbers—because I believed a gentleman must train body and mind together."
     },
     {
       "id": "qi-sojourn",
       "year": -518,
-      "content": "I traveled to Qi and debated ministers at court—Duke Jing welcomed ideas on lowering taxes, yet no lasting reform followed; I saw how rulers love slogans more than sacrifice.",
-      "translation": "我赴齐国与大夫辩论——齐景公嘉纳薄赋之言，却无持久改革；我见君主往往爱口号胜过牺牲。"
+      "content": "我赴齐国与大夫辩论——齐景公嘉纳薄赋之言，却无持久改革；我见君主往往爱口号胜过牺牲。",
+      "translation": "I traveled to Qi and debated ministers at court—Duke Jing welcomed ideas on lowering taxes, yet no lasting reform followed; I saw how rulers love slogans more than sacrifice."
     },
     {
       "id": "minister-lu",
       "year": -501,
-      "content": "At last, I held office in Lu, from Governor of Zhongdu to Minister of Justice. I sought to restore order and clip the wings of the Three Families. Rule by law is easy, but virtue and ritual are the true cures for a broken state.",
-      "translation": "终于，我在鲁国为官，从中都宰做到大司寇。我想要重塑秩序，削平三桓的羽翼。法治虽易，但德治与礼教才是治本之策。"
+      "content": "终于，我在鲁国为官，从中都宰做到大司寇。我想要重塑秩序，削平三桓的羽翼。法治虽易，但德治与礼教才是治本之策。",
+      "translation": "At last, I held office in Lu, from Governor of Zhongdu to Minister of Justice. I sought to restore order and clip the wings of the Three Families. Rule by law is easy, but virtue and ritual are the true cures for a broken state."
     },
     {
       "id": "wandering-states",
       "year": -497,
-      "content": "The Way does not prevail. I left Lu to wander the states—Wei, Song, Chen, and Cai. Though I am like a stray dog, the vision of a Great Harmony in my heart has never flickered out.",
-      "translation": "道不行，乘桴浮于海。我离开鲁国周游列国，在卫、宋、陈、蔡之间奔走。虽累累若丧家之犬，但我心中的大同世界从未熄灭。",
+      "content": "道不行，乘桴浮于海。我离开鲁国周游列国，在卫、宋、陈、蔡之间奔走。虽累累若丧家之犬，但我心中的大同世界从未熄灭。",
+      "translation": "The Way does not prevail. I left Lu to wander the states—Wei, Song, Chen, and Cai. Though I am like a stray dog, the vision of a Great Harmony in my heart has never flickered out.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Kongzi_%28Confucius%29_Temple%2C_Qufu_%2813036298844%29.jpg/330px-Kongzi_%28Confucius%29_Temple%2C_Qufu_%2813036298844%29.jpg"
       ]
@@ -39,20 +39,20 @@
     {
       "id": "wei-stranded",
       "year": -492,
-      "content": "We were stranded between Chen and Cai—food ran out, yet my students still asked about ritual; I told them crisis reveals character.",
-      "translation": "我与弟子困于陈蔡之间——粮尽仍有人问礼；我说患难才见品格。"
+      "content": "我与弟子困于陈蔡之间——粮尽仍有人问礼；我说患难才见品格。",
+      "translation": "We were stranded between Chen and Cai—food ran out, yet my students still asked about ritual; I told them crisis reveals character."
     },
     {
       "id": "return-teaching",
       "year": -488,
-      "content": "Back in Lu I refused grand titles but opened my courtyard to any student who brought dried meat—education, I insisted, should not be a monopoly of bloodlines.",
-      "translation": "回到鲁国，我不恋高位，却向束脩而来的弟子敞开庭院——教育不该被血缘垄断。"
+      "content": "回到鲁国，我不恋高位，却向束脩而来的弟子敞开庭院——教育不该被血缘垄断。",
+      "translation": "Back in Lu I refused grand titles but opened my courtyard to any student who brought dried meat—education, I insisted, should not be a monopoly of bloodlines."
     },
     {
       "id": "educational-legacy",
       "year": -484,
-      "content": "After many years, I have finally returned to Lu. I no longer wish to speak of politics; I only want to edit the Odes and Documents, and settle the Rites and Music. With three thousand disciples, the sparks of my life's work live on through them.",
-      "translation": "阔别多年，我终于回到了鲁国。我不愿再谈政事，只想静心删订《诗》《书》，定《礼》《乐》。弟子三千，贤人七十二，我这一生的火种，都在他们身上了。",
+      "content": "阔别多年，我终于回到了鲁国。我不愿再谈政事，只想静心删订《诗》《书》，定《礼》《乐》。弟子三千，贤人七十二，我这一生的火种，都在他们身上了。",
+      "translation": "After many years, I have finally returned to Lu. I no longer wish to speak of politics; I only want to edit the Odes and Documents, and settle the Rites and Music. With three thousand disciples, the sparks of my life's work live on through them.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Kongzi_%28Confucius%29_Temple%2C_Qufu_%2813035100585%29.jpg/330px-Kongzi_%28Confucius%29_Temple%2C_Qufu_%2813035100585%29.jpg"
       ]
@@ -60,14 +60,14 @@
     {
       "id": "spring-autumn-edits",
       "year": -482,
-      "content": "I edited the Spring and Autumn annals so judgements hide in the wording—future readers would learn that history itself can teach righteousness.",
-      "translation": "我笔削《春秋》，褒贬寓于微言——让后人明白史书本身就能教人善恶。"
+      "content": "我笔削《春秋》，褒贬寓于微言——让后人明白史书本身就能教人善恶。",
+      "translation": "I edited the Spring and Autumn annals so judgements hide in the wording—future readers would learn that history itself can teach righteousness."
     },
     {
       "id": "death-reflection",
       "year": -479,
-      "content": "Mount Tai crumbles! The beam breaks! The wise man withers! In my life, I have learned to follow my heart's desire without overstepping the bounds. It passes like this river, day and night, yet I hope benevolence will forever flow through this world.",
-      "translation": "泰山其颓乎！梁木其坏乎！哲人其萎乎！我这一辈子，从心所欲不逾矩。逝者如斯夫，不舍昼夜，但愿这世间终有仁爱流转。"
+      "content": "泰山其颓乎！梁木其坏乎！哲人其萎乎！我这一辈子，从心所欲不逾矩。逝者如斯夫，不舍昼夜，但愿这世间终有仁爱流转。",
+      "translation": "Mount Tai crumbles! The beam breaks! The wise man withers! In my life, I have learned to follow my heart's desire without overstepping the bounds. It passes like this river, day and night, yet I hope benevolence will forever flow through this world."
     }
   ]
 }

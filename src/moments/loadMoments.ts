@@ -1,5 +1,6 @@
 /**
  * Moments data: edit the JSON files in `src/data/moments/` directly (one file per advisor id).
+ * Each post's `content` is in that advisor's `primaryLang`; `translation` is `secondaryLang` (see `ADVISORS` in types.ts).
  * This module only imports, validates with Zod, and merges—there is no codegen or secondary script.
  */
 import type { MomentPost } from '../types';
