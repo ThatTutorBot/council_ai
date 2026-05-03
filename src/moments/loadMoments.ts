@@ -1,3 +1,7 @@
+/**
+ * Moments data: edit the JSON files in `src/data/moments/` directly (one file per advisor id).
+ * This module only imports, validates with Zod, and merges—there is no codegen or secondary script.
+ */
 import type { MomentPost } from '../types';
 import { advisorMomentsFileSchema } from './momentSchemas';
 import { sortMomentPosts } from './compareMoments';

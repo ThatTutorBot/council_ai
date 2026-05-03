@@ -1,5 +1,7 @@
 # Council AI — documentation index
 
+**GitHub Pages:** when enabled (**Settings → Pages → `/docs`**), the repo root of the published site is **`index.html`** in this folder — a full-page embed of the live app on Render. Technical Markdown docs below are for reading in the repository (or raw); they are not the Pages landing page.
+
 | Doc | When to read |
 |-----|----------------|
 | **[native-providers.md](./native-providers.md)** | Routing **OpenAI**, **Gemini**, and **Anthropic** with separate keys (`LLM_VENDOR_*`) — no LiteLLM required. |

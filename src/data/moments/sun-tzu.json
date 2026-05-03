@@ -1,32 +1,124 @@
 {
   "posts": [
     {
-      "id": "spring-autumn",
+      "id": "qi-birth-trad",
       "year": -544,
-      "content": "我生在春秋变局里。我始终坚信：兵者国之大事——未战之前，我就要算清胜负之势。",
-      "translation": "I came up in the churn of Spring and Autumn. I hold this: war is the state's great affair—I judge victory before I strike."
-    },
-    {
-      "id": "wu-service",
-      "year": -512,
-      "month": 6,
-      "content": "我入吴国为将：对内练兵禁浮华，对外示形造势——我要用“全”胜过毁灭性的厮杀。",
-      "translation": "I entered Wu as a general—I drilled honesty inside and masks outside; I meant to win the realm by preserving strength."
-    },
-    {
-      "id": "art-of-war",
-      "year": -500,
-      "content": "我把十三篇写下来：道天地将法。知己知彼，我才敢说百战不殆。",
-      "translation": "I set down thirteen chapters—Dao, heaven, earth, command, law. Know both sides, I say, and you need not fear a hundred battles.",
+      "content": "Tradition names me Sun Wu of Qi; Sima Qian later dated my life roughly to 544–496 BC—whether myth or man, I became the voice of war’s calculus.",
+      "translation": "传统称我为齐国孙武；《史记》把我的生平大致系于公元前544—496年——无论虚实，我都成了战争计算的代言人。",
       "images": [
-        "https://upload.wikimedia.org/wikipedia/commons/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
       ]
     },
     {
-      "id": "legacy",
+      "id": "summoned-wu",
+      "year": -517,
+      "content": "I left Qi for Wu—King Helü sought soldiers who could turn marsh folk into armies without bankrupting the state.",
+      "translation": "我离开齐国前往吴国——吴王阖闾需要能把水乡之民练成军队、又不拖垮国库的将才。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "harem-drill",
+      "year": -515,
+      "content": "The Shiji says Helü tested me by drilling his concubines; when royal favorites giggled at orders, I executed the two captains—discipline before charm.",
+      "translation": "《史记》载阖闾以宫女试我：宠姬嬉笑违令，我斩两名队长——军中先立信，再谈恩宠。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "wu-general",
+      "year": -512,
+      "month": 6,
+      "content": "King Helü appointed me general—Wu’s spearmen would soon march beyond the Yangtze.",
+      "translation": "吴王拜我为将——吴戈不久便要渡过长江。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "discipline-maxim",
+      "year": -510,
+      "content": "I told every captain: orders are tested first on friends—if favorites laugh, the army will laugh at death.",
+      "translation": "我告诉诸将：军令先要在亲信身上试金石——若宠臣敢嬉笑，士卒就会在死神面前嬉笑。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "chu-campaign-prep",
+      "year": -507,
+      "content": "We carved supply lines through Chu’s lake country; I weighed Heaven, Earth, command, and law before crossing their borders.",
+      "translation": "我们先凿通楚国水乡粮道；伐楚之前，我把天道、地形、将才与法度一一算清。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "battle-boju",
+      "year": -506,
+      "month": 11,
+      "content": "At Boju our smaller force shattered Chu—speed, deception, and moral sway broke their mass.",
+      "translation": "柏举之战，我以寡击众击溃楚国——速度、诡道与士气胜过单纯的兵力。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "capture-ying",
+      "year": -506,
+      "month": 12,
+      "content": "Wu columns pressed to Ying—Chu’s heart trembled; I learned victory tastes like ash if looting replaces policy.",
+      "translation": "吴师攻入楚境直逼郢都——大胜若只剩掳掠而无善后，胜利亦味同嚼灰。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "yangzi-crossing",
+      "year": -508,
+      "content": "We crossed the Han River twice—deception made Chu believe Wu feared water more than blade.",
+      "translation": "我军两度涉汉——诡道让楚国以为吴国畏水甚于畏刀。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "wu-zixu-bond",
+      "year": -503,
+      "content": "Wu Zixu and I argued terrain together—kinship of exile bound us tighter than bronze seal-script.",
+      "translation": "我与伍子胥共论山川——流亡者的默契比青铜铭文更牢。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "art-war-composed",
+      "year": -500,
+      "content": "I set thirteen chapters: Dao, Heaven, Earth, command, law—know yourself and the enemy, then hazard battle.",
+      "translation": "我写下十三篇：道、天、地、将、法——知己知彼，而后敢言战。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "helu-death",
+      "year": -497,
+      "content": "King Helü fell campaigning against Yue—Wu’s spear stayed sharp but its throne shook; every triumph feeds the next peril.",
+      "translation": "阖闾伐越阵亡（传统纪年略早于我的终点）——吴矛尚利而王位已摇；胜利总在孕育下一道险滩。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "final-years",
       "year": -496,
-      "content": "竹简可焚，理不灭：先胜而后战，不战而屈人之兵——我始终以此为至善之胜。",
-      "translation": "Burn the slips—the logic stays: win first, then fight; best of all, break the foe without drawing swords. That has always been my highest victory."
+      "content": "Tradition places my own end about 496 BC at Gusu—if posterity argues whether I lived, they still rehearse my lines.",
+      "translation": "传说我在约公元前496年卒于姑苏——后人即便争辩我是否真实存在，仍在复述我的句子。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/330px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
     }
   ]
 }

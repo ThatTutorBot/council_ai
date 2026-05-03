@@ -1,35 +1,92 @@
 {
   "posts": [
     {
-      "id": "ulm",
+      "id": "early-life-ulm",
       "year": 1879,
       "month": 3,
-      "content": "我在乌尔姆出生——说话很晚，却在安静的谜题里比在喧闹的课堂更自在。",
-      "translation": "I was born in Ulm—I spoke late, yet was more at home with quiet puzzles than noisy classrooms."
-    },
-    {
-      "id": "annus-mirabilis",
-      "year": 1905,
-      "month": 6,
-      "content": "奇迹年里我把论文接连抛出：布朗运动、光量子、狭义相对论——我想说，直觉里的时空并不牢靠。",
-      "translation": "In my miracle year I threw paper after paper—Brownian motion, light quanta, special relativity—I meant to say intuition lies about space and time."
-    },
-    {
-      "id": "general-relativity",
-      "year": 1915,
-      "month": 11,
-      "content": "我把广义相对论写完：引力成了几何。我愿方程简洁，却让自然保留一切复杂。",
-      "translation": "I finished general relativity—gravity became geometry. I wanted simple equations; nature keeps her complexity.",
+      "content": "我在乌尔姆出生。少时沉默寡言，常被老师视作愚钝，但我知道，当我在思考罗盘指针为何总是指向北方时，我已经踏上了探索宇宙秩序的旅程。",
+      "translation": "I was born in Ulm. A quiet child, often seen as dull by teachers, but I knew that when I wondered why a compass needle always pointed north, I had already begun my journey into the cosmic order.",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
       ]
     },
     {
-      "id": "princeton",
+      "id": "zurich-eth",
+      "year": 1900,
+      "content": "在苏黎世联邦理工，我并非模范生，却学会用思想实验把日常经验逼到极限。",
+      "translation": "At the ETH in Zurich I was no model student, yet I learned to push everyday experience to its limit in thought experiments.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "patent-office-miracle",
+      "year": 1905,
+      "content": "在伯尔尼专利局工作的间隙，我迎来了自己的“奇迹年”。四篇论文，从光电效应到E=mc²，我意识到时间与空间并非绝对。这世界比我们肉眼所见的更加宏大诡谲。",
+      "translation": "Between tasks at the Bern patent office, I found my 'Miracle Year.' Four papers—from the photoelectric effect to E=mc²—I realized space and time are not absolute. The world is far grander and stranger than our eyes suggest.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "prague-1911",
+      "year": 1911,
+      "content": "布拉格的年薪让我养家，也让我静思气体中的杂质——那是通向布朗运动世界的门缝。",
+      "translation": "Prague’s salary fed my family and let me study impurities in gases—the crack through which Brownian motion appeared.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "general-relativity-berlin",
+      "year": 1915,
+      "month": 11,
+      "content": "广义相对论终于大功告成。引力不再是神秘的拉力，而是时空的弯曲。看到光线在引力场中偏转的那一刻，我仿佛听到了上帝在低语。",
+      "translation": "General Relativity is finally complete. Gravity is no longer a mysterious tug, but the curvature of spacetime. Seeing light bend in a gravitational field, I felt as though I were hearing God whisper.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "eclipse-1919",
+      "year": 1919,
+      "month": 5,
+      "content": "1919年日食观测报道星光弯曲——广义相对论第一次站在公众舞台中央。",
+      "translation": "The 1919 eclipse headlines bent starlight—general relativity stepped into the public square for the first time.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "nobel-prize",
+      "year": 1921,
+      "content": "因光电效应的研究被授予诺贝尔奖。其实奖金不重要，重要的是，我们终于开始理解光——这宇宙中最纯粹又最神秘的信使。",
+      "translation": "Awarded the Nobel Prize for the photoelectric effect. The prize money matters little; what matters is that we finally began to understand light—the universe's most pure and mysterious messenger."
+    },
+    {
+      "id": "pacifist-letter",
+      "year": 1924,
+      "content": "我与和平主义者通信，也警告欧洲若忽视知识分子，火药桶只会更大。",
+      "translation": "I wrote pacifists and warned Europe that ignoring its thinkers only enlarges the powder keg.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "princeton-refuge",
+      "year": 1933,
+      "content": "纳粹上台，我被迫离开了故土。普林斯顿成了我的新家。科学没有国界，但正义有。我宁愿在自由的土地上做个和平主义的疯子，也不愿在暴政下沉默。",
+      "translation": "With the Nazis in power, I was forced from my homeland. Princeton became my new home. Science has no borders, but justice does. I would rather be a pacifist madman in a free land than remain silent under tyranny.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "death-legacy",
       "year": 1955,
       "month": 4,
-      "content": "我在普林斯顿离去。过去、现在与未来的划分于我而言，不过是顽固的幻觉——可我仍感激这一生追问。",
-      "translation": "I slipped away in Princeton. Past, present, future—only a stubborn illusion, I said—yet I am grateful for the asking."
+      "content": "我在普林斯顿走到了终点。我拒绝了手术，因为强行延长寿命是乏味的。过去、现在与未来的分别只是幻觉。我已经看过了风景，现在该走了。",
+      "translation": "I have reached the end in Princeton. I refused surgery; it is tasteless to prolong life artificially. The distinction between past, present, and future is only an illusion. I have seen the view; it is time to go."
     }
   ]
 }

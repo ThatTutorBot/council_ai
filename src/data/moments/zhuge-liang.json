@@ -3,8 +3,8 @@
     {
       "id": "birth-yangdu",
       "year": 181,
-      "content": "我生于琅琊阳都。少年时随叔父迁荆州，乱世里我只信一事：修学、识人，而后安身立命。",
-      "translation": "I was born in Yangdu, Langya. As a boy I moved to Jingzhou with my uncle—in chaos I clung to one thing: learn, know people, then find my footing.",
+      "content": "I was born in Yangdu, Langya. As a boy I moved to Jingzhou with my uncle—in chaos I clung to one thing: learn, know people, then find my footing.",
+      "translation": "我生于琅琊阳都。少年时随叔父迁荆州，乱世里我只信一事：修学、识人，而后安身立命。",
       "images": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
       ]
@@ -12,22 +12,84 @@
     {
       "id": "longzhong",
       "year": 207,
-      "month": 3,
-      "content": "我向刘豫州献上隆中对：先取荆州为家，再图益州，与吴合力拒曹，而后待机一统。那是我毕生路线的蓝图。",
-      "translation": "I laid out the Longzhong Plan for Liu Bei: take Jingzhou as home, then Yizhou, ally with Wu against Cao—that blueprint was my life's axis."
+      "content": "I farmed in my thatched cottage at Longzhong, seeking only to survive the chaos. But Lord Liu visited me thrice; moved by his sincerity, I presented the Longzhong Plan: occupy Jing and Yi provinces, ally with Wu against Cao, and wait for the world to change.",
+      "translation": "我于隆中草庐躬耕，本欲苟全性命于乱世。然刘先主三顾臣于草庐之中，感其诚意，我终献上“隆中对”：跨有荆、益，联吴抗曹，静待天下有变。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
     },
     {
-      "id": "red-cliffs-era",
+      "id": "chi-bi",
       "year": 208,
-      "month": 12,
-      "content": "赤壁之后，三分之势渐成。我辅佐先主取蜀立足，联吴抗曹——那是我肩上最长的担子之一。",
-      "translation": "After Red Cliffs the realm split three ways. I helped my lord take Shu and hold the southwest—one of the longest burdens I carried."
+      "content": "Cao Cao's massive army pressed south, and Lord Liu was in peril. I went alone to Eastern Wu, debated their scholars at Chaisang, and convinced Sun Quan to join us. The fires of Red Cliffs forged the first shape of the Three Kingdoms.",
+      "translation": "曹操大军压境，刘先主危在旦夕。我只身前往东吴，在柴桑舌战群儒，说服孙权合力。赤壁一把大火，烧出了这天下三分的雏形。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
+    },
+    {
+      "id": "liu-bei-shu",
+      "year": 221,
+      "month": 5,
+      "content": "I drafted edicts when Liu Bei declared himself emperor of Shu—paper seals meant nothing without grain routes secured.",
+      "translation": "先主称帝蜀汉时我草诏书——若粮道未稳，玉玺也不过纸片。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
+    },
+    {
+      "id": "liu-shan-regent",
+      "year": 223,
+      "content": "Liu Bei died at Baidi; I took the regent’s seal for the young heir and swore the house of Han would not end on my watch.",
+      "translation": "先主崩于白帝，我受遗诏辅幼主，立誓汉室气数不能断在我辈手里。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
+    },
+    {
+      "id": "nanzhong-225",
+      "year": 225,
+      "content": "I pacified the south on seven captures and seven releases—wins must be moral, or they cannot last beyond a single season.",
+      "translation": "我南征七擒七纵——胜须合义，否则难逾一季。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
+    },
+    {
+      "id": "chushi-biao",
+      "year": 227,
+      "content": "The late Emperor entrusted me with his son at Baidi; I have grieved day and night since. Now the south is settled and our arms are ready. I write this 'Memorial on the Expedition'—I shall lead the armies north to reclaim the heartlands and restore the House of Han.",
+      "translation": "先主白帝城托孤，我夙夜忧叹。今南方已定，兵甲已足，我写下《出师表》，当奖率三军，北定中原，庶竭驽钝，攘除奸凶，兴复汉室。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
+    },
+    {
+      "id": "first-northern-228",
+      "year": 228,
+      "content": "The first Qishan march faltered on supply—cart tracks in snow taught me what books could not: logistics is also strategy.",
+      "translation": "首出祁山因粮运受挫——雪泥上的车辙教给我书本难载的一课：辎重亦是战略。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
+    },
+    {
+      "id": "northern-expeditions",
+      "year": 231,
+      "content": "The roads to Qishan are rugged, making logistics grueling. I improved the 'wooden oxen and flowing horses.' Even as Sima Yi stays behind his walls, I will not give up. Reclaiming the North is my obsession and my Lord's last wish.",
+      "translation": "祁山之路崎岖，运粮维艰。我改进木牛流马，纵然司马懿闭门不出，我也绝不言弃。克复中原是我的执念，更是先主的遗愿。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
     },
     {
       "id": "death-wuzhang",
       "year": 234,
-      "content": "我自知时日无多，仍欲北伐到底。“鞠躬尽瘁，死而后已”——最终星落五丈原，我把一口气留在了军中。",
-      "translation": "I knew my days were few yet pressed the northern campaigns anyway—\"bend every ounce till death\"—and fell at Wuzhang Plains with my last breath in the army."
+      "content": "I knew my days were few yet pressed the northern campaigns anyway—\"bend every ounce till death\"—and fell at Wuzhang Plains with my last breath in the army.",
+      "translation": "我自知时日无多，仍欲北伐到底。“鞠躬尽瘁，死而后已”——最终星落五丈原，我把一口气留在了军中。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
     }
   ]
 }
