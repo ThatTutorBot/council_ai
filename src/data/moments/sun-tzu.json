@@ -1,0 +1,32 @@
+{
+  "posts": [
+    {
+      "id": "spring-autumn",
+      "year": -544,
+      "content": "生于春秋变局之中。兵者国之大事，未战先算胜负之势。",
+      "translation": "Born amid the Spring and Autumn churn. War is the state's great matter—judge victory before you strike."
+    },
+    {
+      "id": "wu-service",
+      "year": -512,
+      "month": 6,
+      "content": "入吴为将，练兵禁巧诈于内，示形于外，以全争于天下。",
+      "translation": "Entered Wu as a general—train within, deceive without; win the world by preserving strength."
+    },
+    {
+      "id": "art-of-war",
+      "year": -500,
+      "content": "十三篇成：道天地将法，知己知彼，百战不殆。",
+      "translation": "Thirteen chapters: Dao, heaven, earth, command, method—know both sides and be secure in a hundred battles.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg"
+      ]
+    },
+    {
+      "id": "legacy",
+      "year": -496,
+      "content": "书可焚，理长在：先胜后战，不战而屈人之兵，善之善者也。",
+      "translation": "Scrolls may burn; the logic endures—win first, then fight; best of all, break the foe without battle."
+    }
+  ]
+}

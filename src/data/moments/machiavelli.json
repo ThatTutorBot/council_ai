@@ -1,0 +1,34 @@
+{
+  "posts": [
+    {
+      "id": "florence-birth",
+      "year": 1469,
+      "month": 5,
+      "content": "Born in Florence when Medici stars rose and fell—politics was the air we breathed.",
+      "translation": "生于佛罗伦萨，美第奇星升星落之际——政治就是我们呼吸的空气。"
+    },
+    {
+      "id": "sanzarro-office",
+      "year": 1498,
+      "content": "Second Chancellor under the Republic—dispatches, armies, and the gap between what men say and what they do.",
+      "translation": "共和国第二国务厅长——公文、军队，以及人们所言与所行之间的缝隙。"
+    },
+    {
+      "id": "the-prince",
+      "year": 1513,
+      "month": 12,
+      "content": "Wrote The Prince in exile: fortune is a river; virtue is the dyke and the pilot together.",
+      "translation": "流放中写下《君主论》：时运如河，德性（virtù）是堤也是舵。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg/330px-Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg"
+      ]
+    },
+    {
+      "id": "death-florence",
+      "year": 1527,
+      "month": 6,
+      "content": "Died in Florence. I studied power without illusions; readers confuse cold eyes with a cold heart.",
+      "translation": "卒于佛罗伦萨。我以冷眼读权力，世人却把冷眼当成冷心。"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "posts": [
+    {
+      "id": "birth-qiao",
+      "year": 155,
+      "content": "沛国谯县人。少机警，任侠放荡，而好学多谋。",
+      "translation": "From Qiao in Pei: sharp as a youth, unruly and fond of knightly ways—but hungry to learn and scheme."
+    },
+    {
+      "id": "unify-north",
+      "year": 200,
+      "month": 11,
+      "content": "官渡之后，河北渐次平定，挟天子以令诸侯之势愈固。",
+      "translation": "After Guandu the north was slowly pacified; holding the emperor to command the lords grew firmer."
+    },
+    {
+      "id": "wei-king",
+      "year": 216,
+      "month": 5,
+      "content": "进魏王。立法度，抑豪强，惟才是举，不问出身。",
+      "translation": "Raised King of Wei: laws, curbing great houses, promoting talent without asking pedigree.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Cao_Cao_scth.jpg/330px-Cao_Cao_scth.jpg"
+      ]
+    },
+    {
+      "id": "death-luoyang",
+      "year": 220,
+      "content": "卒于洛阳。乱世奸雄之名任人说，功业与诗文自存。",
+      "translation": "Died in Luoyang. Call me villain if you will—work and verse remain."
+    }
+  ]
+}

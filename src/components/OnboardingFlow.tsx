@@ -10,6 +10,7 @@ import {
   AnimatePresence,
   useReducedMotion,
   useScroll,
+  useSpring,
   useTransform,
 } from 'motion/react';
 import { ArrowRight, AudioWaveform, MoreHorizontal, User, X } from 'lucide-react';
@@ -53,8 +54,8 @@ const VENDORS: { id: OnboardingVendor; label: string }[] = [
 ];
 
 /**
- * Scroll-linked 3D tilt (perspective + rotateX + Z depth), similar in spirit to
- * Vertical-style GSAP editorial sites ([Godly Vertical](https://godly.website/website/vertical-421)).
+ * Scroll-linked 3D stage motion (perspective, rotateX/Y, Z, springs): editorial “theatre”
+ * as each advisor passes through the viewport—similar in spirit to Vertical-style sites.
  */
 function CouncilAdvisorPlane({
   advisor: a,
@@ -73,13 +74,52 @@ function CouncilAdvisorPlane({
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     container: scrollContainerRef,
-    offset: ['start 0.92', 'start 0.28'],
+    /** Longer “approach” window so the big tilt stays on screen a beat longer. */
+    offset: ['start 0.97', 'start 0.16'],
   });
 
-  const rotateX = useTransform(scrollYProgress, [0, 1], off ? [0, 0] : [17, 0]);
-  const z = useTransform(scrollYProgress, [0, 1], off ? [0, 0] : [-72, 0]);
-  const opacity = useTransform(scrollYProgress, [0, 0.42], off ? [1, 1] : [0.38, 1]);
-  const scale = useTransform(scrollYProgress, [0, 1], off ? [1, 1] : [0.965, 1]);
+  /** Enter (deep / tilted) → hero (flat) → exit (recede) — tuned for bold perspective (large angles + depth). */
+  const easeRange = [0, 0.48, 1];
+  const zero3 = [0, 0, 0];
+
+  const rotateXSrc = useTransform(
+    scrollYProgress,
+    easeRange,
+    off ? zero3 : [44, 0, -26],
+  );
+  const rotateYSrc = useTransform(
+    scrollYProgress,
+    easeRange,
+    off ? zero3 : [-12, 0, 11],
+  );
+  const zSrc = useTransform(scrollYProgress, easeRange, off ? zero3 : [-210, 0, -95]);
+  const scaleSrc = useTransform(
+    scrollYProgress,
+    easeRange,
+    off ? [1, 1, 1] : [0.78, 1, 0.9],
+  );
+  const opacity = useTransform(
+    scrollYProgress,
+    [0, 0.28, 0.52, 1],
+    off ? [1, 1, 1, 1] : [0.18, 1, 1, 0.58],
+  );
+
+  const indexXSrc = useTransform(scrollYProgress, easeRange, off ? zero3 : [38, 0, -32]);
+  const headlineZSrc = useTransform(scrollYProgress, easeRange, off ? zero3 : [112, 22, 72]);
+
+  const stiff = { stiffness: 9000, damping: 130, mass: 0.08 };
+  /** Slightly tighter springs so large angles catch up quickly (still smoothed, not jittery). */
+  const fluid = { stiffness: 78, damping: 16, mass: 0.52 };
+  const fluidRotateY = { stiffness: 88, damping: 17, mass: 0.52 };
+  const fluidIndex = { stiffness: 62, damping: 19, mass: 0.52 };
+  const fluidHeadline = { stiffness: 68, damping: 16, mass: 0.52 };
+
+  const rotateX = useSpring(rotateXSrc, off ? stiff : fluid);
+  const rotateY = useSpring(rotateYSrc, off ? stiff : fluidRotateY);
+  const z = useSpring(zSrc, off ? stiff : fluid);
+  const scale = useSpring(scaleSrc, off ? stiff : fluid);
+  const indexX = useSpring(indexXSrc, off ? stiff : fluidIndex);
+  const headlineZ = useSpring(headlineZSrc, off ? stiff : fluidHeadline);
 
   const displayName = a.name.split(' (')[0];
 
@@ -90,29 +130,39 @@ function CouncilAdvisorPlane({
       aria-label={`Advisor ${displayName}`}
       style={{
         rotateX,
+        rotateY,
         z,
         opacity,
         scale,
         transformStyle: 'preserve-3d',
-        transformOrigin: '50% 0%',
+        transformOrigin: '50% 42%',
       }}
       className="flex flex-col gap-6 py-14 md:flex-row md:items-start md:gap-12 md:py-20 lg:gap-16 will-change-transform [backface-visibility:hidden]"
     >
-      <div className="flex shrink-0 md:w-[120px] lg:w-[140px]">
+      <motion.div
+        className="flex shrink-0 md:w-[120px] lg:w-[140px]"
+        style={{ x: indexX, transformStyle: 'preserve-3d' }}
+      >
         <span className="font-mono text-[11px] tabular-nums tracking-[0.2em] text-white/35">
           {String(i + 1).padStart(2, '0')}
         </span>
-      </div>
-      <div className="min-w-0 flex-1 space-y-6">
+      </motion.div>
+      <div className="min-w-0 flex-1 space-y-6 [transform-style:preserve-3d]">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:gap-8">
-          <Avatar className="h-16 w-16 shrink-0 rounded-full ring-1 ring-white/15 sm:h-20 sm:w-20">
+          <Avatar className="relative z-10 h-16 w-16 shrink-0 rounded-full ring-1 ring-white/15 sm:h-20 sm:w-20">
             <AvatarImage src={a.avatar} className="rounded-full object-cover" alt="" />
             <AvatarFallback className="rounded-full bg-white/10 text-lg text-white">
               {displayName[0]}
             </AvatarFallback>
           </Avatar>
-          <div className="min-w-0 flex-1">
-            <h3 className="font-sans text-[clamp(2rem,7vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-white">
+          <motion.div
+            className="min-w-0 flex-1"
+            style={{
+              z: headlineZ,
+              transformStyle: 'preserve-3d',
+            }}
+          >
+            <h3 className="font-sans text-[clamp(2rem,7vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-white drop-shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
               {displayName}
             </h3>
             <p className="mt-4 max-w-md text-[11px] font-medium uppercase tracking-[0.22em] text-white/45">
@@ -121,9 +171,9 @@ function CouncilAdvisorPlane({
             <p className="mt-2 text-[11px] tracking-[0.14em] text-white/35 uppercase">
               {advisorRegionLabel(a.id)}
             </p>
-          </div>
+          </motion.div>
         </div>
-        <p className="font-heading max-w-2xl text-[clamp(1rem,2.4vw,1.25rem)] italic leading-[1.65] text-white/65 md:leading-[1.7]">
+        <p className="font-heading relative z-0 max-w-2xl text-[clamp(1rem,2.4vw,1.25rem)] italic leading-[1.65] text-white/65 md:leading-[1.7]">
           {a.bio}
         </p>
       </div>
@@ -463,7 +513,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                     </p>
                   </header>
 
-                  <div className="[perspective:1400px] [perspective-origin:50%_0%]">
+                  <div className="[perspective:1050px] [perspective-origin:50%_22%]">
                     <div className="divide-y divide-white/[0.08]">
                       {ADVISORS.map((a, i) => (
                         <div key={a.id}>

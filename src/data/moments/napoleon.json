@@ -1,0 +1,35 @@
+{
+  "posts": [
+    {
+      "id": "ajaccio",
+      "year": 1769,
+      "month": 8,
+      "content": "Born in Ajaccio—a Corsican boy in a European storm of crowns and bayonets.",
+      "translation": "生于阿雅克肖——欧陆王冠与刺刀风暴里的科西嘉少年。"
+    },
+    {
+      "id": "toulon",
+      "year": 1793,
+      "month": 12,
+      "content": "Toulon: artillery, timing, and audacity. Fortune rewards the general who seizes the decisive point.",
+      "translation": "土伦：火炮、时机与胆略。命运奖赏抓住决胜点的人。"
+    },
+    {
+      "id": "coup-18-brumaire",
+      "year": 1799,
+      "month": 11,
+      "content": "18 Brumaire: not ceremony but movement—consolidate power before ideas scatter again.",
+      "translation": "雾月十八：要讲仪式更要讲推进——在思潮再度散落前把权力收拢。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg/330px-Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg"
+      ]
+    },
+    {
+      "id": "st-helena",
+      "year": 1821,
+      "month": 5,
+      "content": "Exile on Saint Helena—maps shrink to one island; the mind still campaigns across Europe.",
+      "translation": "流放圣赫勒拿——地图缩成一座岛，心智仍在欧陆征战。"
+    }
+  ]
+}

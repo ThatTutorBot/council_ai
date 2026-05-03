@@ -1,0 +1,33 @@
+{
+  "posts": [
+    {
+      "id": "birth-yangdu",
+      "year": 181,
+      "content": "生于琅琊阳都。乱世之中，惟修学与识人可以立身。",
+      "translation": "Born in Yangdu, Langya. In chaotic times, study and knowing people are how you stand firm.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg/330px-%E6%98%8E%E4%BA%BA%E7%BB%98_%E3%80%8A%E8%AF%B8%E8%91%9B%E4%BA%AE%E5%83%8F%E3%80%8B%EF%BC%88%E5%8D%97%E8%96%B0%E6%AE%BF%E6%9C%AC%EF%BC%89.jpg"
+      ]
+    },
+    {
+      "id": "longzhong",
+      "year": 207,
+      "month": 3,
+      "content": "隆中对：三分天下之计，先取荆州为家，再图益州成鼎足。",
+      "translation": "Longzhong Plan: divide the realm in three—take Jingzhou as a base, then Yizhou to form a tripod."
+    },
+    {
+      "id": "red-cliffs-era",
+      "year": 208,
+      "month": 12,
+      "content": "赤壁之后，天下三分之势渐成，联吴抗曹，立足西南。",
+      "translation": "After Red Cliffs the tripartite order took shape; ally with Wu against Cao and hold the southwest."
+    },
+    {
+      "id": "death-wuzhang",
+      "year": 234,
+      "content": "鞠躬尽瘁，死而后已。星落五丈原。",
+      "translation": "To bend my strength to the task until my heart stops—then fall at Wuzhang Plains."
+    }
+  ]
+}

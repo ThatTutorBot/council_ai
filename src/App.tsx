@@ -26,6 +26,7 @@ import { EMOJI_CATEGORIES } from './constants/emojiCategories';
 import { CreateGroupModal } from './components/CreateGroupModal';
 import { FloatingCouncilWindow } from './components/FloatingCouncilWindow';
 import { OnboardingFlow } from './components/OnboardingFlow';
+import { MomentsFeed } from './components/MomentsFeed';
 import {
   isOnboardingCompleteForSession,
   resetOnboarding,
@@ -68,19 +69,10 @@ function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellP
   const [chatError, setChatError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'chats' | 'contacts' | 'moments'>('chats');
   const [selectedContact, setSelectedContact] = useState<AdvisorPersona | null>(null);
-  const [moments, setMoments] = useState<{ id: string, authorId: string, content: string, timestamp: number }[]>([]);
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   /** WeChat-style ⋯ menu on a chat row in the sidebar */
   const [chatListMenuGroupId, setChatListMenuGroupId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMoments([
-      { id: '1', authorId: 'zhuge-liang', content: '淡泊以明志，宁静以致远。 Strategy is the art of seeing what is invisible to others.', timestamp: Date.now() - 3600000 },
-      { id: '2', authorId: 'marcus-aurelius', content: 'The happiness of your life depends upon the quality of your thoughts. Stay virtuous.', timestamp: Date.now() - 7200000 },
-      { id: '3', authorId: 'cao-cao', content: '宁我负人，毋人负我。 Power is the only currency that never devalues.', timestamp: Date.now() - 10800000 },
-    ]);
-  }, []);
 
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -851,29 +843,8 @@ function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellP
             <header className="h-[72px] border-b border-council-list-border flex items-center px-6 md:px-8 bg-council-canvas sticky top-0 z-10 shrink-0 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.07)]">
                <h1 className="text-2xl font-semibold tracking-tight">Moments</h1>
             </header>
-            <div className="max-w-[600px] mx-auto py-10 px-6 space-y-12">
-               {moments.map(moment => {
-                 const advisor = ADVISORS.find(a => a.id === moment.authorId);
-                 return (
-                   <div key={moment.id} className="flex gap-4 border-b border-council-hairline/60 pb-8">
-                     <Avatar className="w-10 h-10 rounded shrink-0">
-                       <AvatarImage src={advisor?.avatar} className="rounded" />
-                     </Avatar>
-                     <div className="flex-1 space-y-2">
-                       <h3 className="text-council-moments-link font-bold text-[15px] tracking-tight">{advisor?.name}</h3>
-                       <p className="text-[16px] leading-relaxed font-medium text-foreground">{moment.content}</p>
-                       <div className="flex justify-between items-center pt-2">
-                         <span className="text-[11px] text-council-text-muted">
-                           {new Date(moment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                         </span>
-                         <div className="bg-council-canvas p-1 rounded-lg cursor-pointer hover:bg-council-row-hover motion-safe:transition-colors">
-                           <MoreHorizontal className="w-4 h-4 text-council-moments-link" />
-                         </div>
-                       </div>
-                     </div>
-                   </div>
-                 );
-               })}
+            <div className="max-w-[600px] mx-auto py-10 px-6">
+              <MomentsFeed />
             </div>
           </div>
         ) : (

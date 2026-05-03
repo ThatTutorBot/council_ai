@@ -22,6 +22,19 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+/** One curated life-event post for Moments (merged from per-advisor JSON). */
+export interface MomentPost {
+  id: string;
+  authorId: string;
+  /** Gregorian year; use negative integers for BCE (e.g. -551). */
+  year: number;
+  /** 1–12 when known; omit if only the year is reliable. */
+  month?: number;
+  content: string;
+  translation: string;
+  images?: string[];
+}
+
 /** Rough era / geography for contact detail UI */
 export function advisorRegionLabel(advisorId: string): string {
   const map: Record<string, string> = {

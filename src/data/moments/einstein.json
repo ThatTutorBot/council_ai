@@ -1,0 +1,35 @@
+{
+  "posts": [
+    {
+      "id": "ulm",
+      "year": 1879,
+      "month": 3,
+      "content": "Born in Ulm—a slow-to-speak child who preferred quiet puzzles to loud classrooms.",
+      "translation": "生于乌尔姆——说话晚，却偏爱安静谜题而非喧闹课堂。"
+    },
+    {
+      "id": "annus-mirabilis",
+      "year": 1905,
+      "month": 6,
+      "content": "Annus mirabilis papers: Brownian motion, light quanta, special relativity—time and space are not what intuition claims.",
+      "translation": "奇迹年论文：布朗运动、光量子、狭义相对论——时空并非直觉所想。"
+    },
+    {
+      "id": "general-relativity",
+      "year": 1915,
+      "month": 11,
+      "content": "General relativity: gravitation as geometry. Let the equations be simple; let nature be complex.",
+      "translation": "广义相对论：引力即几何。方程要简洁，自然尽可繁复。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "princeton",
+      "year": 1955,
+      "month": 4,
+      "content": "Died in Princeton. The old distinction between past, present, and future is only a stubborn illusion.",
+      "translation": "逝于普林斯顿。过去、现在与未来的划分，不过是一种顽固的幻觉。"
+    }
+  ]
+}
