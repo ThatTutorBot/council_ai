@@ -1,0 +1,126 @@
+{
+  "posts": [
+    {
+      "id": "birth-121",
+      "year": 121,
+      "month": 4,
+      "content": "Around 26 April 121 I was born in Rome under Hadrian’s vast empire—I did not yet know the purple would pass to my adoptive father Antoninus.",
+      "translation": "121年4月26日前后，我在罗马出世。哈德良治下的帝国辽阔——我还不知日后皇冠会落到养父安东尼奥的肩上。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/MSR-ra-61-b-1-DM.jpg/330px-MSR-ra-61-b-1-DM.jpg"
+      ]
+    },
+    {
+      "id": "adoption-138",
+      "year": 138,
+      "content": "In 138 Antoninus adopted Lucius Verus and me—I was raised to inherit, not to seize power by the sword alone.",
+      "translation": "138年，安东尼努斯收养我与卢修斯·维鲁斯——我被栽培为继承人，而非靠战功夺位。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Marcus_Aurelius_Capitoline_Hill_September_2015-1.jpg/330px-Marcus_Aurelius_Capitoline_Hill_September_2015-1.jpg"
+      ]
+    },
+    {
+      "id": "consul-140",
+      "year": 140,
+      "content": "Around 140 I held the consulship, shuttling between Senate and camps, learning how the machine ran.",
+      "translation": "约140年我担任执政官，开始在元老院与军营之间往返，学习帝国运转的齿轮。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Column_of_Marcus_Aurelius_%2820006856279%29.jpg/330px-Column_of_Marcus_Aurelius_%2820006856279%29.jpg"
+      ]
+    },
+    {
+      "id": "accession-161",
+      "year": 161,
+      "month": 3,
+      "content": "On 7 March 161 Antoninus died; Lucius Verus and I mounted the throne together—Rome had never shared purple quite like this.",
+      "translation": "161年3月7日，安东尼努斯崩逝；我与卢修斯同日登基——罗马首度出现两位元首并治。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Eugen_Petersen_-_Column_of_Marcus_Aurelius_-_017_-_scene_011.jpg/330px-Eugen_Petersen_-_Column_of_Marcus_Aurelius_-_017_-_scene_011.jpg"
+      ]
+    },
+    {
+      "id": "parthian-war",
+      "year": 163,
+      "content": "The Parthian war strained the East; plague rode home with the legions—I read fortune’s caprice in our triumph bulletins.",
+      "translation": "帕提亚战争拖累东方边境；瘟疫随军团归来席卷帝国——我在胜利书上读到命运无常。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Testudo_relief_Marcus_Aurelius_column.png/330px-Testudo_relief_Marcus_Aurelius_column.png"
+      ]
+    },
+    {
+      "id": "verus-death",
+      "year": 169,
+      "month": 1,
+      "content": "Lucius Verus died near Rome on 23 January 169—after that I bore the frontier alone.",
+      "translation": "169年1月23日卢修斯病逝于罗马附近——此后我只能独自扛起整条边境。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/MSR-ra-61-b-1-DM.jpg/330px-MSR-ra-61-b-1-DM.jpg"
+      ]
+    },
+    {
+      "id": "antonine-plague",
+      "year": 166,
+      "content": "The Antonine Plague rode eastward legions home—I watched triumph arches shoulder-to-shoulder with biers.",
+      "translation": "安东尼大瘟疫从东方军团带回罗马——我在凯旋道上看见欢呼与尸棺并行。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Eugen_Petersen_-_Column_of_Marcus_Aurelius_-_017_-_scene_011.jpg/330px-Eugen_Petersen_-_Column_of_Marcus_Aurelius_-_017_-_scene_011.jpg"
+      ]
+    },
+    {
+      "id": "germanic-panic",
+      "year": 168,
+      "content": "In 168 tribes spilled across the Danube and Rome panicked—I learned a philosopher-emperor must still be engineer and butcher.",
+      "translation": "168年蛮族涌过多瑙河，罗马震恐——我知道哲学家皇帝也必须先当建筑师与屠夫。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Testudo_relief_Marcus_Aurelius_column.png/330px-Testudo_relief_Marcus_Aurelius_column.png"
+      ]
+    },
+    {
+      "id": "danube-campaigns",
+      "year": 172,
+      "content": "Year after year I campaigned on the Danube against Marcomanni—the Greek notes from my tent became what men call Meditations.",
+      "translation": "我在多瑙河畔连年征战马可曼尼人——帐篷里的希腊语札记后来世人称作《沉思录》。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Column_of_Marcus_Aurelius_%2820006856279%29.jpg/330px-Column_of_Marcus_Aurelius_%2820006856279%29.jpg"
+      ]
+    },
+    {
+      "id": "meditations-writing",
+      "year": 175,
+      "month": 11,
+      "content": "Between marches I steadied myself by dialogue within—externals may go; virtue must not.",
+      "translation": "行军间隙我以“与自己对话”稳住心神：外界皆可弃，惟德行不可让。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Marcus_Aurelius_Capitoline_Hill_September_2015-1.jpg/330px-Marcus_Aurelius_Capitoline_Hill_September_2015-1.jpg"
+      ]
+    },
+    {
+      "id": "commodus-co-emperor",
+      "year": 177,
+      "content": "In 177 I raised my son Commodus as co-emperor—may he hold the frontier and the ethic I leave.",
+      "translation": "177年我立儿子康茂德为共治者——但愿他能守住这边界与我留下的伦理。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/MSR-ra-61-b-1-DM.jpg/330px-MSR-ra-61-b-1-DM.jpg"
+      ]
+    },
+    {
+      "id": "northern-front",
+      "year": 178,
+      "content": "Winter 178 took me north again—Marcomanni and Quadi allied like tides; I could only stack stone upon stone.",
+      "translation": "178年冬我再次北上——马可曼尼与夸狄人的联盟像潮水，我却只能一块石头一块石头地垒堤。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Testudo_relief_Marcus_Aurelius_column.png/330px-Testudo_relief_Marcus_Aurelius_column.png"
+      ]
+    },
+    {
+      "id": "death-vindobona",
+      "year": 180,
+      "month": 3,
+      "content": "On 17 March 180 I died at Vindobona near today’s Vienna—I returned my burden to universal reason.",
+      "translation": "180年3月17日，我在文多波纳（今维也纳附近）病逝——终于可以把重担还给宇宙理性。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Eugen_Petersen_-_Column_of_Marcus_Aurelius_-_017_-_scene_011.jpg/330px-Eugen_Petersen_-_Column_of_Marcus_Aurelius_-_017_-_scene_011.jpg"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+# Render Blueprint — https://render.com/docs/infrastructure-as-code
+# After connecting this repo: New → Blueprint → pick branch → sync.
+# Set secret env vars in the Render Dashboard (values are not committed).
+
+services:
+  - type: web
+    name: council-ai
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      # LLM routing — match .env.example / docs/native-providers.md
+      - key: LLM_VENDOR_ADVISOR
+        value: openai
+      - key: LLM_VENDOR_DECIDE
+        value: openai
+      # Required keys depend on vendors above — set in Dashboard (Blueprint sync will prompt on first apply)
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LITELLM_BASE_URL
+        sync: false
+      - key: LITELLM_API_KEY
+        sync: false
+      # Optional observability
+      - key: HONEYHIVE_API_KEY
+        sync: false
+      - key: HONEYHIVE_PROJECT
+        sync: false
+      - key: HONEYHIVE_SOURCE
+        value: production

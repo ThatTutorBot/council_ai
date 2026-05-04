@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -48,6 +48,26 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    --color-council-canvas: var(--council-canvas);
+    --color-council-rail: var(--council-rail);
+    --color-council-rail-deep: var(--council-rail-deep);
+    --color-council-list: var(--council-list);
+    --color-council-list-border: var(--council-list-border);
+    --color-council-search-bg: var(--council-search-bg);
+    --color-council-accent: var(--council-accent);
+    --color-council-accent-hover: var(--council-accent-hover);
+    --color-council-bubble-user: var(--council-bubble-user);
+    --color-council-bubble-advisor: var(--council-bubble-advisor);
+    --color-council-row-active: var(--council-row-active);
+    --color-council-row-hover: var(--council-row-hover);
+    --color-council-hairline: var(--council-hairline);
+    --color-council-text-muted: var(--council-text-muted);
+    --color-council-text-soft: var(--council-text-soft);
+    --color-council-rail-icon: var(--council-rail-icon);
+    --color-council-typing-bg: var(--council-typing-bg);
+    --color-council-typing-dot: var(--council-typing-dot);
+    --color-council-welcome: var(--council-welcome);
+    --color-council-moments-link: var(--council-moments-link);
 }
 
 :root {
@@ -83,6 +103,88 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+    /* Council shell: WeChat topology; bolder pass = higher chroma contrast, sharper hierarchy */
+    --council-canvas: oklch(96.8% 0.028 92);
+    --council-rail: oklch(19.5% 0.055 155);
+    --council-rail-deep: oklch(14.5% 0.048 158);
+    --council-list: oklch(91.5% 0.042 88);
+    --council-list-border: oklch(78% 0.045 82);
+    --council-search-bg: oklch(85% 0.038 86);
+    --council-accent: oklch(56% 0.225 152);
+    --council-accent-hover: oklch(49% 0.22 152);
+    --council-bubble-user: oklch(88.5% 0.23 124);
+    --council-bubble-advisor: oklch(99.2% 0.014 95);
+    --council-row-active: oklch(83.5% 0.095 142);
+    --council-row-hover: oklch(87.5% 0.052 92);
+    --council-hairline: oklch(88.5% 0.034 92);
+    --council-text-muted: oklch(52% 0.035 65);
+    --council-text-soft: oklch(38% 0.03 55);
+    --council-rail-icon: oklch(68% 0.035 250);
+    --council-typing-bg: oklch(84% 0.055 95);
+    --council-typing-dot: oklch(50% 0.155 155);
+    --council-welcome: oklch(58% 0.19 152);
+    --council-moments-link: oklch(46% 0.14 264);
+}
+
+/* Floating chat window: minimal black / white mock (vendor modal aesthetic) */
+.council-chat-float {
+    --foreground: oklch(0.99 0 0);
+    --council-canvas: oklch(0% 0 0);
+    --council-rail: oklch(8% 0 0);
+    --council-rail-deep: oklch(4% 0 0);
+    --council-list: oklch(11% 0 0);
+    --council-list-border: oklch(24% 0 0);
+    --council-search-bg: oklch(16% 0 0);
+    --council-accent: oklch(99% 0 0);
+    --council-accent-hover: oklch(92% 0 0);
+    --council-bubble-user: oklch(99% 0 0);
+    --council-bubble-advisor: oklch(17% 0 0);
+    --council-row-active: oklch(20% 0 0);
+    --council-row-hover: oklch(15% 0 0);
+    --council-hairline: oklch(26% 0 0);
+    --council-text-muted: oklch(62% 0 0);
+    --council-text-soft: oklch(58% 0 0);
+    --council-rail-icon: oklch(72% 0 0);
+    --council-typing-bg: oklch(14% 0 0);
+    --council-typing-dot: oklch(78% 0 0);
+    --council-welcome: oklch(99% 0 0);
+    --council-moments-link: oklch(85% 0 0);
+}
+
+/* User bubbles: light fill needs dark copy */
+.council-chat-float div.bg-council-bubble-user.text-foreground {
+    color: oklch(0.14 0 0);
+}
+
+.council-chat-float div.bg-council-bubble-advisor.text-foreground {
+    color: oklch(0.96 0 0);
+}
+
+/* Welcome pill: white on black → invert label */
+.council-chat-float .bg-council-welcome.text-white {
+    color: oklch(0.12 0 0);
+    background-color: oklch(99% 0 0);
+    border: 1px solid oklch(88% 0 0);
+    box-shadow: 0 18px 48px -12px oklch(0% 0 0 / 0.35);
+}
+
+/* Rail: active tab reads as white pill + black icon (mock primary selection) */
+.council-chat-float aside:first-of-type button[class*="ring-council-accent"] {
+    background-color: oklch(99% 0 0);
+    color: oklch(0.12 0 0);
+    box-shadow: 0 6px 20px oklch(0% 0 0 / 0.35);
+    --tw-ring-color: transparent;
+}
+
+.council-chat-float aside:first-of-type button[class*="ring-council-accent"] svg {
+    color: oklch(0.12 0 0);
+}
+
+/* Inline error on dark UI */
+.council-chat-float .border-red-100.bg-red-50 {
+    background-color: oklch(22% 0.12 25);
+    border-color: oklch(45% 0.2 25);
+    color: oklch(92% 0.02 25);
 }
 
 .dark {

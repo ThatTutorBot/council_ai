@@ -1,0 +1,128 @@
+{
+  "posts": [
+    {
+      "id": "birth-florence",
+      "year": 1469,
+      "month": 5,
+      "content": "On 3 May 1469 I was born in Florence. My father Bernardo was a lawyer; this city taught me—republic and tyrant take turns, every breath is politics.",
+      "translation": "1469年5月3日，我在佛罗伦萨降生。父亲贝尔纳多是律师，这座城市教会我：共和国与僭主轮番上台，呼吸即是政治。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg/330px-Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg"
+      ]
+    },
+    {
+      "id": "secretary-1498",
+      "year": 1498,
+      "content": "Soon after Savonarola’s death I became secretary of Florence’s second chancery, steering diplomacy and war correspondence—I could scarcely believe it at twenty-nine.",
+      "translation": "萨伏那罗拉死后不久，我被任命为佛罗伦萨共和国第二国务厅秘书，执掌外交与战争文书——二十九岁的我几乎无法相信自己手握国务。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Palazzo_Vecchio_%28Florence%29.jpg/330px-Palazzo_Vecchio_%28Florence%29.jpg"
+      ]
+    },
+    {
+      "id": "borgia-1502",
+      "year": 1502,
+      "month": 12,
+      "content": "On 31 December I watched Duke Valentino purge his rebel captains at Sinigaglia—cruel, yet a living lesson in the effectual truth I would later write down.",
+      "translation": "十二月三十一日，我在塞尼加利亚目睹瓦伦蒂诺公爵（切萨雷·博尔贾）清除叛将——残酷，却是我笔下“效应真理”的活教材。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Florence_-_tower_of_the_Palazzo_Vecchio.jpg/330px-Florence_-_tower_of_the_Palazzo_Vecchio.jpg"
+      ]
+    },
+    {
+      "id": "militia-pisa",
+      "year": 1509,
+      "month": 2,
+      "content": "The citizen militia I built took Pisa—I hated mercenaries and preferred armed citizens I could call my own.",
+      "translation": "我组建的佛罗伦萨公民军拿下比萨——我憎恶雇佣兵，宁愿相信武装的市民。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Palazzo_vecchio_Florence.jpg/330px-Palazzo_vecchio_Florence.jpg"
+      ]
+    },
+    {
+      "id": "fall-1512",
+      "year": 1512,
+      "month": 8,
+      "content": "Spanish arms broke Florence at Prato; the republic collapsed and the Medici returned. I was tortured on the rope—I denied conspiracy and walked free after three weeks.",
+      "translation": "西班牙军在普拉托挫败佛罗伦萨，共和国瓦解，美第奇归来。我被牵连，遭受绳刑——但我否认阴谋，三周后获释。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg/330px-Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg"
+      ]
+    },
+    {
+      "id": "farm-prince",
+      "year": 1513,
+      "content": "I retired to my farm near Percussina—mud on my boots by day, ambassador’s robes by night, arguing with ancients until The Prince took shape.",
+      "translation": "我隐居于佩库西纳附近的农庄，脱下沾泥的外衣又披上大使的面具——夜间与古人对话，《君主论》渐渐成形。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Palazzo_Vecchio_%28Florence%29.jpg/330px-Palazzo_Vecchio_%28Florence%29.jpg"
+      ]
+    },
+    {
+      "id": "discourses-years",
+      "year": 1517,
+      "content": "Between 1515 and 1517 I composed the Discourses on Livy—my long defense of how republics endure.",
+      "translation": "我在1515—1517年间撰写《论李维》：共和国何以长久——那是我对共和德性的长篇辩护。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Florence_-_tower_of_the_Palazzo_Vecchio.jpg/330px-Florence_-_tower_of_the_Palazzo_Vecchio.jpg"
+      ]
+    },
+    {
+      "id": "mandrake",
+      "year": 1518,
+      "month": 12,
+      "content": "I wrote comedy too: The Mandrake played in Florence—beyond politics I needed laughter.",
+      "translation": "我也写喜剧：《曼陀罗》在佛罗伦萨上演——政治以外，我还要笑声。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Palazzo_vecchio_Florence.jpg/330px-Palazzo_vecchio_Florence.jpg"
+      ]
+    },
+    {
+      "id": "histories-commission",
+      "year": 1520,
+      "content": "Cardinal Giulio de’ Medici commissioned the Florentine Histories—I thought the door to office cracked open again.",
+      "translation": "枢机主教朱利奥·德·美第奇委托我撰写《佛罗伦萨史》——我以为重返公职的门隙重新打开。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg/330px-Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg"
+      ]
+    },
+    {
+      "id": "arte-guerra",
+      "year": 1521,
+      "content": "The Art of War reached print while I lived—I addressed ancient and modern arms to Florence and to posterity.",
+      "translation": "《战争的艺术》在我生前付梓——我把古今战法写给佛罗伦萨，也写给后人。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Palazzo_Vecchio_%28Florence%29.jpg/330px-Palazzo_Vecchio_%28Florence%29.jpg"
+      ]
+    },
+    {
+      "id": "marriage-1501",
+      "year": 1501,
+      "month": 1,
+      "content": "In 1501 I married Marietta Corsini—seven children followed; I refused to surrender either hearth or study.",
+      "translation": "1501年我与玛丽埃塔·科尔西尼成婚——七个孩子随后降生；灶台与书房我一样都不想丢下。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Florence_-_tower_of_the_Palazzo_Vecchio.jpg/330px-Florence_-_tower_of_the_Palazzo_Vecchio.jpg"
+      ]
+    },
+    {
+      "id": "orticelli-1516",
+      "year": 1516,
+      "content": "From 1516 I frequented the Orti Oricellari—many passages of the Discourses were tempered in argument against tyranny.",
+      "translation": "1516年起我常去奥里切拉里花园，与鲁切莱等友人辩论反僭主的主题——《论李维》的许多段落就在那里淬炼。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Palazzo_vecchio_Florence.jpg/330px-Palazzo_vecchio_Florence.jpg"
+      ]
+    },
+    {
+      "id": "sack-rome-aftermath",
+      "year": 1527,
+      "month": 6,
+      "content": "The same year Rome was sacked, on 21 June stomach illness took me at fifty-eight; I lie in Santa Croce—let posterity argue whether I loved republic or prince.",
+      "translation": "罗马浩劫同年六月二十一日，胃疾带走五十八岁的我；葬于圣十字圣殿——墓碑留给后人争论我爱的是共和国还是君主。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg/330px-Portrait_of_Niccol%C3%B2_Machiavelli_by_Santi_di_Tito.jpg"
+      ]
+    }
+  ]
+}

@@ -2,11 +2,34 @@
 
 <div align="center">
 
-[![Live demo — hosted app](https://img.shields.io/badge/LIVE_DEMO-council--ai.onrender.com-7c3aed?style=for-the-badge)](https://council-ai.onrender.com/)
+[![Live demo — hosted app](https://img.shields.io/badge/LIVE_DEMO-council--ai.onrender.com-7c3aed?style=for-the-badge)](https://council-ai.onrender.com/?demo=1)
 
 ### Talk to a council of AI advisors at once
 
-Group‑chat UI · coordinator picks who speaks · bilingual flair · **OpenAI Agents SDK** + Express API
+Group‑chat UI · multi‑provider LLMs · **OpenAI Agents** path + native Gemini & Claude
+
+<p align="center">
+  <a href="https://council-ai.onrender.com/?demo=1" title="Open the live app (main council UI)">
+    <img
+      src="docs/images/council-ai-live.png"
+      alt="Council AI — live council chat UI on Render"
+      width="900"
+    />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://council-ai.onrender.com/?demo=1"><strong>council-ai.onrender.com</strong></a>
+  — live API + app (<code>?demo=1</code> skips welcome for demos)
+  ·
+  <a href="https://thattutorbot.github.io/council_ai/" title="Full-page embed (GitHub Pages)"><strong>Pages embed</strong></a>
+  <sup><a href="#github-pages-embedded-demo">*</a></sup>
+</p>
+
+<p align="center">
+  <sub><strong>GitHub’s repo page can’t run live iframes inside the README.</strong>
+  Use the <strong>Pages embed</strong> link for a full-window iframe demo; the screenshot above is static.</sub>
+</p>
 
 </div>
 
@@ -14,35 +37,37 @@ Group‑chat UI · coordinator picks who speaks · bilingual flair · **OpenAI A
 
 ## At a glance
 
-Council AI is a **multi‑advisor chat**: you message once; several fixed personas (see `src/types.ts`) can reply in turn, orchestrated by a coordinator model. Keys stay on the **server** for local dev; the hosted build is the fastest way to try the experience without cloning.
+Council AI is a **multi‑advisor chat**: you send one message; several personas (see `src/types.ts`) can reply in turn, coordinated by a router model. **LLM credentials stay on the server** for local runs; values you enter in the **hosted** app’s setup UI apply **only to that browser session** — they are **not** written into `.env.local` or committed to this repo.
+
+**Documentation index:** [docs/README.md](docs/README.md)
 
 ---
 
 ## How to get started
 
-Pick **one** path—both lead to the same app behavior once it is running.
+Pick **one** path.
 
-### A · Try it in the browser (fastest)
+### A · Try it in the browser
 
-Open **[council-ai.onrender.com](https://council-ai.onrender.com/)**.
+Open **[council-ai.onrender.com](https://council-ai.onrender.com/)**. Use **`?demo=1`** on Render if you want to skip the welcome flow and land on the council UI immediately.
 
-If the deployment shows a **settings / setup** step where you paste a provider key or options, treat that as **temporary for your session** in the browser. Those values are **not** written into `.env.local` on your machine and **not** stored in this repository—they exist only to let that visit talk to the LLM.
+If the deployment shows a **setup** step, treat keys you paste there as **session‑scoped** in the browser — they do not create or change a developer’s `.env.local`.
 
 ### B · Run on your machine
 
-1. **Node.js 22+** (see `package.json` `engines`).
-2. Install and copy env template:
+1. **Node.js 22+** (`package.json` `engines`).
+2. Install and env template:
 
    ```bash
    npm install
    cp .env.example .env.local
    ```
 
-3. Edit **`.env.local`** (gitignored):
-   - **`OPENAI_API_KEY`** — required for the API to call your LLM endpoint (see **Environment variables** below).
-   - Optional: **`LLM_VENDOR_ADVISOR`** and **`GEMINI_API_KEY`** — when your build’s onboarding flow respects server‑side config, setting these can **skip the setup UI** and go straight to **Meet the Council** instead of stepping through provider setup.
+3. Edit **`.env.local`** — set **`LLM_VENDOR_ADVISOR`** / **`LLM_VENDOR_DECIDE`** (or **`LLM_VENDOR`**) and the API keys for whichever vendors you use. See **[docs/native-providers.md](docs/native-providers.md)** (and **[docs/litellm-setup.md](docs/litellm-setup.md)** if you use LiteLLM for the OpenAI path).
 
-4. Start dev:
+   When the **server** already has the keys it needs (including **`GEMINI_API_KEY`** when Gemini is selected, etc.), onboarding can **skip the setup UI** and go straight to **Meet the Council**.
+
+4. Start development:
 
    ```bash
    npm run dev
@@ -51,17 +76,18 @@ If the deployment shows a **settings / setup** step where you paste a provider k
    - **Web UI:** http://localhost:3000  
    - **API:** http://localhost:3001 (or `PORT` from env)
 
-`npm run dev` runs the API and Vite together; `/api` is proxied from the dev server so the browser stays same‑origin.
+`npm run dev` runs the API and Vite together; Vite proxies `/api` to the backend.
 
 ---
 
 ## Features
 
-- **Multi‑advisor council** — Toggle who is in the room; personas + avatars live in `src/types.ts`.
-- **Coordinator** — After your message, the backend chooses which advisor(s) reply (with fallbacks if the model returns nothing usable).
-- **Bilingual replies** — Primary text plus a short translation line where configured.
-- **Chat UX** — Thread, mentions, optional HoneyHive session ids.
-- **LiteLLM‑ready** — Point **`LITELLM_BASE_URL`** / **`OPENAI_BASE_URL`** at any OpenAI‑compatible proxy and use model strings the proxy understands.
+- **Multi-advisor council** — Toggle which advisors are in the room; advisors are defined in `src/types.ts` (e.g. Zhuge Liang, Cao Cao, Marcus Aurelius) with instructions and avatars.
+- **Coordinator** — After your message, the backend decides which advisor(s) should reply (with a fallback if the model returns nothing valid).
+- **Bilingual messages** — Each advisor reply includes primary text plus a short translation, matching persona language settings.
+- **Client-side chat UX** — Scrollable thread, mentions, optional HoneyHive session ids for observability.
+- **Multi-provider** — Set **`LLM_VENDOR_ADVISOR`** / **`LLM_VENDOR_DECIDE`** (or **`LLM_VENDOR`**) to `openai`, `gemini`, or `anthropic`; use each vendor’s API key. See **[docs/native-providers.md](docs/native-providers.md)**.
+- **Optional LiteLLM** — When the **openai** path is used, **`LITELLM_BASE_URL`** can route to a [LiteLLM](https://github.com/BerriAI/litellm) proxy. See **[docs/litellm-setup.md](docs/litellm-setup.md)**.
 
 ---
 
@@ -69,32 +95,50 @@ If the deployment shows a **settings / setup** step where you paste a provider k
 
 | Layer | Stack |
 |--------|--------|
-| Frontend | **React 19**, **Vite 6**, **Tailwind CSS**, **Motion**, `components/` |
-| Backend | **Express**, **TypeScript**, **`@openai/agents`**, **`zod`** |
-| LLM | OpenAI API by default, or a compatible base URL via env |
+| Frontend | **React 19**, **Vite 6**, **Tailwind CSS**, **Motion**, UI under `components/` |
+| Backend | **Express**, **TypeScript** — vendor routing in **`server/index.ts`** |
+| LLM (OpenAI path) | **`@openai/agents`**, **`zod`** structured outputs; optional **LiteLLM** via `LITELLM_BASE_URL` |
+| LLM (Gemini / Claude) | **`@google/genai`**, **`@anthropic-ai/sdk`** when vendors are `gemini` / `anthropic` |
 
 ```
-Browser (Vite dev, :3000)  →  /api  →  Express (:3001)  →  OpenAI‑compatible endpoint
+Browser (Vite :3000)  →  /api proxy  →  Express (:3001)
+                              →  OpenAI API | Gemini API | Anthropic API  (or LiteLLM → upstream)
 ```
+
+---
+
+## Prerequisites
+
+- **Node.js 22+** (`package.json` `engines`; required by `@openai/agents`)
+- API keys for whichever vendors you select — see **[docs/native-providers.md](docs/native-providers.md)**
 
 ---
 
 ## Environment variables
 
-See **`.env.example`** for the full list.
+See **`.env.example`** and **[docs/README.md](docs/README.md)**.
+
+### Native vendors
 
 | Variable | Purpose |
 |----------|---------|
-| `OPENAI_API_KEY` | Required for normal local/server runs. Read only on the server, never sent to the browser bundle. |
+| `LLM_VENDOR_ADVISOR` | `openai` \| `gemini` \| `anthropic` — advisor replies (default `openai`). |
+| `LLM_VENDOR_DECIDE` | Same — coordinator (default `openai`). |
+| `LLM_VENDOR` | Sets **both** if the per-route vars are unset. |
+| `OPENAI_API_KEY` | When **openai** is used (direct OpenAI or LiteLLM token if `LITELLM_BASE_URL` is set). |
+| `GEMINI_API_KEY` | When **gemini** is used. |
+| `ANTHROPIC_API_KEY` | When **anthropic** is used. |
+| `OPENAI_MODEL_*`, `GEMINI_MODEL_*`, `ANTHROPIC_MODEL_*` | Model IDs per route — see `.env.example`. |
+
+### LiteLLM (optional; **openai** vendor only)
+
+| Variable | Purpose |
+|----------|---------|
+| `LITELLM_API_KEY` | Proxy bearer token (preferred with LiteLLM). |
+| `LITELLM_BASE_URL` | e.g. `http://127.0.0.1:4000/v1` |
+| `LITELLM_USE_RESPONSES` | See **docs/litellm-setup.md** |
 | `PORT` | API port (default `3001`). |
-| `OPENAI_MODEL_FAST` | Advisor replies model (default `gpt-4.1-mini` if unset in code). |
-| `OPENAI_MODEL_DECIDE` | Coordinator model. |
-| `LITELLM_BASE_URL` | Optional OpenAI‑compatible root (often ends with `/v1`). |
-| `OPENAI_BASE_URL` | Optional alias for the same `baseURL`. |
-| `LITELLM_USE_RESPONSES` | `true` only if your proxy supports OpenAI **Responses** API. |
-| `HONEYHIVE_*` | Optional tracing. |
-| `LLM_VENDOR_ADVISOR` | Optional. With onboarding that reads server env, helps **skip setup** and land on **Meet the Council**. |
-| `GEMINI_API_KEY` | Optional. Same idea when using Gemini through your stack or proxy. |
+| `HONEYHIVE_*` | Optional LLM tracing. |
 
 ---
 
@@ -106,7 +150,7 @@ See **`.env.example`** for the full list.
 | `npm run dev:api` | API only (`tsx watch server/index.ts`) |
 | `npm run dev:web` | Vite only (port 3000) |
 | `npm run build` | Production build (`dist/`) |
-| `npm run start` | API only — serve `dist/` separately in production |
+| `npm run start` | API only (`tsx server/index.ts`) |
 | `npm run lint` | Typecheck (`tsc --noEmit`) |
 | `npm run preview` | Preview Vite production build |
 
@@ -114,33 +158,30 @@ See **`.env.example`** for the full list.
 
 ## HTTP API
 
-All routes accept JSON. Rate limiting applies under `/api`.
+All routes use JSON. Rate limiting applies under `/api`.
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/healthz` | Liveness; includes `llmProxy` when a proxy base URL is configured |
-| `POST` | `/api/chat/respond` | Body: `advisorId`, `history`, optional `sessionId` → `{ message, sessionId? }` |
-| `POST` | `/api/chat/decide` | Body: `history`, `activeAdvisorIds`, optional `sessionId` → `{ ids: string[] }` |
+| `GET` | `/healthz` | Liveness; **`llm`**: `{ advisor, decide }` vendors; **`llmProxy`**: set when LiteLLM URL configured |
+| `POST` | `/api/chat/respond` | `advisorId`, `history`, optional `sessionId` → `{ message, sessionId? }` |
+| `POST` | `/api/chat/decide` | `history`, `activeAdvisorIds`, optional `sessionId` → `{ ids }` |
 
-Errors: **`400`** with `{ "error": "..." }` for typical failures.
+Errors: **`400`** with `{ "error": "..." }`.
 
 ---
 
-## LiteLLM (multi‑provider routing)
+## LiteLLM (optional proxy for the OpenAI path)
 
-1. Run a [LiteLLM proxy](https://docs.litellm.ai/docs/proxy/quick_start) (or another OpenAI‑compatible gateway).
-2. Set **`LITELLM_BASE_URL`** to your proxy’s OpenAI‑compatible root (often ends with `/v1`).
-3. Set **`OPENAI_API_KEY`** to whatever that proxy expects (virtual key, master key, etc.).
-4. Set **`OPENAI_MODEL_FAST`** / **`OPENAI_MODEL_DECIDE`** to models your proxy understands (e.g. `gemini/gemini-2.0-flash`, `openai/gpt-4o-mini`).
+Step-by-step: **[docs/litellm-setup.md](docs/litellm-setup.md)**.
 
-More detail: **`.trellis/spec/backend/llm-configuration.md`**.
+Contributor reference: [`.trellis/spec/backend/llm-configuration.md`](.trellis/spec/backend/llm-configuration.md).
 
 ---
 
 ## Security and privacy
 
-- **Server holds LLM credentials** — `OPENAI_API_KEY` and proxy settings are read in Node, not exposed to the client bundle.
-- Use **HTTPS** and tighten **`CORS`** / deployment URLs in production.
+- **API keys stay on the server** — `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, LiteLLM tokens, etc. are read only in Node; never expose them to the browser.
+- Use **HTTPS** and sensible **CORS** in production.
 - Do not commit **`.env.local`**.
 
 ---
@@ -149,23 +190,58 @@ More detail: **`.trellis/spec/backend/llm-configuration.md`**.
 
 ```
 council_ai/
-├── src/                 # React app, types, chat service
+├── src/                   # React app, types, chat service
 ├── server/
-│   ├── index.ts         # Express routes
-│   ├── llm/             # OpenAI provider / LiteLLM base URL wiring
-│   └── agents/          # Advisor + coordinator agents, zod schemas
+│   ├── index.ts           # Express, vendor dispatch, HoneyHive
+│   ├── llm/               # configureOpenAIProvider, vendors, models, Gemini/Anthropic natives
+│   └── agents/            # OpenAI Agents + zod schemas
+├── public/                  # Static assets (optional; advisor portraits use Wikimedia URLs in code)
 ├── docs/
-│   └── .nojekyll        # Reserved if you publish static docs on GitHub Pages
-├── public/avatars/
+│   ├── index.html         # GitHub Pages: full-page iframe → Render (enable Pages from /docs)
+│   ├── .nojekyll          # Disable Jekyll so `index.html` is served as-is
+│   ├── README.md          # Doc index
+│   ├── images/
+│   │   └── council-ai-live.png  # README hero snapshot (regenerate with Playwright; see below)
+│   ├── native-providers.md
+│   └── litellm-setup.md
 ├── .env.example
-└── .trellis/            # Trellis task/spec tooling (optional for contributors)
+└── .trellis/              # Trellis task/spec tooling (contributors)
 ```
 
 ---
 
 ## Contributing
 
-Issues and pull requests are welcome. Run **`npm run lint`** before submitting. If you change API shapes, update the client (`src/services/chatService.ts`) and this README.
+Issues and pull requests are welcome. Run **`npm run lint`** before submitting. If you change API shapes, update **`src/services/chatService.ts`** and this README / **`docs/`** as needed.
+
+---
+
+## GitHub Pages embedded demo
+
+The static page **`docs/index.html`** embeds the app at **`https://council-ai.onrender.com/?demo=1`** inside a framed viewport. The **`demo=1`** query skips the onboarding pill so the **main council UI** appears immediately for cold visitors (no duplicate backend; API stays on Render).
+
+**Enable it:** Repository **Settings → Pages → Build and deployment → Branch** → choose **`main`** (or your default branch) and folder **`/docs`**, then save. After the first deploy, the site is typically:
+
+**https://thattutorbot.github.io/council_ai/**
+
+If your GitHub username or repository name differs, update that URL everywhere it appears in this README and the optional **Source** link in **`docs/index.html`**.
+
+---
+
+## Live snapshot (README hero)
+
+The image **`docs/images/council-ai-live.png`** is a capture of the main UI (**[`?demo=1`](https://council-ai.onrender.com/?demo=1)**) for the repository landing page. To refresh it after UI changes:
+
+```bash
+npx playwright@1.49.1 screenshot --viewport-size=1440,900 --wait-for-timeout=8000 \
+  'https://council-ai.onrender.com/?demo=1' docs/images/council-ai-live.png
+```
+
+(`npx playwright install chromium` first if browsers are not cached.)
+
+If production has not shipped **`?demo=1`** yet, capture against a local preview instead: run **`npm run build`**, start **`npx vite preview --port 4173 --host 127.0.0.1`**, then point Playwright at **`http://127.0.0.1:4173/?demo=1`**.
+
+To change the **social preview image** GitHub shows when the repo link is shared (not the README), add a **1280×640** image under **Repository → Settings → General → Social preview**.
 
 ---
 

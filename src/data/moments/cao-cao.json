@@ -1,0 +1,65 @@
+{
+  "posts": [
+    {
+      "id": "birth-early-life",
+      "year": 155,
+      "content": "我生于沛国谯县。祖上虽是宦官之后，但我从未在意过那些自诩清流的目光。这乱世将至，唯有读书、练剑、看透人心，方能立足。",
+      "translation": "I was born in Qiao, Pei. Though descendant of a eunuch, I never cared for the sneers of the 'pure' elite. As chaos nears, only through books, the blade, and reading the hearts of men can one stand firm.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Cao_Cao_scth.jpg/330px-Cao_Cao_scth.jpg"
+      ]
+    },
+    {
+      "id": "yellow-turban-rising",
+      "year": 184,
+      "content": "黄巾贼起，天下震动。我授骑都尉，在颖川杀贼立功。此时我只想做一名汉室征西将军，为朝廷荡平叛乱。",
+      "translation": "The Yellow Turbans rose, and the realm shook. Commissioned as Cavalry Commandant, I struck the rebels at Yingchuan. At this moment, my only dream was to be a General of the Han, pacifying the frontiers for the court."
+    },
+    {
+      "id": "assassination-escape",
+      "year": 189,
+      "content": "董卓入京，倒行逆施。我拒了他的橄榄枝，散尽家财，在陈留起兵。宁我负人，毋人负我——这乱世，不狠心便无以成事。",
+      "translation": "Dong Zhuo entered the capital and defied all reason. I refused his hand, spent my fortune, and raised an army in Chenliu. Better I wrong others than they wrong me—in these times, one cannot act without a hardened heart."
+    },
+    {
+      "id": "emperor-xuchang",
+      "year": 196,
+      "content": "天子流亡，百官离散。我在洛阳接驾，迎圣驾迁都许县。挟天子以令诸侯？不，我是在奉天子以令不臣。",
+      "translation": "The Emperor was in exile, the officials scattered. I received the Son of Heaven in Luoyang and moved the capital to Xu. To hold the Emperor to control the lords? No, I uphold the Emperor to command the unruly."
+    },
+    {
+      "id": "guandu-victory",
+      "year": 200,
+      "month": 10,
+      "content": "袁本初空有百万兵马，却优柔寡断。我在官渡一把火烧了乌巢，北方大地，终将尽归我手。这天下，讲的是智与胆，而非虚名。",
+      "translation": "Yuan Shao had a million men but was plagued by indecision. At Guandu, I put Wuchao to the torch; the North will finally be mine. This world is won by wit and gall, not empty prestige.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Statue_of_Cao_Cao.jpg/330px-Statue_of_Cao_Cao.jpg"
+      ]
+    },
+    {
+      "id": "red-cliffs-retreat",
+      "year": 208,
+      "month": 12,
+      "content": "赤壁火光冲天，烧尽了我的南下梦。孙刘联军确实后生可畏。败了便败了，回北边屯田练兵，我曹孟德输得起，也等得起。",
+      "translation": "The flames at Red Cliffs lit the sky, incinerating my dreams of the South. Sun and Liu are formidable indeed. A loss is a loss; I shall return North to farm and drill. I, Cao Mengde, can afford to lose—and to wait."
+    },
+    {
+      "id": "king-of-wei",
+      "year": 216,
+      "month": 5,
+      "content": "进位魏王，位极人臣。世人骂我篡逆，可若天下无我，不知几人称王，几人称帝？唯才是举，我只求平定这万里江山。",
+      "translation": "Invested as King of Wei—the peak of a subject's path. The world calls me a usurper, yet without me, how many would have dubbed themselves King or Emperor? I seek only talent; I seek only to settle this vast land.",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/20250913_Gao_Mausoleum_of_Cao_Cao_01.jpg/330px-20250913_Gao_Mausoleum_of_Cao_Cao_01.jpg"
+      ]
+    },
+    {
+      "id": "death-legacy",
+      "year": 220,
+      "month": 3,
+      "content": "洛阳春寒，我的时日无多了。死后葬于西门豹祠西原，不封不树。这辈子，诗也写了，仗也打了，是非功过，留给后人去吵吧。",
+      "translation": "The spring in Luoyang is cold; my time is short. Bury me at the plateau west of Ximen Bao’s shrine, with no mound or trees. I have written my poems, fought my wars; let posterity argue over my rights and wrongs."
+    }
+  ]
+}

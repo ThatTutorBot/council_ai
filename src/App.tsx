@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect, useRef, useMemo, ChangeEvent } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import {
   Send,
   Plus,
@@ -19,34 +19,67 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-import { ADVISORS, AdvisorPersona, ChatMessage } from './types';
+import { ADVISORS, AdvisorPersona, ChatMessage, ChatGroup, advisorRegionLabel } from './types';
 import { ChatService } from './services/chatService';
+import { loadPersistedGroupsState, savePersistedGroupsState, newId } from './storage/groupsPersistence';
+import { EMOJI_CATEGORIES } from './constants/emojiCategories';
+import { CreateGroupModal } from './components/CreateGroupModal';
+import { FloatingCouncilWindow } from './components/FloatingCouncilWindow';
+import { OnboardingFlow } from './components/OnboardingFlow';
+import { MomentsFeed } from './components/MomentsFeed';
+import {
+  isOnboardingCompleteForSession,
+  resetOnboarding,
+} from './storage/onboardingPersistence';
+import { cn } from '@/lib/utils';
 
-export default function App() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+type CouncilShellProps = {
+  onOpenWelcomeSetup: () => void;
+  /** When false, fills the parent (floating pane) instead of the viewport */
+  fillViewport?: boolean;
+};
+
+function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellProps) {
+  const [persistedBundle] = useState(() => loadPersistedGroupsState());
+  const [groups, setGroups] = useState<ChatGroup[]>(() => persistedBundle.groups);
+  const [activeGroupId, setActiveGroupId] = useState(() => persistedBundle.activeGroupId);
+  const [editingGroupName, setEditingGroupName] = useState(false);
+
+  const activeGroup = useMemo(
+    () => groups.find((g) => g.id === activeGroupId) ?? groups[0],
+    [groups, activeGroupId],
+  );
+
+  const messages = activeGroup?.messages ?? [];
+  const activeAdvisorIds = activeGroup?.activeAdvisorIds ?? [];
+
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeAdvisorIds, setActiveAdvisorIds] = useState<string[]>(ADVISORS.map(a => a.id));
   const [typingAdvisors, setTypingAdvisors] = useState<string[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [userName, setUserName] = useState('Lord');
-  const [userAvatar, setUserAvatar] = useState('https://api.dicebear.com/7.x/initials/svg?seed=Salin');
+  /** Dicebear “notionists” style (not initials); avatar updates when you change your name. */
+  const userAvatarUrl = useMemo(
+    () =>
+      `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(userName.trim() || 'Lord')}`,
+    [userName],
+  );
   const [showEmoji, setShowEmoji] = useState(false);
   const [showMentions, setShowMentions] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'chats' | 'contacts' | 'moments'>('chats');
   const [selectedContact, setSelectedContact] = useState<AdvisorPersona | null>(null);
-  const [moments, setMoments] = useState<{ id: string, authorId: string, content: string, timestamp: number }[]>([]);
+  const [createGroupOpen, setCreateGroupOpen] = useState(false);
+  /** WeChat-style ⋯ menu on a chat row in the sidebar */
+  const [chatListMenuGroupId, setChatListMenuGroupId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMoments([
-      { id: '1', authorId: 'zhuge-liang', content: '淡泊以明志，宁静以致远。 Strategy is the art of seeing what is invisible to others.', timestamp: Date.now() - 3600000 },
-      { id: '2', authorId: 'marcus-aurelius', content: 'The happiness of your life depends upon the quality of your thoughts. Stay virtuous.', timestamp: Date.now() - 7200000 },
-      { id: '3', authorId: 'cao-cao', content: '宁我负人，毋人负我。 Power is the only currency that never devalues.', timestamp: Date.now() - 10800000 },
-    ]);
-  }, []);
-
-  const COMMON_EMOJIS = ["👍", "🙏", "😮", "🤔", "😅", "🔥", "💯", "🍵", "🏮", "⚔️", "🏛️", "📜"];
+    const t = window.setTimeout(() => {
+      savePersistedGroupsState({ version: 1, activeGroupId, groups });
+    }, 400);
+    return () => window.clearTimeout(t);
+  }, [groups, activeGroupId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -70,9 +103,82 @@ export default function App() {
     setShowMentions(false);
   };
 
+  const patchActiveGroup = (patch: Partial<ChatGroup>) => {
+    setGroups((prev) =>
+      prev.map((g) => (g.id === activeGroupId ? { ...g, ...patch } : g)),
+    );
+  };
+
+  const selectGroup = (id: string) => {
+    setActiveGroupId(id);
+    setTypingAdvisors([]);
+    setChatError(null);
+    setEditingGroupName(false);
+    setChatListMenuGroupId(null);
+  };
+
+  const handleOpenCreateGroup = () => {
+    setChatListMenuGroupId(null);
+    setCreateGroupOpen(true);
+  };
+
+  const handleRenameGroupFromList = (g: ChatGroup) => {
+    setChatListMenuGroupId(null);
+    const raw = window.prompt('Chat name', g.name);
+    if (raw === null) return;
+    const name = raw.trim();
+    if (!name) return;
+    setGroups((prev) => prev.map((x) => (x.id === g.id ? { ...x, name } : x)));
+  };
+
+  const handleDeleteGroupFromList = (groupId: string) => {
+    if (groups.length <= 1) {
+      window.alert('Keep at least one chat. Create another before deleting this one.');
+      return;
+    }
+    if (
+      !window.confirm(
+        'Delete this chat and all messages in it? This cannot be undone.',
+      )
+    ) {
+      return;
+    }
+    setChatListMenuGroupId(null);
+    setGroups((prev) => {
+      const filtered = prev.filter((g) => g.id !== groupId);
+      setActiveGroupId((cur) =>
+        cur === groupId && filtered.length > 0 ? filtered[0].id : cur,
+      );
+      return filtered;
+    });
+    setTypingAdvisors([]);
+    setChatError(null);
+    setEditingGroupName(false);
+  };
+
+  const handleConfirmCreateGroup = (name: string, memberIds: string[]) => {
+    const id = newId();
+    const g: ChatGroup = {
+      id,
+      name,
+      messages: [],
+      activeAdvisorIds: [...memberIds],
+    };
+    setGroups((prev) => [...prev, g]);
+    setActiveGroupId(id);
+    setTypingAdvisors([]);
+    setChatError(null);
+  };
+
   const handleSendMessage = async () => {
     if (!input.trim() || loading) return;
+    if (!activeGroup) return;
+    if (activeAdvisorIds.length === 0) {
+      setChatError('Turn on at least one advisor in the group settings so someone can reply.');
+      return;
+    }
 
+    const gid = activeGroupId;
     const userMessage: ChatMessage = {
       id: Math.random().toString(36).substring(7),
       senderId: 'user',
@@ -81,118 +187,318 @@ export default function App() {
       timestamp: Date.now(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const rolling: ChatMessage[] = [...activeGroup.messages, userMessage];
+    setGroups((prev) =>
+      prev.map((g) => (g.id === gid ? { ...g, messages: [...g.messages, userMessage] } : g)),
+    );
     setInput('');
     setLoading(true);
+    setChatError(null);
+
+    let sessionId = activeGroup.sessionId;
 
     try {
-      const currentHistory = [...messages, userMessage];
-      const responders = await ChatService.decideWhoResponds(currentHistory, activeAdvisorIds);
+      const responders = await ChatService.decideWhoResponds(rolling, activeAdvisorIds, sessionId);
+      if (responders.length === 0) {
+        setChatError('No advisor was chosen to reply. Check the API /decide step or try again.');
+        return;
+      }
 
       for (const advisorId of responders) {
-        setTypingAdvisors(prev => [...prev, advisorId]);
-        await new Promise(r => setTimeout(r, 1500 + Math.random() * 2000));
+        setTypingAdvisors((prev) => [...prev, advisorId]);
+        await new Promise((r) => setTimeout(r, 1500 + Math.random() * 2000));
 
-        const response = await ChatService.getAdvisorResponse(advisorId, [...currentHistory]);
-        setMessages(prev => [...prev, response]);
-        currentHistory.push(response);
-        setTypingAdvisors(prev => prev.filter(id => id !== advisorId));
+        const { message: response, sessionId: nextSid } = await ChatService.getAdvisorResponse(
+          advisorId,
+          rolling,
+          sessionId,
+        );
+        if (nextSid) sessionId = nextSid;
+        rolling.push(response);
+        setGroups((prev) =>
+          prev.map((g) =>
+            g.id === gid
+              ? {
+                  ...g,
+                  messages: [...g.messages, response],
+                  ...(nextSid ? { sessionId: nextSid } : {}),
+                }
+              : g,
+          ),
+        );
+        setTypingAdvisors((prev) => prev.filter((id) => id !== advisorId));
 
         if (Math.random() > 0.6) {
-          const othersInGroup = activeAdvisorIds.filter(id => id !== advisorId);
+          const othersInGroup = activeAdvisorIds.filter((id) => id !== advisorId);
           if (othersInGroup.length > 0) {
             const nextResponder = othersInGroup[Math.floor(Math.random() * othersInGroup.length)];
-            setTypingAdvisors(prev => [...prev, nextResponder]);
-            await new Promise(r => setTimeout(r, 1500 + Math.random() * 2000));
-            const followUp = await ChatService.getAdvisorResponse(nextResponder, [...currentHistory]);
-            setMessages(prev => [...prev, followUp]);
-            currentHistory.push(followUp);
-            setTypingAdvisors(prev => prev.filter(id => id !== nextResponder));
+            setTypingAdvisors((prev) => [...prev, nextResponder]);
+            await new Promise((r) => setTimeout(r, 1500 + Math.random() * 2000));
+            const follow = await ChatService.getAdvisorResponse(nextResponder, rolling, sessionId);
+            if (follow.sessionId) sessionId = follow.sessionId;
+            rolling.push(follow.message);
+            setGroups((prev) =>
+              prev.map((g) =>
+                g.id === gid
+                  ? {
+                      ...g,
+                      messages: [...g.messages, follow.message],
+                      ...(follow.sessionId ? { sessionId: follow.sessionId } : {}),
+                    }
+                  : g,
+              ),
+            );
+            setTypingAdvisors((prev) => prev.filter((id) => id !== nextResponder));
           }
         }
       }
     } catch (err) {
       console.error(err);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'Chat request failed. Is the API running? Try: npm run dev (needs server on port 3001).';
+      setChatError(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const toggleAdvisor = (id: string) => {
-    setActiveAdvisorIds(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    setGroups((prev) =>
+      prev.map((g) =>
+        g.id === activeGroupId
+          ? {
+              ...g,
+              activeAdvisorIds: g.activeAdvisorIds.includes(id)
+                ? g.activeAdvisorIds.filter((i) => i !== id)
+                : [...g.activeAdvisorIds, id],
+            }
+          : g,
+      ),
     );
   };
 
   return (
-    <div className="h-screen w-full bg-[#f5f5f5] flex overflow-hidden font-sans text-black">
-      <aside className="w-[64px] bg-[#2e2e2e] flex flex-col items-center py-6 gap-8 shrink-0">
-        <div className="w-9 h-9 bg-zinc-600 rounded-md overflow-hidden p-0.5">
-          <img src={userAvatar} className="w-full h-full rounded" />
+    <div
+      className={cn(
+        fillViewport ? 'h-screen w-full' : 'h-full min-h-0 w-full council-chat-float',
+        'bg-council-canvas flex overflow-hidden font-sans text-foreground',
+      )}
+    >
+      <aside className="w-[64px] bg-gradient-to-b from-council-rail to-council-rail-deep flex flex-col items-center py-6 gap-5 shrink-0 shadow-[inset_-1px_0_0_oklch(0_0_0/0.12)]">
+        <div
+          className={cn(
+            'w-10 h-10 rounded-xl bg-white/10 p-0.5 ring-2 ring-offset-2 ring-offset-council-rail overflow-hidden motion-safe:transition-transform motion-safe:duration-200 motion-safe:hover:scale-105',
+            fillViewport ? 'ring-council-accent/35' : 'ring-white/25',
+          )}
+        >
+          <img src={userAvatarUrl} className="w-full h-full rounded-[10px]" alt="" />
         </div>
-        <div className="flex flex-col gap-8 text-[#9b9b9b]">
-          <MessageSquare
-            className={`w-6 h-6 cursor-pointer transition-colors ${currentView === 'chats' ? 'text-[#07c160]' : 'hover:text-white'}`}
-            onClick={() => setCurrentView('chats')}
-          />
-          <Users
-            className={`w-6 h-6 cursor-pointer transition-colors ${currentView === 'contacts' ? 'text-[#07c160]' : 'hover:text-white'}`}
-            onClick={() => setCurrentView('contacts')}
-          />
-          <Circle
-            className={`w-6 h-6 cursor-pointer transition-colors ${currentView === 'moments' ? 'text-[#07c160]' : 'hover:text-white'}`}
-            onClick={() => setCurrentView('moments')}
-          />
-          <Settings className="w-6 h-6 hover:text-white transition-colors cursor-pointer mb-auto" />
+        <div className="flex flex-col gap-3 items-center text-council-rail-icon">
+          <button
+            type="button"
+            title="Chats"
+            className={cn(
+              'rounded-xl p-2 motion-safe:transition-all motion-safe:duration-200 motion-safe:hover:scale-110 motion-safe:active:scale-95',
+              currentView === 'chats'
+                ? 'bg-white/12 text-council-accent shadow-md shadow-black/25 ring-1 ring-council-accent/35'
+                : 'hover:bg-white/8 hover:text-white',
+            )}
+            onClick={() => {
+              setChatListMenuGroupId(null);
+              setCurrentView('chats');
+            }}
+          >
+            <MessageSquare className="w-6 h-6" strokeWidth={currentView === 'chats' ? 2.25 : 1.75} />
+          </button>
+          <button
+            type="button"
+            title="Contacts"
+            className={cn(
+              'rounded-xl p-2 motion-safe:transition-all motion-safe:duration-200 motion-safe:hover:scale-110 motion-safe:active:scale-95',
+              currentView === 'contacts'
+                ? 'bg-white/12 text-council-accent shadow-md shadow-black/25 ring-1 ring-council-accent/35'
+                : 'hover:bg-white/8 hover:text-white',
+            )}
+            onClick={() => {
+              setChatListMenuGroupId(null);
+              setCurrentView('contacts');
+            }}
+          >
+            <Users className="w-6 h-6" strokeWidth={currentView === 'contacts' ? 2.25 : 1.75} />
+          </button>
+          <button
+            type="button"
+            title="Moments"
+            className={cn(
+              'rounded-xl p-2 motion-safe:transition-all motion-safe:duration-200 motion-safe:hover:scale-110 motion-safe:active:scale-95',
+              currentView === 'moments'
+                ? 'bg-white/12 text-council-accent shadow-md shadow-black/25 ring-1 ring-council-accent/35'
+                : 'hover:bg-white/8 hover:text-white',
+            )}
+            onClick={() => {
+              setChatListMenuGroupId(null);
+              setCurrentView('moments');
+            }}
+          >
+            <Circle className="w-6 h-6" strokeWidth={currentView === 'moments' ? 2.25 : 1.75} />
+          </button>
+          <button
+            type="button"
+            title="Settings"
+            className="rounded-xl p-2 mb-auto hover:bg-white/8 hover:text-white motion-safe:transition-all motion-safe:duration-200 motion-safe:hover:scale-110"
+          >
+            <Settings className="w-6 h-6" />
+          </button>
         </div>
       </aside>
 
-      <aside className="w-[300px] bg-[#e6e5e4] border-r border-[#d6d6d6] flex flex-col shrink-0">
-        <div className="p-4 flex gap-2">
-          <div className="flex-1 bg-[#dbd9d8] flex items-center px-2 rounded-md h-7">
-            <Search className="w-4 h-4 text-[#666] mr-1" />
-            <input placeholder="Search" className="bg-transparent border-none outline-none text-[12px] w-full" />
+      <aside className="w-[300px] bg-council-list border-r border-council-list-border flex flex-col shrink-0">
+        <div className="p-4 flex gap-2 border-b border-council-hairline/50">
+          <div
+            className={cn(
+              'flex-1 bg-council-search-bg flex items-center px-3 h-9 shadow-inner shadow-black/[0.07] ring-1 ring-council-hairline/40',
+              fillViewport ? 'rounded-xl' : 'rounded-full',
+            )}
+          >
+            <Search className="w-4 h-4 text-council-text-soft mr-1.5 shrink-0 stroke-[2]" />
+            <input placeholder="Search chats" className="bg-transparent border-none outline-none text-[13px] font-medium w-full placeholder:text-council-text-muted placeholder:font-normal" />
           </div>
-          <Button variant="ghost" size="icon" className="w-7 h-7 bg-[#dbd9d8]">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              'w-8 h-8 bg-council-search-bg hover:bg-council-row-hover text-council-text-soft shadow-inner shadow-black/5 motion-safe:transition-transform motion-safe:hover:scale-105',
+              fillViewport ? 'rounded-lg' : 'rounded-full',
+            )}
+            type="button"
+            onClick={handleOpenCreateGroup}
+            title="New group"
+          >
             <Plus className="w-4 h-4" />
           </Button>
         </div>
 
         <ScrollArea className="flex-1">
           {currentView === 'chats' ? (
-            <div
-              className={`p-3 flex gap-3 cursor-pointer transition-colors border-b border-black/5 ${currentView === 'chats' ? 'bg-[#c6c5c4]' : 'hover:bg-[#d6d6d6]'}`}
-              onClick={() => setCurrentView('chats')}
-            >
-              <div className="w-10 h-10 bg-zinc-300 rounded grid grid-cols-2 gap-0.5 p-0.5 shrink-0 overflow-hidden">
-                {ADVISORS.map(a => (
-                  <img key={a.id} src={a.avatar} className="w-full h-full object-cover" />
-                ))}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start">
-                  <span className="font-medium text-sm truncate">History Masterminds</span>
-                  <span className="text-[10px] text-[#999]">14:24</span>
-                </div>
-                <p className="text-[12px] text-[#999] truncate">
-                  {messages.length > 0 ? messages[messages.length - 1].content : "No messages yet"}
-                </p>
-              </div>
+            <div className="flex flex-col">
+              {groups.map((g) => {
+                const preview = g.messages[g.messages.length - 1];
+                const previewTime = preview
+                  ? new Date(preview.timestamp).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                  : '';
+                const thumbIds = g.activeAdvisorIds.slice(0, 4);
+                const thumbs = thumbIds
+                  .map((id) => ADVISORS.find((a) => a.id === id))
+                  .filter(Boolean) as AdvisorPersona[];
+                return (
+                  <div
+                    key={g.id}
+                    className={cn(
+                      'flex items-stretch border-b border-council-hairline/40 w-full motion-safe:transition-colors',
+                      g.id === activeGroupId
+                        ? 'bg-council-row-active ring-2 ring-inset ring-council-accent/20'
+                        : 'hover:bg-council-row-hover',
+                    )}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => selectGroup(g.id)}
+                      className="flex-1 flex gap-3 p-3 text-left min-w-0 transition-colors"
+                    >
+                      <div className="w-10 h-10 bg-council-search-bg rounded-lg grid grid-cols-2 gap-0.5 p-0.5 shrink-0 overflow-hidden ring-1 ring-council-hairline/50 shadow-sm">
+                        {thumbs.length > 0 ? (
+                          thumbs.map((a) => (
+                            <img key={a.id} src={a.avatar} alt="" className="w-full h-full object-cover" />
+                          ))
+                        ) : (
+                          <span className="col-span-2 row-span-2 text-[10px] text-zinc-500 flex items-center justify-center">
+                            —
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-2">
+                          <span className="font-bold text-[15px] leading-tight tracking-tight truncate text-foreground">
+                            {g.name}
+                          </span>
+                          {previewTime && (
+                            <span className="text-[10px] text-council-text-muted shrink-0">{previewTime}</span>
+                          )}
+                        </div>
+                        <p className="text-[12px] text-council-text-muted truncate">
+                          {preview ? preview.content : 'No messages yet'}
+                        </p>
+                      </div>
+                    </button>
+                    <div className="relative flex items-center pr-1 shrink-0">
+                      <button
+                        type="button"
+                        className="p-2 rounded-lg text-council-text-soft hover:bg-black/6 hover:text-foreground motion-safe:transition-colors"
+                        aria-label="Chat options"
+                        title="Rename or delete"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setChatListMenuGroupId((openId) =>
+                            openId === g.id ? null : g.id,
+                          );
+                        }}
+                      >
+                        <MoreHorizontal className="w-5 h-5" />
+                      </button>
+                      {chatListMenuGroupId === g.id && (
+                        <div className="absolute right-1 top-10 z-[200] w-[148px] rounded-lg border border-council-hairline bg-council-bubble-advisor py-1 shadow-xl shadow-black/10 text-[13px]">
+                          <button
+                            type="button"
+                            className="w-full px-3 py-2 text-left hover:bg-council-canvas"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRenameGroupFromList(g);
+                            }}
+                          >
+                            Rename chat
+                          </button>
+                          <button
+                            type="button"
+                            className="w-full px-3 py-2 text-left text-red-600 hover:bg-red-50"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteGroupFromList(g.id);
+                            }}
+                          >
+                            Delete chat
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="flex flex-col">
-              <div className="px-4 py-2 text-[10px] uppercase text-[#999] font-bold tracking-wider">Historical Masters</div>
+              <div className="px-4 py-2.5 text-[10px] uppercase text-council-text-soft font-extrabold tracking-[0.2em]">
+                Historical Masters
+              </div>
               {ADVISORS.map(a => (
                 <div
                   key={a.id}
-                  className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-colors border-b border-black/5 ${selectedContact?.id === a.id ? 'bg-[#c6c5c4]' : 'hover:bg-[#d6d6d6]'}`}
+                  className={cn(
+                    'px-4 py-3 flex items-center gap-3 cursor-pointer motion-safe:transition-colors border-b border-council-hairline/40',
+                    selectedContact?.id === a.id ? 'bg-council-row-active' : 'hover:bg-council-row-hover',
+                  )}
                   onClick={() => setSelectedContact(a)}
                 >
                   <Avatar className="w-9 h-9 rounded">
-                    <AvatarImage src={a.avatar} className="rounded" />
+                    <AvatarImage src={a.avatar} className="rounded object-top" />
                     <AvatarFallback className="rounded bg-zinc-300">{a.name[0]}</AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-medium">{a.name.split(' (')[0]}</span>
+                  <span className="text-[15px] font-semibold">{a.name.split(' (')[0]}</span>
                 </div>
               ))}
             </div>
@@ -200,7 +506,7 @@ export default function App() {
         </ScrollArea>
       </aside>
 
-      <main className="flex-1 flex flex-col bg-[#f5f5f5] relative">
+      <main className="flex-1 flex flex-col bg-council-canvas relative">
         {currentView === 'chats' ? (
           <>
             <AnimatePresence>
@@ -209,16 +515,16 @@ export default function App() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute bottom-[200px] left-6 w-[200px] bg-white border border-[#e1e1e1] shadow-xl rounded-md z-[100] overflow-hidden"
+                  className="absolute bottom-[200px] left-6 w-[200px] bg-council-bubble-advisor border border-council-list-border/70 rounded-xl z-[100] overflow-hidden shadow-[0_16px_40px_-8px_rgba(0,0,0,0.14)]"
                 >
                   {ADVISORS.filter(a => activeAdvisorIds.includes(a.id)).map(a => (
                     <button
                       key={a.id}
                       onClick={() => insertMention(a.shortName)}
-                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-[#f2f2f2] transition-colors"
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-council-canvas motion-safe:transition-colors"
                     >
                       <Avatar className="w-6 h-6 rounded">
-                        <AvatarImage src={a.avatar} className="rounded" />
+                        <AvatarImage src={a.avatar} className="rounded object-top" />
                       </Avatar>
                       <span className="text-sm font-medium">{a.shortName}</span>
                     </button>
@@ -227,16 +533,45 @@ export default function App() {
               )}
             </AnimatePresence>
 
-            <header className="h-[60px] border-b border-[#e1e1e1] flex items-center justify-between px-6 bg-[#f5f5f5] shrink-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-medium">History Masterminds ({activeAdvisorIds.length + 1})</h1>
+            <header className="h-[72px] border-b border-council-list-border flex items-center justify-between px-6 md:px-8 bg-council-canvas shrink-0 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.07)]">
+              <div className="flex items-center gap-2 min-w-0 flex-1 mr-4">
+                {editingGroupName ? (
+                  <input
+                    autoFocus
+                    className="text-2xl font-semibold tracking-tight border-b-[3px] border-council-accent outline-none bg-transparent max-w-[min(100%,380px)] min-w-0"
+                    value={activeGroup?.name ?? ''}
+                    onChange={(e) =>
+                      patchActiveGroup({ name: e.target.value.slice(0, 80) })
+                    }
+                    onBlur={() => setEditingGroupName(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') setEditingGroupName(false);
+                    }}
+                  />
+                ) : (
+                  <h1
+                    className="min-w-0 truncate cursor-pointer motion-safe:transition-colors motion-safe:duration-200"
+                    title="Click to rename"
+                    onClick={() => setEditingGroupName(true)}
+                  >
+                    <span className="text-2xl md:text-[1.75rem] font-semibold tracking-tight text-foreground hover:text-council-accent">
+                      {activeGroup?.name ?? 'Council'}
+                    </span>
+                    <span className="text-sm font-medium text-council-text-muted tabular-nums ml-2">
+                      ({activeAdvisorIds.length + 1})
+                    </span>
+                  </h1>
+                )}
               </div>
-              <div className="flex items-center gap-6 text-[#666] relative">
-                <Phone className="w-5 h-5 cursor-pointer hover:text-black" />
-                <Video className="w-5 h-5 cursor-pointer hover:text-black" />
+              <div className="flex items-center gap-7 text-council-text-soft relative">
+                <Phone className="w-6 h-6 cursor-pointer stroke-[1.75] hover:text-foreground hover:stroke-2 motion-safe:transition-colors" />
+                <Video className="w-6 h-6 cursor-pointer stroke-[1.75] hover:text-foreground hover:stroke-2 motion-safe:transition-colors" />
                 <div className="relative">
                   <MoreHorizontal
-                    className={`w-6 h-6 cursor-pointer hover:text-black ${showSettings ? 'text-black' : ''}`}
+                    className={cn(
+                      'w-6 h-6 cursor-pointer stroke-[1.75] motion-safe:transition-colors',
+                      showSettings ? 'text-council-accent stroke-2' : 'hover:text-foreground hover:stroke-2',
+                    )}
                     onClick={() => setShowSettings(!showSettings)}
                   />
 
@@ -251,62 +586,66 @@ export default function App() {
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute right-0 top-10 w-[280px] bg-white border border-[#e1e1e1] shadow-xl rounded-md z-50 p-4"
+                          className="absolute right-0 top-10 w-[288px] bg-council-bubble-advisor border border-council-list-border/80 rounded-2xl z-50 p-4 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18)]"
                         >
-                          <h3 className="text-[12px] font-bold text-[#999] uppercase tracking-wider mb-4">My Profile</h3>
+                          <h3 className="text-[11px] font-extrabold text-council-text-muted uppercase tracking-[0.16em] mb-4">My Profile</h3>
                           <div className="space-y-4 mb-6 pt-2">
                             <div className="flex items-center gap-4">
                               <Avatar className="w-12 h-12 rounded bg-zinc-100">
-                                <AvatarImage src={userAvatar} className="rounded" />
+                                <AvatarImage src={userAvatarUrl} className="rounded" />
                               </Avatar>
                               <div className="flex-1 space-y-1">
-                                  <label className="text-[10px] uppercase text-[#999]">Lord Name</label>
+                                  <label className="text-[10px] uppercase text-council-text-muted">Lord Name</label>
                                   <input
                                     value={userName}
                                     onChange={(e) => setUserName(e.target.value)}
-                                    className="w-full text-sm font-medium border-b border-[#f0f0f0] outline-none pb-1"
+                                    className="w-full text-sm font-medium border-b border-council-hairline outline-none pb-1"
                                     placeholder="Enter name..."
                                   />
                               </div>
                             </div>
-                            <div className="flex-1 space-y-1">
-                              <label className="text-[10px] uppercase text-[#999]">Avatar URL</label>
-                              <input
-                                value={userAvatar}
-                                onChange={(e) => setUserAvatar(e.target.value)}
-                                className="w-full text-[10px] border-b border-[#f0f0f0] outline-none pb-1 font-mono"
-                                placeholder="Image URL..."
-                              />
-                            </div>
                           </div>
 
-                          <h3 className="text-[12px] font-bold text-[#999] uppercase tracking-wider mb-4">Group Members</h3>
+                          <h3 className="text-[11px] font-extrabold text-council-text-muted uppercase tracking-[0.16em] mb-4">Group Members</h3>
                           <div className="space-y-3">
                             {ADVISORS.map(a => (
                               <div key={a.id} className="flex items-center gap-3">
                                 <Avatar className="w-8 h-8 rounded shrink-0">
-                                  <AvatarImage src={a.avatar} className="rounded" />
+                                  <AvatarImage src={a.avatar} className="rounded object-top" />
                                 </Avatar>
-                                <span className="text-sm flex-1">{a.name.split(' (')[0]}</span>
+                                <span className="text-sm font-medium flex-1">{a.name.split(' (')[0]}</span>
                                 <button
                                   onClick={() => toggleAdvisor(a.id)}
-                                  className={`px-3 py-1 rounded text-[10px] transition-all border ${
+                                  className={cn(
+                                    'px-3 py-1 rounded-full text-[10px] border motion-safe:transition-all',
                                     activeAdvisorIds.includes(a.id)
-                                    ? 'bg-[#07c160] border-[#07c160] text-white'
-                                    : 'bg-[#f5f5f5] border-[#ddd] text-zinc-400 hover:border-zinc-400'
-                                  }`}
+                                      ? fillViewport
+                                        ? 'bg-council-accent border-council-accent text-white shadow-sm shadow-council-accent/30'
+                                        : 'border-white bg-white text-zinc-950 shadow-sm shadow-black/30'
+                                      : 'bg-council-canvas border-council-hairline text-council-text-muted hover:border-council-text-muted/50',
+                                  )}
                                 >
                                   {activeAdvisorIds.includes(a.id) ? 'Added' : 'Add'}
                                 </button>
                               </div>
                             ))}
                           </div>
-                          <div className="mt-6 pt-4 border-t border-[#f0f0f0]">
+                          <div className="mt-6 pt-4 border-t border-council-hairline space-y-1">
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start text-council-text-soft hover:text-foreground hover:bg-council-row-hover text-[12px] h-8 p-0 px-2"
+                              onClick={() => {
+                                onOpenWelcomeSetup();
+                                setShowSettings(false);
+                              }}
+                            >
+                              Open welcome setup
+                            </Button>
                             <Button
                               variant="ghost"
                               className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 text-[12px] h-8 p-0 px-2"
                               onClick={() => {
-                                setMessages([]);
+                                patchActiveGroup({ messages: [] });
                                 setShowSettings(false);
                               }}
                             >
@@ -321,11 +660,16 @@ export default function App() {
               </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-7 md:space-y-8">
               {messages.length === 0 && (
-                <div className="text-center py-10">
-                  <span className="bg-[#dadada] text-white text-[11px] px-2 py-1 rounded-sm">
-                    Welcome to "History Masterminds". Start your quest.
+                <div className="text-center py-16 px-4">
+                  <span className="inline-flex items-center gap-3 bg-council-welcome text-white text-base font-semibold px-7 py-4 rounded-full shadow-[0_18px_48px_-10px_rgba(5,120,65,0.5)] max-w-[min(100%,42rem)] ring-2 ring-white/25">
+                    <span className="text-xl leading-none shrink-0" aria-hidden>
+                      ✦
+                    </span>
+                    <span className="text-left leading-snug">
+                      Welcome to &quot;{activeGroup?.name ?? 'Council'}&quot;. Say hello to the council.
+                    </span>
                   </span>
                 </div>
               )}
@@ -336,34 +680,44 @@ export default function App() {
                   return (
                     <motion.div
                       key={msg.id}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
+                      transition={{ type: 'spring', stiffness: 520, damping: 34, mass: 0.55 }}
                       className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
                     >
                       <Avatar className="w-10 h-10 rounded shrink-0">
-                        <AvatarImage src={isUser ? userAvatar : msg.avatar} className="rounded" />
+                        <AvatarImage
+                          src={isUser ? userAvatarUrl : msg.avatar}
+                          className={cn('rounded', !isUser && 'object-top')}
+                        />
                         <AvatarFallback className="rounded bg-zinc-300">{msg.senderName[0]}</AvatarFallback>
                       </Avatar>
                       <div className={`flex flex-col gap-1 max-w-[70%] ${isUser ? 'items-end' : 'items-start'}`}>
                         {!isUser && (
-                          <span className="text-[11px] text-[#666] ml-1">{msg.senderName}</span>
+                          <span className="text-[11px] font-semibold uppercase tracking-wide text-council-text-soft ml-1">
+                            {msg.senderName}
+                          </span>
                         )}
                         <div
-                          className={`relative p-3 rounded-md text-[14px] leading-relaxed shadow-sm ${
+                          className={cn(
+                            'relative p-4 rounded-2xl text-[15px] leading-relaxed',
                             isUser
-                              ? 'bg-[#95ec69] text-black rounded-tr-none'
-                              : 'bg-white text-black rounded-tl-none'
-                          }`}
+                              ? 'bg-council-bubble-user text-foreground rounded-tr-lg shadow-[0_12px_32px_-8px_rgba(25,130,55,0.28)] ring-1 ring-black/[0.07]'
+                              : 'bg-council-bubble-advisor text-foreground rounded-tl-lg shadow-[0_14px_40px_-12px_rgba(0,0,0,0.14)] ring-1 ring-black/[0.06]',
+                          )}
                         >
-                          <div className={`absolute top-0 w-0 h-0 border-[6px] border-transparent ${
-                            isUser
-                              ? 'border-t-[#95ec69] right-[-11px] border-l-[#95ec69]'
-                              : 'border-t-white left-[-11px] border-r-white'
-                          }`} />
+                          <div
+                            className={cn(
+                              'absolute top-0 w-0 h-0 border-[7px] border-transparent',
+                              isUser
+                                ? 'border-t-council-bubble-user border-l-council-bubble-user right-[-12px]'
+                                : 'border-t-council-bubble-advisor border-r-council-bubble-advisor left-[-12px]',
+                            )}
+                          />
 
-                          <p>{msg.content}</p>
+                          <p className={cn(isUser && 'font-medium')}>{msg.content}</p>
                           {msg.translation && (
-                            <div className="mt-2 text-[12px] opacity-60 border-t border-black/5 pt-2">
+                            <div className="mt-3 text-[12px] font-medium text-council-text-soft border-t border-black/[0.07] pt-2.5">
                               {msg.translation}
                             </div>
                           )}
@@ -379,10 +733,10 @@ export default function App() {
                   <Avatar className="w-10 h-10 rounded shrink-0 grayscale opacity-50">
                     <AvatarFallback className="rounded bg-zinc-200">...</AvatarFallback>
                   </Avatar>
-                  <div className="bg-[#dbdbdb] px-3 py-2 rounded-md flex gap-1 items-center mt-4">
-                    <div className="w-1.5 h-1.5 bg-[#888] rounded-full animate-bounce [animation-delay:-0.3s]" />
-                    <div className="w-1.5 h-1.5 bg-[#888] rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <div className="w-1.5 h-1.5 bg-[#888] rounded-full animate-bounce" />
+                  <div className="bg-council-typing-bg px-3 py-2.5 rounded-2xl flex gap-1.5 items-center mt-4 shadow-inner shadow-black/5 ring-1 ring-council-hairline/60">
+                    <div className="w-2 h-2 bg-council-typing-dot rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <div className="w-2 h-2 bg-council-typing-dot rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <div className="w-2 h-2 bg-council-accent rounded-full animate-bounce shadow-sm shadow-council-accent/40" />
                   </div>
                 </div>
               )}
@@ -390,7 +744,7 @@ export default function App() {
               <div ref={scrollRef} />
             </div>
 
-            <footer className="h-[200px] border-t border-[#e1e1e1] bg-white flex flex-col relative">
+            <footer className="h-[200px] border-t-2 border-council-hairline bg-council-bubble-advisor flex flex-col relative shadow-[0_-14px_40px_-16px_rgba(0,0,0,0.09)]">
               <AnimatePresence>
                 {showEmoji && (
                   <>
@@ -399,17 +753,30 @@ export default function App() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute bottom-12 left-6 bg-white border border-[#e1e1e1] p-3 shadow-xl rounded-md z-50 w-[240px]"
+                      className="absolute bottom-12 left-6 bg-council-bubble-advisor border border-council-list-border/70 p-3 rounded-2xl z-50 w-[280px] max-h-[260px] overflow-y-auto shadow-[0_16px_44px_-10px_rgba(0,0,0,0.16)]"
                     >
-                      <div className="grid grid-cols-4 gap-2">
-                        {COMMON_EMOJIS.map(e => (
-                          <button
-                            key={e}
-                            onClick={() => { setInput(prev => prev + e); setShowEmoji(false); }}
-                            className="text-2xl hover:bg-zinc-100 p-2 rounded transition-colors"
-                          >
-                            {e}
-                          </button>
+                      <div className="space-y-3">
+                        {EMOJI_CATEGORIES.map((cat) => (
+                          <div key={cat.label}>
+                            <div className="text-[10px] uppercase text-council-text-muted font-semibold mb-1.5 tracking-wide">
+                              {cat.label}
+                            </div>
+                            <div className="grid grid-cols-6 gap-1">
+                              {cat.emojis.map((e) => (
+                                <button
+                                  key={`${cat.label}-${e}`}
+                                  type="button"
+                                  onClick={() => {
+                                    setInput((prev) => prev + e);
+                                    setShowEmoji(false);
+                                  }}
+                                  className="text-xl hover:bg-zinc-100 p-1.5 rounded transition-colors"
+                                >
+                                  {e}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </motion.div>
@@ -417,13 +784,31 @@ export default function App() {
                 )}
               </AnimatePresence>
 
-              <div className="h-10 flex items-center px-6 gap-6 text-[#666]">
-                <Smile className={`w-5 h-5 cursor-pointer hover:text-black ${showEmoji ? 'text-black' : ''}`} onClick={() => setShowEmoji(!showEmoji)} />
-                <ImageIcon className="w-5 h-5 cursor-pointer hover:text-black" />
-                <Search className="w-5 h-5 cursor-pointer hover:text-black" />
-                <Plus className="w-5 h-5 cursor-pointer hover:text-black" />
+              <div className="h-11 flex items-center px-6 md:px-8 gap-7 text-council-text-soft">
+                <Smile
+                  className={cn(
+                    'w-6 h-6 cursor-pointer stroke-[1.75] motion-safe:transition-all motion-safe:duration-200 motion-safe:hover:scale-110',
+                    showEmoji ? 'text-council-accent stroke-2' : 'hover:text-foreground hover:stroke-2',
+                  )}
+                  onClick={() => setShowEmoji(!showEmoji)}
+                />
+                <ImageIcon className="w-6 h-6 cursor-pointer stroke-[1.75] hover:text-foreground hover:stroke-2 motion-safe:transition-all motion-safe:hover:scale-110" />
+                <Search className="w-6 h-6 cursor-pointer stroke-[1.75] hover:text-foreground hover:stroke-2 motion-safe:transition-all motion-safe:hover:scale-110" />
+                <Plus className="w-6 h-6 cursor-pointer stroke-[1.75] hover:text-foreground hover:stroke-2 motion-safe:transition-all motion-safe:hover:scale-110" />
               </div>
-              <div className="flex-1 p-6 pt-0">
+              <div className="flex-1 p-6 pt-0 flex flex-col gap-2 min-h-0">
+                {chatError && (
+                  <div className="shrink-0 text-[13px] text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2 flex justify-between gap-2 items-start">
+                    <span>{chatError}</span>
+                    <button
+                      type="button"
+                      className="text-red-800 shrink-0 underline"
+                      onClick={() => setChatError(null)}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
                 <textarea
                   value={input}
                   onChange={handleInputChange}
@@ -433,49 +818,36 @@ export default function App() {
                       handleSendMessage();
                     }
                   }}
-                  className="w-full h-full resize-none border-none outline-none text-[15px] placeholder:text-[#ccc]"
+                  className="w-full flex-1 min-h-[88px] resize-none border-none outline-none text-[16px] font-medium leading-relaxed placeholder:text-council-text-muted placeholder:font-normal"
                   placeholder="Type a message... (Use @ to mention)"
                 />
               </div>
               <div className="h-12 px-6 flex justify-end items-start pb-4">
                 <Button
+                  variant="outline"
                   onClick={handleSendMessage}
                   disabled={!input.trim() || loading}
-                  className="bg-[#f5f5f5] hover:bg-[#e1e1e1] text-[#999] hover:text-[#07c160] h-8 px-8 border border-[#e1e1e1] font-normal rounded-sm"
+                  className={cn(
+                    'h-10 min-w-[7.5rem] px-11 text-[15px] font-semibold rounded-full motion-safe:transition-all motion-safe:duration-200',
+                    input.trim() && !loading
+                      ? fillViewport
+                        ? '!bg-council-accent !text-white !border-transparent shadow-xl shadow-council-accent/40 hover:!bg-council-accent-hover hover:!shadow-council-accent/50 motion-safe:hover:scale-[1.03] motion-safe:active:scale-[0.98]'
+                        : '!bg-white !text-zinc-950 !border-transparent shadow-[0_16px_40px_-12px_rgba(0,0,0,0.45)] hover:!bg-zinc-100 motion-safe:hover:scale-[1.03] motion-safe:active:scale-[0.98]'
+                      : '!bg-council-canvas !text-council-text-muted !border-council-hairline hover:!bg-council-row-hover',
+                  )}
                 >
-                  Send (S)
+                  Send
                 </Button>
               </div>
             </footer>
           </>
         ) : currentView === 'moments' ? (
-          <div className="flex-1 overflow-y-auto bg-white">
-            <header className="h-[60px] border-b border-[#e1e1e1] flex items-center px-6 bg-[#f5f5f5] sticky top-0 z-10 shrink-0">
-               <h1 className="text-lg font-medium">Moments</h1>
+          <div className="flex-1 overflow-y-auto bg-council-bubble-advisor">
+            <header className="h-[72px] border-b border-council-list-border flex items-center px-6 md:px-8 bg-council-canvas sticky top-0 z-10 shrink-0 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.07)]">
+               <h1 className="text-2xl font-semibold tracking-tight">Moments</h1>
             </header>
-            <div className="max-w-[600px] mx-auto py-10 px-6 space-y-12">
-               {moments.map(moment => {
-                 const advisor = ADVISORS.find(a => a.id === moment.authorId);
-                 return (
-                   <div key={moment.id} className="flex gap-4 border-b border-[#f0f0f0] pb-8">
-                     <Avatar className="w-10 h-10 rounded shrink-0">
-                       <AvatarImage src={advisor?.avatar} className="rounded" />
-                     </Avatar>
-                     <div className="flex-1 space-y-2">
-                       <h3 className="text-[#576b95] font-bold text-[14px]">{advisor?.name}</h3>
-                       <p className="text-[15px] leading-relaxed text-black">{moment.content}</p>
-                       <div className="flex justify-between items-center pt-2">
-                         <span className="text-[11px] text-[#999]">
-                           {new Date(moment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                         </span>
-                         <div className="bg-[#f7f7f7] p-1 rounded cursor-pointer hover:bg-[#e1e1e1]">
-                           <MoreHorizontal className="w-4 h-4 text-[#576b95]" />
-                         </div>
-                       </div>
-                     </div>
-                   </div>
-                 );
-               })}
+            <div className="max-w-[600px] mx-auto py-10 px-6">
+              <MomentsFeed />
             </div>
           </div>
         ) : (
@@ -485,30 +857,39 @@ export default function App() {
                 key={selectedContact.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex-1 flex flex-col items-center pt-[100px] bg-[#f5f5f5]"
+                className="flex-1 flex flex-col items-center pt-[100px] bg-council-canvas"
               >
                 <div className="w-full max-w-[400px] flex flex-col items-center">
-                  <div className="flex items-start w-full gap-5 border-b border-[#e1e1e1] pb-10 mb-8">
+                  <div className="flex items-start w-full gap-5 border-b border-council-hairline pb-10 mb-8">
                      <Avatar className="w-[64px] h-[64px] rounded">
-                        <AvatarImage src={selectedContact.avatar} className="rounded" />
+                        <AvatarImage src={selectedContact.avatar} className="rounded object-top" />
                         <AvatarFallback className="rounded bg-zinc-300">{selectedContact.name[0]}</AvatarFallback>
                      </Avatar>
                      <div className="flex-1">
-                        <h2 className="text-xl font-bold mb-1">{selectedContact.name}</h2>
-                        <p className="text-sm text-[#999] mb-4">Master ID: {selectedContact.id}</p>
+                        <h2 className="text-2xl font-bold tracking-tight mb-1">{selectedContact.name}</h2>
+                        <p className="text-sm text-council-text-muted mb-4">Master ID: {selectedContact.id}</p>
                         <div className="flex flex-col gap-2">
-                           <div className="text-[13px]"><span className="text-[#999] mr-4">Title</span> {selectedContact.title}</div>
-                           <div className="text-[13px]"><span className="text-[#999] mr-4">Region</span> {selectedContact.id === 'marcus-aurelius' ? 'Rome' : 'China'}</div>
+                           <div className="text-[13px]"><span className="text-council-text-muted mr-4">Title</span> {selectedContact.title}</div>
+                           <div className="text-[13px]">
+                             <span className="text-council-text-muted mr-4">Region</span>
+                             {advisorRegionLabel(selectedContact.id)}
+                           </div>
                         </div>
                      </div>
                   </div>
 
-                  <div className="w-full px-6 text-sm text-center italic text-[#666] mb-10 leading-relaxed">
-                    "{selectedContact.bio}"
+                  <div className="w-full px-6 text-center mb-10 leading-relaxed">
+                    <p className="font-heading text-lg md:text-xl italic text-foreground font-medium">
+                      &ldquo;{selectedContact.bio}&rdquo;
+                    </p>
                   </div>
 
                   <Button
-                    className="bg-[#07c160] hover:bg-[#06ae56] text-white px-10 py-5 h-auto text-[15px] font-medium rounded-sm"
+                    className={
+                      fillViewport
+                        ? '!bg-council-accent hover:!bg-council-accent-hover !text-white px-12 py-6 h-auto text-base font-semibold rounded-full shadow-xl shadow-council-accent/40 motion-safe:transition-all motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]'
+                        : '!bg-white hover:!bg-zinc-100 !text-zinc-950 px-12 py-6 h-auto text-base font-semibold rounded-full shadow-[0_20px_50px_-16px_rgba(0,0,0,0.45)] motion-safe:transition-all motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]'
+                    }
                     onClick={() => setCurrentView('chats')}
                   >
                     Messages
@@ -516,13 +897,71 @@ export default function App() {
                 </div>
               </motion.div>
             ) : (
-              <div className="flex-1 flex items-center justify-center bg-[#f5f5f5]">
-                 <Users className="w-24 h-24 text-[#e1e1e1]" />
+              <div className="flex-1 flex items-center justify-center bg-council-canvas">
+                 <Users className="w-24 h-24 text-council-hairline motion-safe:animate-pulse" />
               </div>
             )}
           </div>
         )}
       </main>
+
+      <CreateGroupModal
+        advisors={ADVISORS}
+        open={createGroupOpen}
+        onClose={() => setCreateGroupOpen(false)}
+        onConfirm={handleConfirmCreateGroup}
+      />
+
+      {chatListMenuGroupId && (
+        <button
+          type="button"
+          className="fixed left-[364px] top-0 right-0 bottom-0 z-[140] cursor-default bg-black/10"
+          aria-label="Dismiss chat menu"
+          onClick={() => setChatListMenuGroupId(null)}
+        />
+      )}
     </div>
+  );
+}
+
+export default function App() {
+  const [onboardingDone, setOnboardingDone] = useState(() => isOnboardingCompleteForSession());
+  const reduceMotion = useReducedMotion();
+
+  const shellTransition = reduceMotion
+    ? { duration: 0 }
+    : { duration: 0.42, ease: [0.16, 1, 0.3, 1] as const };
+
+  return (
+    <AnimatePresence mode="wait">
+      {!onboardingDone ? (
+        <motion.div
+          key="onboarding"
+          className="min-h-screen"
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={reduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <OnboardingFlow onComplete={() => setOnboardingDone(true)} />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="council-shell"
+          className="fixed inset-0 z-[100] bg-zinc-300"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={shellTransition}
+        >
+          <FloatingCouncilWindow>
+            <CouncilShell
+              fillViewport={false}
+              onOpenWelcomeSetup={() => {
+                resetOnboarding();
+                setOnboardingDone(false);
+              }}
+            />
+          </FloatingCouncilWindow>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

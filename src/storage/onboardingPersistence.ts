@@ -1,23 +1,10 @@
 const KEY = 'council_onboarding_v1';
 
-/** Matches `OnboardingFlow`; cleared on each visit so the welcome flow starts clean. */
-const SESSION_UI_KEY = 'council_onboarding_session_ui_v1';
-
-/** Clears scroll/stage session from the onboarding theatre UI (same tab only). */
-export function clearOnboardingSessionUiCache(): void {
-  try {
-    sessionStorage.removeItem(SESSION_UI_KEY);
-  } catch {
-    /* ignore */
-  }
-}
-
 export type OnboardingVendor = 'openai' | 'gemini' | 'anthropic';
 
 export type OnboardingState = {
-  /** Legacy field — no longer used to skip onboarding on reload (see below). */
   complete: boolean;
-  /** Last chosen vendor; informs env snippet only (server still uses `.env.local`). */
+  /** Last chosen vendor; informs env snippet only (server still uses .env.local). */
   vendorHint?: OnboardingVendor;
 };
 
@@ -33,15 +20,12 @@ export function loadOnboardingState(): OnboardingState {
 }
 
 /**
- * Whether the main chat shell should show on **initial load**.
+ * Whether the main chat shell should show (onboarding already finished).
+ * Survives restarts: completion is in localStorage, not the server.
+ * Force the welcome flow with URL `?onboarding` or `?setup`, or (dev) `VITE_SHOW_ONBOARDING=1` in `.env.local`.
  *
- * **Product default:** every **full page load** opens the welcome flow (`complete` is **not** read from
- * localStorage). After the user finishes onboarding in-session, `App` keeps them in the shell until refresh.
- *
- * **Overrides:**
- * - `?onboarding` or `?setup` — force welcome (already default except embed).
- * - `?demo=1` or `?embed=1` — skip welcome for embedded previews (e.g. iframe shells using `?embed=1`).
- * - Dev: `VITE_SHOW_ONBOARDING=1` — force welcome every dev reload (when paired with implementation in App).
+ * **Embed / README demos:** `?demo=1` or `?embed=1` skips onboarding so iframes and
+ * hero screenshots show the council UI without the welcome pill (first-time visitors only).
  */
 export function isOnboardingCompleteForSession(): boolean {
   if (typeof window !== 'undefined') {
@@ -50,26 +34,15 @@ export function isOnboardingCompleteForSession(): boolean {
     if (q.get('demo') === '1' || q.get('embed') === '1') return true;
     if (import.meta.env.DEV && import.meta.env.VITE_SHOW_ONBOARDING === '1') return false;
   }
-  return false;
+  return loadOnboardingState().complete;
 }
 
 export function saveOnboardingComplete(vendorHint?: OnboardingVendor): void {
-  try {
-    const prev = loadOnboardingState();
-    const next: OnboardingState = {
-      complete: false,
-      vendorHint: vendorHint ?? prev.vendorHint,
-    };
-    localStorage.setItem(KEY, JSON.stringify(next));
-  } catch {
-    if (vendorHint) {
-      localStorage.setItem(KEY, JSON.stringify({ complete: false, vendorHint }));
-    }
-  }
+  const next: OnboardingState = { complete: true, vendorHint };
+  localStorage.setItem(KEY, JSON.stringify(next));
 }
 
-/** Clears vendor hint and onboarding UI keys when revisiting welcome from settings. */
+/** Dev / support: let users reopen onboarding from the UI later if we add a button. */
 export function resetOnboarding(): void {
   localStorage.removeItem(KEY);
-  clearOnboardingSessionUiCache();
 }

@@ -1,0 +1,92 @@
+{
+  "posts": [
+    {
+      "id": "early-life-ulm",
+      "year": 1879,
+      "month": 3,
+      "content": "I was born in Ulm. A quiet child, often seen as dull by teachers, but I knew that when I wondered why a compass needle always pointed north, I had already begun my journey into the cosmic order.",
+      "translation": "我在乌尔姆出生。少时沉默寡言，常被老师视作愚钝，但我知道，当我在思考罗盘指针为何总是指向北方时，我已经踏上了探索宇宙秩序的旅程。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "zurich-eth",
+      "year": 1900,
+      "content": "At the ETH in Zurich I was no model student, yet I learned to push everyday experience to its limit in thought experiments.",
+      "translation": "在苏黎世联邦理工，我并非模范生，却学会用思想实验把日常经验逼到极限。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Einstein_1921_by_F_Schmutzer_-_restoration.jpg/330px-Einstein_1921_by_F_Schmutzer_-_restoration.jpg"
+      ]
+    },
+    {
+      "id": "patent-office-miracle",
+      "year": 1905,
+      "content": "Between tasks at the Bern patent office, I found my 'Miracle Year.' Four papers—from the photoelectric effect to E=mc²—I realized space and time are not absolute. The world is far grander and stranger than our eyes suggest.",
+      "translation": "在伯尔尼专利局工作的间隙，我迎来了自己的“奇迹年”。四篇论文，从光电效应到E=mc²，我意识到时间与空间并非绝对。这世界比我们肉眼所见的更加宏大诡谲。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Einstein_patentoffice.jpg/330px-Einstein_patentoffice.jpg"
+      ]
+    },
+    {
+      "id": "prague-1911",
+      "year": 1911,
+      "content": "Prague’s salary fed my family and let me study impurities in gases—the crack through which Brownian motion appeared.",
+      "translation": "布拉格的年薪让我养家，也让我静思气体中的杂质——那是通向布朗运动世界的门缝。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Solvay_conference_1927.jpg/330px-Solvay_conference_1927.jpg"
+      ]
+    },
+    {
+      "id": "general-relativity-berlin",
+      "year": 1915,
+      "month": 11,
+      "content": "General Relativity is finally complete. Gravity is no longer a mysterious tug, but the curvature of spacetime. Seeing light bend in a gravitational field, I felt as though I were hearing God whisper.",
+      "translation": "广义相对论终于大功告成。引力不再是神秘的拉力，而是时空的弯曲。看到光线在引力场中偏转的那一刻，我仿佛听到了上帝在低语。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Albert_Einstein_Head_cleaned.jpg/330px-Albert_Einstein_Head_cleaned.jpg"
+      ]
+    },
+    {
+      "id": "eclipse-1919",
+      "year": 1919,
+      "month": 5,
+      "content": "The 1919 eclipse headlines bent starlight—general relativity stepped into the public square for the first time.",
+      "translation": "1919年日食观测报道星光弯曲——广义相对论第一次站在公众舞台中央。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Einstein_1921_by_F_Schmutzer_-_restoration.jpg/330px-Einstein_1921_by_F_Schmutzer_-_restoration.jpg"
+      ]
+    },
+    {
+      "id": "nobel-prize",
+      "year": 1921,
+      "content": "Awarded the Nobel Prize for the photoelectric effect. The prize money matters little; what matters is that we finally began to understand light—the universe's most pure and mysterious messenger.",
+      "translation": "因光电效应的研究被授予诺贝尔奖。其实奖金不重要，重要的是，我们终于开始理解光——这宇宙中最纯粹又最神秘的信使。"
+    },
+    {
+      "id": "pacifist-letter",
+      "year": 1924,
+      "content": "I wrote pacifists and warned Europe that ignoring its thinkers only enlarges the powder keg.",
+      "translation": "我与和平主义者通信，也警告欧洲若忽视知识分子，火药桶只会更大。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Einstein_patentoffice.jpg/330px-Einstein_patentoffice.jpg"
+      ]
+    },
+    {
+      "id": "princeton-refuge",
+      "year": 1933,
+      "content": "With the Nazis in power, I was forced from my homeland. Princeton became my new home. Science has no borders, but justice does. I would rather be a pacifist madman in a free land than remain silent under tyranny.",
+      "translation": "纳粹上台，我被迫离开了故土。普林斯顿成了我的新家。科学没有国界，但正义有。我宁愿在自由的土地上做个和平主义的疯子，也不愿在暴政下沉默。",
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Solvay_conference_1927.jpg/330px-Solvay_conference_1927.jpg"
+      ]
+    },
+    {
+      "id": "death-legacy",
+      "year": 1955,
+      "month": 4,
+      "content": "I have reached the end in Princeton. I refused surgery; it is tasteless to prolong life artificially. The distinction between past, present, and future is only an illusion. I have seen the view; it is time to go.",
+      "translation": "我在普林斯顿走到了终点。我拒绝了手术，因为强行延长寿命是乏味的。过去、现在与未来的分别只是幻觉。我已经看过了风景，现在该走了。"
+    }
+  ]
+}
