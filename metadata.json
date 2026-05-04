@@ -1,6 +1,6 @@
 {
   "name": "Council AI",
-  "description": "A bilingual decision-companion web app where three historical advisors (Zhuge Liang, Cao Cao, Marcus Aurelius) provide structured guidance through clarifying, opening, critique, and synthesis rounds.",
+  "description": "🏛️ WeChat-style app: Chats, Contacts, and Moments — group rooms with multiple historic AI advisors, bilingual message + translation. Multi-provider LLMs, production-polished thread UI.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }
