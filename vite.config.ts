@@ -24,6 +24,10 @@ export default defineConfig(() => {
           target: 'http://localhost:3001',
           changeOrigin: true,
         },
+        '/healthz': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
       },
     },
   };

@@ -2,14 +2,14 @@
 
 <div align="center">
 
-[![Live demo — hosted app](https://img.shields.io/badge/LIVE_DEMO-council--ai.onrender.com-7c3aed?style=for-the-badge)](https://council-ai.onrender.com/?demo=1)
+[![Live demo — hosted app](https://img.shields.io/badge/LIVE_DEMO-council--ai.onrender.com-7c3aed?style=for-the-badge)](https://council-ai.onrender.com/?embed=1)
 
 ### Talk to a council of AI advisors at once
 
 Group‑chat UI · multi‑provider LLMs · **OpenAI Agents** path + native Gemini & Claude
 
 <p align="center">
-  <a href="https://council-ai.onrender.com/?demo=1" title="Open the live app (main council UI)">
+  <a href="https://council-ai.onrender.com/?embed=1" title="Open the live app (expanded UI; iframe-style)">
     <img
       src="docs/images/council-ai-live.png"
       alt="Council AI — live council chat UI on Render"
@@ -19,8 +19,8 @@ Group‑chat UI · multi‑provider LLMs · **OpenAI Agents** path + native Gemi
 </p>
 
 <p align="center">
-  <a href="https://council-ai.onrender.com/?demo=1"><strong>council-ai.onrender.com</strong></a>
-  — live API + app (<code>?demo=1</code> skips welcome for demos)
+  <a href="https://council-ai.onrender.com/"><strong>council-ai.onrender.com</strong></a>
+  — live API + app · <code>?embed=1</code> opens expanded UI for embeds
   ·
   <a href="https://thattutorbot.github.io/council_ai/" title="Full-page embed (GitHub Pages)"><strong>Pages embed</strong></a>
   <sup><a href="#github-pages-embedded-demo">*</a></sup>
@@ -49,7 +49,7 @@ Pick **one** path.
 
 ### A · Try it in the browser
 
-Open **[council-ai.onrender.com](https://council-ai.onrender.com/)**. Use **`?demo=1`** on Render if you want to skip the welcome flow and land on the council UI immediately.
+Open **[council-ai.onrender.com](https://council-ai.onrender.com/)** — home is the **Council capsule**; expand to chat or setup. For iframe-style previews use **`?embed=1`** (expanded UI).
 
 If the deployment shows a **setup** step, treat keys you paste there as **session‑scoped** in the browser — they do not create or change a developer’s `.env.local`.
 
@@ -218,7 +218,7 @@ Issues and pull requests are welcome. Run **`npm run lint`** before submitting. 
 
 ## GitHub Pages embedded demo
 
-The static page **`docs/index.html`** embeds the app at **`https://council-ai.onrender.com/?demo=1`** inside a framed viewport. The **`demo=1`** query skips the onboarding pill so the **main council UI** appears immediately for cold visitors (no duplicate backend; API stays on Render).
+The static page **`docs/index.html`** embeds the app at **`https://council-ai.onrender.com/?embed=1`** inside a framed viewport (expanded UI for iframes). API stays on Render.
 
 **Enable it:** Repository **Settings → Pages → Build and deployment → Branch** → choose **`main`** (or your default branch) and folder **`/docs`**, then save. After the first deploy, the site is typically:
 
@@ -230,16 +230,16 @@ If your GitHub username or repository name differs, update that URL everywhere i
 
 ## Live snapshot (README hero)
 
-The image **`docs/images/council-ai-live.png`** is a capture of the main UI (**[`?demo=1`](https://council-ai.onrender.com/?demo=1)**) for the repository landing page. To refresh it after UI changes:
+The image **`docs/images/council-ai-live.png`** is a capture of the main UI (**[`?embed=1`](https://council-ai.onrender.com/?embed=1)** expanded shell) for the repository landing page. To refresh it after UI changes:
 
 ```bash
 npx playwright@1.49.1 screenshot --viewport-size=1440,900 --wait-for-timeout=8000 \
-  'https://council-ai.onrender.com/?demo=1' docs/images/council-ai-live.png
+  'https://council-ai.onrender.com/?embed=1' docs/images/council-ai-live.png
 ```
 
 (`npx playwright install chromium` first if browsers are not cached.)
 
-If production has not shipped **`?demo=1`** yet, capture against a local preview instead: run **`npm run build`**, start **`npx vite preview --port 4173 --host 127.0.0.1`**, then point Playwright at **`http://127.0.0.1:4173/?demo=1`**.
+If production has not shipped **`?embed=1`** yet, capture against a local preview instead: run **`npm run build`**, start **`npx vite preview --port 4173 --host 127.0.0.1`**, then point Playwright at **`http://127.0.0.1:4173/?embed=1`**.
 
 To change the **social preview image** GitHub shows when the repo link is shared (not the README), add a **1280×640** image under **Repository → Settings → General → Social preview**.
 

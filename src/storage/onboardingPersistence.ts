@@ -4,7 +4,7 @@ export type OnboardingVendor = 'openai' | 'gemini' | 'anthropic';
 
 export type OnboardingState = {
   complete: boolean;
-  /** Last chosen vendor; informs env snippet only (server still uses .env.local). */
+  /** Last chosen vendor; informs env snippet only (server still uses `.env.local`). */
   vendorHint?: OnboardingVendor;
 };
 
@@ -20,21 +20,12 @@ export function loadOnboardingState(): OnboardingState {
 }
 
 /**
- * Whether the main chat shell should show (onboarding already finished).
- * Survives restarts: completion is in localStorage, not the server.
- * Force the welcome flow with URL `?onboarding` or `?setup`, or (dev) `VITE_SHOW_ONBOARDING=1` in `.env.local`.
- *
- * **Embed / README demos:** `?demo=1` or `?embed=1` skips onboarding so iframes and
- * hero screenshots show the council UI without the welcome pill (first-time visitors only).
+ * GitHub Pages / iframe shells should load expanded (`embed=1`) so visitors see the UI without the
+ * root capsule step. Product URLs use plain `/`.
  */
-export function isOnboardingCompleteForSession(): boolean {
-  if (typeof window !== 'undefined') {
-    const q = new URLSearchParams(window.location.search);
-    if (q.has('onboarding') || q.has('setup')) return false;
-    if (q.get('demo') === '1' || q.get('embed') === '1') return true;
-    if (import.meta.env.DEV && import.meta.env.VITE_SHOW_ONBOARDING === '1') return false;
-  }
-  return loadOnboardingState().complete;
+export function isEmbedPreview(): boolean {
+  if (typeof window === 'undefined') return false;
+  return new URLSearchParams(window.location.search).get('embed') === '1';
 }
 
 export function saveOnboardingComplete(vendorHint?: OnboardingVendor): void {
@@ -42,7 +33,7 @@ export function saveOnboardingComplete(vendorHint?: OnboardingVendor): void {
   localStorage.setItem(KEY, JSON.stringify(next));
 }
 
-/** Dev / support: let users reopen onboarding from the UI later if we add a button. */
+/** Dev / support: reopen welcome from settings. */
 export function resetOnboarding(): void {
   localStorage.removeItem(KEY);
 }
