@@ -40,7 +40,7 @@ export function loadOnboardingState(): OnboardingState {
  *
  * **Overrides:**
  * - `?onboarding` or `?setup` — force welcome (already default except embed).
- * - `?demo=1` or `?embed=1` — skip welcome so GitHub Pages iframes land on the council UI.
+ * - `?demo=1` or `?embed=1` — skip welcome for embedded previews (e.g. iframe shells using `?embed=1`).
  * - Dev: `VITE_SHOW_ONBOARDING=1` — force welcome every dev reload (when paired with implementation in App).
  */
 export function isOnboardingCompleteForSession(): boolean {
