@@ -6,7 +6,7 @@
 
 ### Talk to a council of AI advisors at once
 
-Group‑chat UI · multi‑provider LLMs · **OpenAI Agents** path + native Gemini & Claude
+Group‑chat UI · multi‑provider LLMs · OpenAI Agents path + native Gemini & Claude
 
 <p align="center">
   <a href="https://council-ai.onrender.com/" title="Open the live app on Render">
