@@ -2,14 +2,14 @@
 
 <div align="center">
 
-[![Live demo — hosted app](https://img.shields.io/badge/LIVE_DEMO-council--ai.onrender.com-7c3aed?style=for-the-badge)](https://council-ai.onrender.com/?embed=1)
+[![Live demo — hosted app](https://img.shields.io/badge/LIVE_DEMO-council--ai.onrender.com-7c3aed?style=for-the-badge)](https://council-ai.onrender.com/)
 
 ### Talk to a council of AI advisors at once
 
 Group‑chat UI · multi‑provider LLMs · **OpenAI Agents** path + native Gemini & Claude
 
 <p align="center">
-  <a href="https://council-ai.onrender.com/?embed=1" title="Open the live app (expanded UI; iframe-style)">
+  <a href="https://council-ai.onrender.com/" title="Open the live app on Render">
     <img
       src="docs/images/council-ai-live.png"
       alt="Council AI — live council chat UI on Render"
@@ -19,16 +19,11 @@ Group‑chat UI · multi‑provider LLMs · **OpenAI Agents** path + native Gemi
 </p>
 
 <p align="center">
-  <a href="https://council-ai.onrender.com/"><strong>council-ai.onrender.com</strong></a>
-  — live API + app · <code>?embed=1</code> opens expanded UI for embeds
-  ·
-  <a href="https://thattutorbot.github.io/council_ai/" title="Full-page embed (GitHub Pages)"><strong>Pages embed</strong></a>
-  <sup><a href="#github-pages-embedded-demo">*</a></sup>
-</p>
-
-<p align="center">
-  <sub><strong>GitHub’s repo page can’t run live iframes inside the README.</strong>
-  Use the <strong>Pages embed</strong> link for a full-window iframe demo; the screenshot above is static.</sub>
+  <sub>
+    Screenshot is static ·
+    <a href="https://thattutorbot.github.io/council_ai/">GitHub Pages</a> embeds the app · on Render,
+    <code>?embed=1</code> skips the capsule for iframe-style views (<a href="#github-pages-embedded-demo">details</a>)
+  </sub>
 </p>
 
 </div>
@@ -93,16 +88,14 @@ If the deployment shows a **setup** step, treat keys you paste there as **sessio
 
 ## Architecture
 
-| Layer | Stack |
-|--------|--------|
-| Frontend | **React 19**, **Vite 6**, **Tailwind CSS**, **Motion**, UI under `components/` |
-| Backend | **Express**, **TypeScript** — vendor routing in **`server/index.ts`** |
-| LLM (OpenAI path) | **`@openai/agents`**, **`zod`** structured outputs; optional **LiteLLM** via `LITELLM_BASE_URL` |
-| LLM (Gemini / Claude) | **`@google/genai`**, **`@anthropic-ai/sdk`** when vendors are `gemini` / `anthropic` |
+**Stack:** React 19, Vite 6, Tailwind, Motion (`components/`) · Express + TypeScript (`server/index.ts`) · `@openai/agents` + Zod, or native **`@google/genai`** / **`@anthropic-ai/sdk`** · optional LiteLLM via `LITELLM_BASE_URL`.
 
-```
-Browser (Vite :3000)  →  /api proxy  →  Express (:3001)
-                              →  OpenAI API | Gemini API | Anthropic API  (or LiteLLM → upstream)
+Local dev: the Vite dev server proxies `/api` to Express. Production serves the built SPA and the same API.
+
+```mermaid
+flowchart LR
+  B["Browser · Vite :3000"] -->|"/api"| E["Express :3001"]
+  E --> L["OpenAI · Gemini · Anthropic\nor LiteLLM → upstream"]
 ```
 
 ---
