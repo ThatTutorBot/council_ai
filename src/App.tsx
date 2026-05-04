@@ -20,16 +20,20 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { ADVISORS, AdvisorPersona, ChatMessage, ChatGroup, advisorRegionLabel } from './types';
-import { ChatService } from './services/chatService';
+import { ChatService, type HealthResponse } from './services/chatService';
 import { loadPersistedGroupsState, savePersistedGroupsState, newId } from './storage/groupsPersistence';
 import { EMOJI_CATEGORIES } from './constants/emojiCategories';
 import { CreateGroupModal } from './components/CreateGroupModal';
 import { FloatingCouncilWindow } from './components/FloatingCouncilWindow';
 import { OnboardingFlow } from './components/OnboardingFlow';
+import { CouncilCapsule } from './components/CouncilCapsule';
 import { MomentsFeed } from './components/MomentsFeed';
 import {
-  isOnboardingCompleteForSession,
+  isEmbedPreview,
+  loadOnboardingState,
   resetOnboarding,
+  saveOnboardingComplete,
+  type OnboardingVendor,
 } from './storage/onboardingPersistence';
 import { cn } from '@/lib/utils';
 
@@ -67,7 +71,7 @@ function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellP
   const [showEmoji, setShowEmoji] = useState(false);
   const [showMentions, setShowMentions] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
-  const [currentView, setCurrentView] = useState<'chats' | 'contacts' | 'moments'>('chats');
+  const [currentView, setCurrentView] = useState<'chats' | 'contacts' | 'moments'>('moments');
   const [selectedContact, setSelectedContact] = useState<AdvisorPersona | null>(null);
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   /** WeChat-style ⋯ menu on a chat row in the sidebar */
@@ -924,42 +928,122 @@ function CouncilShell({ onOpenWelcomeSetup, fillViewport = true }: CouncilShellP
   );
 }
 
+function mapAdvisorVendorFromHealth(v: string | undefined): OnboardingVendor | undefined {
+  if (v === 'openai' || v === 'gemini' || v === 'anthropic') return v;
+  return undefined;
+}
+
 export default function App() {
-  const [onboardingDone, setOnboardingDone] = useState(() => isOnboardingCompleteForSession());
+  const [healthDone, setHealthDone] = useState(false);
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+  /** Intro / “Meet the council” finished — persisted; do not infer from GET /api/health alone. */
+  const [introCompleted, setIntroCompleted] = useState(() => loadOnboardingState().complete);
+  const [minimized, setMinimized] = useState(() =>
+    typeof window !== 'undefined' ? !isEmbedPreview() : true,
+  );
   const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    let cancelled = false;
+    ChatService.getHealth()
+      .then((h) => {
+        if (cancelled) return;
+        setHealth(h);
+        setHealthDone(true);
+      })
+      .catch(() => {
+        if (!cancelled) setHealthDone(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const shellTransition = reduceMotion
     ? { duration: 0 }
     : { duration: 0.42, ease: [0.16, 1, 0.3, 1] as const };
 
+  if (!healthDone) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f4f4f2]">
+        <p className="text-sm text-neutral-500">Checking setup…</p>
+      </div>
+    );
+  }
+
   return (
     <AnimatePresence mode="wait">
-      {!onboardingDone ? (
+      {minimized ? (
         <motion.div
-          key="onboarding"
+          key="capsule-root"
           className="min-h-screen"
-          exit={{ opacity: 0, scale: 0.98 }}
-          transition={reduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.18 }}
         >
-          <OnboardingFlow onComplete={() => setOnboardingDone(true)} />
+          <CouncilCapsule
+            variant={introCompleted || health?.llmConfigured ? 'ready' : 'needs-keys'}
+            onSettings={() => {
+              if (introCompleted) {
+                resetOnboarding();
+                setIntroCompleted(false);
+                void ChatService.getHealth()
+                  .then((h) => setHealth(h))
+                  .catch(() => {});
+              }
+              setMinimized(false);
+            }}
+            onChat={() => {
+              if (introCompleted) {
+                setMinimized(false);
+                return;
+              }
+              saveOnboardingComplete(mapAdvisorVendorFromHealth(health?.llm?.advisor));
+              setIntroCompleted(true);
+              setMinimized(false);
+            }}
+          />
         </motion.div>
-      ) : (
+      ) : introCompleted ? (
         <motion.div
           key="council-shell"
           className="fixed inset-0 z-[100] bg-zinc-300"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           transition={shellTransition}
         >
-          <FloatingCouncilWindow>
+          <FloatingCouncilWindow onMinimize={() => setMinimized(true)}>
             <CouncilShell
               fillViewport={false}
               onOpenWelcomeSetup={() => {
                 resetOnboarding();
-                setOnboardingDone(false);
+                setIntroCompleted(false);
+                setMinimized(false);
+                void ChatService.getHealth()
+                  .then((h) => setHealth(h))
+                  .catch(() => {});
               }}
             />
           </FloatingCouncilWindow>
+        </motion.div>
+      ) : (
+        <motion.div
+          key="onboarding-docked"
+          className="min-h-screen"
+          initial={{ opacity: 0, scale: 0.99 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={reduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <OnboardingFlow
+            docked
+            onDock={() => setMinimized(true)}
+            onComplete={() => setIntroCompleted(true)}
+            serverKeysReady={Boolean(health?.llmConfigured)}
+            initialVendorHint={mapAdvisorVendorFromHealth(health?.llm?.advisor)}
+          />
         </motion.div>
       )}
     </AnimatePresence>

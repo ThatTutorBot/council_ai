@@ -7,7 +7,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { GripHorizontal } from 'lucide-react';
+import { GripHorizontal, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const STORAGE_KEY = 'council_window_bounds_v1';
@@ -86,9 +86,11 @@ function clampBounds(b: WindowBounds): WindowBounds {
 type Props = {
   children: ReactNode;
   className?: string;
+  /** Collapse back to the root Council capsule */
+  onMinimize?: () => void;
 };
 
-export function FloatingCouncilWindow({ children, className }: Props) {
+export function FloatingCouncilWindow({ children, className, onMinimize }: Props) {
   const [bounds, setBounds] = useState<WindowBounds>(() =>
     typeof window !== 'undefined' ? loadBounds() : defaultBounds(),
   );
@@ -184,18 +186,33 @@ export function FloatingCouncilWindow({ children, className }: Props) {
       }}
     >
       <div
-        className="flex shrink-0 cursor-grab flex-col gap-0.5 border-b border-white/[0.08] bg-black px-4 py-2.5 active:cursor-grabbing touch-none select-none"
+        className="flex shrink-0 cursor-grab items-start justify-between gap-3 border-b border-white/[0.08] bg-black px-4 py-2.5 active:cursor-grabbing touch-none select-none"
         onPointerDown={onDragPointerDown}
       >
-        <div className="flex items-center gap-2.5">
-          <GripHorizontal className="h-4 w-4 shrink-0 text-zinc-500" aria-hidden />
-          <span className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-zinc-500">
-            Your session
-          </span>
+        <div className="min-w-0 flex-1 space-y-0.5">
+          <div className="flex items-center gap-2.5">
+            <GripHorizontal className="h-4 w-4 shrink-0 text-zinc-500" aria-hidden />
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-zinc-500">
+              Your session
+            </span>
+          </div>
+          <span className="block pl-6 text-[13px] font-semibold tracking-tight text-white">Council</span>
         </div>
-        <span className="pl-6 text-[13px] font-semibold tracking-tight text-white">
-          Council
-        </span>
+        {onMinimize ? (
+          <button
+            type="button"
+            data-no-drag
+            aria-label="Minimize to capsule"
+            className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-zinc-400 hover:bg-white/[0.06] hover:text-white motion-safe:transition-colors"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMinimize();
+            }}
+          >
+            <Minimize2 className="h-4 w-4" strokeWidth={2} />
+          </button>
+        ) : null}
       </div>
       <div className="relative min-h-0 flex-1 overflow-hidden rounded-b-[1.55rem] bg-black">
         {children}

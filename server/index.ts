@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import express from 'express';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import type { z } from 'zod';
 import Anthropic from '@anthropic-ai/sdk';
@@ -111,6 +111,32 @@ function initCouncilLlm(): void {
 
 initCouncilLlm();
 
+/** LLM-related env vars — cleared before re-read so commented-out keys in `.env.local` are not left stale in `process.env`. */
+const LLM_ENV_RELOAD_KEYS: readonly string[] = [
+  'OPENAI_API_KEY',
+  'LITELLM_API_KEY',
+  'LITELLM_BASE_URL',
+  'OPENAI_BASE_URL',
+  'GEMINI_API_KEY',
+  'ANTHROPIC_API_KEY',
+  'LLM_VENDOR',
+  'LLM_VENDOR_ADVISOR',
+  'LLM_VENDOR_DECIDE',
+];
+
+function reloadEnvFromDiskAndInitLlm(): void {
+  for (const k of LLM_ENV_RELOAD_KEYS) {
+    delete process.env[k];
+  }
+  dotenv.config({ path: path.join(process.cwd(), '.env.local'), override: true });
+  dotenv.config({ override: true });
+  try {
+    initCouncilLlm();
+  } catch (e) {
+    console.warn('[council] initCouncilLlm after env reload:', e);
+  }
+}
+
 function allowRuntimeSetup(req: Request): boolean {
   if (process.env.COUNCIL_ALLOW_SETUP_API === 'true') return true;
   if (process.env.NODE_ENV === 'production') return false;
@@ -206,6 +232,23 @@ app.post('/api/setup/llm', (req, res) => {
     res.status(500).json({ error: e instanceof Error ? e.message : 'Failed to save configuration' });
   }
 });
+
+/** Shared JSON for GET /healthz and GET /api/health (used by client onboarding gate). */
+function sendHealthJson(_req: Request, res: Response): void {
+  reloadEnvFromDiskAndInitLlm();
+  const ready = getLlmNotReadyReason();
+  res.status(200).json({
+    ok: true,
+    llmConfigured: ready === null,
+    llm: { advisor: advisorVendor, decide: decideVendor },
+    ...(ready ? {} : { llmSetupHint: ready }),
+    ...(llmEndpoint.baseURL ? { llmProxy: llmEndpoint.baseURL } : {}),
+  });
+}
+
+/** Same-origin as other `/api/*` routes — Vite dev proxy always forwards `/api` to the API (unlike top-level `/healthz`). */
+app.get('/api/health', sendHealthJson);
+app.get('/healthz', sendHealthJson);
 
 app.use(
   '/api',
@@ -447,17 +490,6 @@ If the user spoke last, someone MUST respond. Usually pick 1 or 2 ids from the a
     }
   }
 }
-
-app.get('/healthz', (_req, res) => {
-  const ready = getLlmNotReadyReason();
-  res.status(200).json({
-    ok: true,
-    llmConfigured: ready === null,
-    llm: { advisor: advisorVendor, decide: decideVendor },
-    ...(ready ? {} : { llmSetupHint: ready }),
-    ...(llmEndpoint.baseURL ? { llmProxy: llmEndpoint.baseURL } : {}),
-  });
-});
 
 app.post('/api/chat/respond', async (req, res) => {
   try {

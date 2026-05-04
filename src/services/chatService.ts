@@ -20,7 +20,38 @@ export type LlmSetupResult = {
   message?: string;
 };
 
+/** GET /api/health — used to skip onboarding when the server already has vendor + keys (e.g. `.env.local`). */
+export type HealthResponse = {
+  ok: boolean;
+  llmConfigured: boolean;
+  llm?: { advisor: string; decide: string };
+  llmSetupHint?: string;
+  llmProxy?: string;
+};
+
 export class ChatService {
+  /** Retries to survive dev race (Vite up before the API) and transient proxy hiccups. */
+  static async getHealth(): Promise<HealthResponse> {
+    const maxAttempts = 5;
+    let lastErr: unknown;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        // Use `/api/health` so Vite’s single `/api` dev proxy always reaches Express (top-level `/healthz` is easy to miss or mis-order).
+        const response = await fetch('/api/health', { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Health check failed (${response.status}).`);
+        }
+        return response.json() as Promise<HealthResponse>;
+      } catch (e) {
+        lastErr = e;
+        if (attempt < maxAttempts - 1) {
+          await new Promise((r) => setTimeout(r, 200 * (attempt + 1)));
+        }
+      }
+    }
+    throw lastErr instanceof Error ? lastErr : new Error('Health check failed.');
+  }
+
   /** Saves vendor + keys into `.env.local` via the local API (dev / localhost only). */
   static async saveLlmSetup(payload: LlmSetupPayload): Promise<LlmSetupResult> {
     const response = await fetch('/api/setup/llm', {

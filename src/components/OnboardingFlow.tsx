@@ -183,19 +183,35 @@ function CouncilAdvisorPlane({
 
 type Props = {
   onComplete: () => void;
+  /** When opened from the root capsule (App), collapse returns to the capsule instead of the inner mini-pill. */
+  docked?: boolean;
+  onDock?: () => void;
+  /** Server already has vendor + keys (e.g. `.env.local`) — skip vendor/key form; go straight to Meet the Council. */
+  serverKeysReady?: boolean;
+  /** From GET /api/health `llm.advisor` — used when saving onboarding completion. */
+  initialVendorHint?: OnboardingVendor;
 };
 
-export function OnboardingFlow({ onComplete }: Props) {
+export function OnboardingFlow({
+  onComplete,
+  docked,
+  onDock,
+  serverKeysReady = false,
+  initialVendorHint,
+}: Props) {
   const reduceMotion = useReducedMotion();
   const councilScrollRef = useRef<HTMLDivElement>(null);
   const initial = readSessionUi();
-  const [expanded, setExpanded] = useState(initial.expanded);
-  const [previewOpen, setPreviewOpen] = useState(initial.previewOpen);
+  const [expanded, setExpanded] = useState(() => {
+    if (docked) return true;
+    return initial.expanded || initial.previewOpen;
+  });
+  const [previewOpen, setPreviewOpen] = useState(() => (docked ? false : initial.previewOpen));
   const [vendor, setVendor] = useState<OnboardingVendor>('openai');
   const [keys, setKeys] = useState({ openai: '', gemini: '', anthropic: '' });
   const [setupSaving, setSetupSaving] = useState(false);
   const [setupHint, setSetupHint] = useState<{ ok: boolean; text: string } | null>(null);
-  const [llmReady, setLlmReady] = useState(false);
+  const [llmReady, setLlmReady] = useState(() => serverKeysReady);
   const advanceAfterSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentKey =
@@ -207,6 +223,24 @@ export function OnboardingFlow({ onComplete }: Props) {
     },
     [],
   );
+
+  useEffect(() => {
+    if (!serverKeysReady) return;
+    setLlmReady(true);
+    if (initialVendorHint) setVendor(initialVendorHint);
+  }, [serverKeysReady, initialVendorHint]);
+
+  useEffect(() => {
+    if (!serverKeysReady) return;
+    const prefersReduced =
+      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const delayMs = prefersReduced ? 0 : 380;
+    const t = window.setTimeout(() => {
+      setPreviewOpen(true);
+      writeSessionUi({ expanded: true, previewOpen: true });
+    }, delayMs);
+    return () => clearTimeout(t);
+  }, [serverKeysReady]);
 
   function openCouncilPreview() {
     setPreviewOpen(true);
@@ -340,110 +374,163 @@ export function OnboardingFlow({ onComplete }: Props) {
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-6 text-left"
               >
-                <div className="space-y-2">
-                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/50">Before you enter</p>
-                  <h2 className="text-2xl font-semibold tracking-tight md:text-[1.65rem] leading-snug">
-                    Choose your model vendor and API key.
-                  </h2>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {VENDORS.map((v) => (
-                    <button
-                      key={v.id}
-                      type="button"
-                      onClick={() => setVendor(v.id)}
-                      className={cn(
-                        'rounded-full px-4 py-2 text-sm font-medium transition',
-                        vendor === v.id
-                          ? 'bg-white text-black'
-                          : 'bg-white/10 text-white/90 ring-1 ring-white/20 hover:bg-white/15',
-                      )}
-                    >
-                      {v.label}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="space-y-3">
-                  <label className="block text-xs uppercase tracking-wider text-white/45">API key</label>
-                  {vendor === 'openai' && (
-                    <input
-                      type="password"
-                      autoComplete="off"
-                      value={keys.openai}
-                      onChange={(e) => setKeys((k) => ({ ...k, openai: e.target.value }))}
-                      placeholder="sk-…"
-                      className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
-                    />
-                  )}
-                  {vendor === 'gemini' && (
-                    <input
-                      type="password"
-                      autoComplete="off"
-                      value={keys.gemini}
-                      onChange={(e) => setKeys((k) => ({ ...k, gemini: e.target.value }))}
-                      placeholder="AIza…"
-                      className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
-                    />
-                  )}
-                  {vendor === 'anthropic' && (
-                    <input
-                      type="password"
-                      autoComplete="off"
-                      value={keys.anthropic}
-                      onChange={(e) => setKeys((k) => ({ ...k, anthropic: e.target.value }))}
-                      placeholder="sk-ant-…"
-                      className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
-                    />
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-3 items-center">
-                  <Button
-                    type="button"
-                    disabled={setupSaving}
-                    onClick={saveToServer}
-                    className="!rounded-full !bg-white !text-black hover:!bg-white/90 !px-6 !py-5 !h-auto !text-sm !font-semibold"
-                  >
-                    {setupSaving ? 'Saving…' : 'Save & apply'}
-                  </Button>
-                  {llmReady && (
-                    <span className="text-xs font-medium text-emerald-400/95">Ready for chat</span>
-                  )}
-                </div>
-                {setupHint && (
-                  <p
-                    className={cn(
-                      'text-sm leading-relaxed',
-                      setupHint.ok ? 'text-white/80' : 'text-amber-300/95',
+                {serverKeysReady ? (
+                  <>
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/50">Before you enter</p>
+                      <h2 className="text-2xl font-semibold tracking-tight md:text-[1.65rem] leading-snug">
+                        Your server already has model keys.
+                      </h2>
+                      <p className="text-sm text-white/65 leading-relaxed">
+                        Skip pasting API keys here—the preview below is &quot;Meet the council.&quot; Enter when you are
+                        ready.
+                      </p>
+                    </div>
+                    {llmReady && (
+                      <p className="text-xs font-medium text-emerald-400/95">Ready for chat</p>
                     )}
-                  >
-                    {setupHint.text}
-                  </p>
-                )}
+                    <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (docked && onDock) {
+                            clearSessionUi();
+                            setPreviewOpen(false);
+                            onDock();
+                            return;
+                          }
+                          clearSessionUi();
+                          setExpanded(false);
+                          setPreviewOpen(false);
+                        }}
+                        className="text-sm text-white/45 underline decoration-white/25 underline-offset-4 hover:text-white/80"
+                      >
+                        {docked ? 'Back to capsule' : 'Collapse'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={openCouncilPreview}
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-white underline decoration-white/40 underline-offset-[6px] hover:decoration-white"
+                      >
+                        Meet the council
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/50">Before you enter</p>
+                      <h2 className="text-2xl font-semibold tracking-tight md:text-[1.65rem] leading-snug">
+                        Choose your model vendor and API key.
+                      </h2>
+                    </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      clearSessionUi();
-                      setExpanded(false);
-                      setPreviewOpen(false);
-                    }}
-                    className="text-sm text-white/45 underline decoration-white/25 underline-offset-4 hover:text-white/80"
-                  >
-                    Collapse
-                  </button>
-                  <button
-                    type="button"
-                    onClick={openCouncilPreview}
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-white underline decoration-white/40 underline-offset-[6px] hover:decoration-white"
-                  >
-                    Meet the council
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
+                    <div className="flex flex-wrap gap-2">
+                      {VENDORS.map((v) => (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => setVendor(v.id)}
+                          className={cn(
+                            'rounded-full px-4 py-2 text-sm font-medium transition',
+                            vendor === v.id
+                              ? 'bg-white text-black'
+                              : 'bg-white/10 text-white/90 ring-1 ring-white/20 hover:bg-white/15',
+                          )}
+                        >
+                          {v.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="block text-xs uppercase tracking-wider text-white/45">API key</label>
+                      {vendor === 'openai' && (
+                        <input
+                          type="password"
+                          autoComplete="off"
+                          value={keys.openai}
+                          onChange={(e) => setKeys((k) => ({ ...k, openai: e.target.value }))}
+                          placeholder="sk-…"
+                          className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
+                        />
+                      )}
+                      {vendor === 'gemini' && (
+                        <input
+                          type="password"
+                          autoComplete="off"
+                          value={keys.gemini}
+                          onChange={(e) => setKeys((k) => ({ ...k, gemini: e.target.value }))}
+                          placeholder="AIza…"
+                          className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
+                        />
+                      )}
+                      {vendor === 'anthropic' && (
+                        <input
+                          type="password"
+                          autoComplete="off"
+                          value={keys.anthropic}
+                          onChange={(e) => setKeys((k) => ({ ...k, anthropic: e.target.value }))}
+                          placeholder="sk-ant-…"
+                          className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10"
+                        />
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 items-center">
+                      <Button
+                        type="button"
+                        disabled={setupSaving}
+                        onClick={saveToServer}
+                        className="!rounded-full !bg-white !text-black hover:!bg-white/90 !px-6 !py-5 !h-auto !text-sm !font-semibold"
+                      >
+                        {setupSaving ? 'Saving…' : 'Save & apply'}
+                      </Button>
+                      {llmReady && (
+                        <span className="text-xs font-medium text-emerald-400/95">Ready for chat</span>
+                      )}
+                    </div>
+                    {setupHint && (
+                      <p
+                        className={cn(
+                          'text-sm leading-relaxed',
+                          setupHint.ok ? 'text-white/80' : 'text-amber-300/95',
+                        )}
+                      >
+                        {setupHint.text}
+                      </p>
+                    )}
+
+                    <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (docked && onDock) {
+                            clearSessionUi();
+                            setPreviewOpen(false);
+                            onDock();
+                            return;
+                          }
+                          clearSessionUi();
+                          setExpanded(false);
+                          setPreviewOpen(false);
+                        }}
+                        className="text-sm text-white/45 underline decoration-white/25 underline-offset-4 hover:text-white/80"
+                      >
+                        {docked ? 'Back to capsule' : 'Collapse'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={openCouncilPreview}
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-white underline decoration-white/40 underline-offset-[6px] hover:decoration-white"
+                      >
+                        Meet the council
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </>
+                )}
               </motion.div>
             </div>
           )}
@@ -554,9 +641,17 @@ export function OnboardingFlow({ onComplete }: Props) {
         )}
       </AnimatePresence>
 
-      <p className="shrink-0 pb-8 text-center text-[11px] text-neutral-400 px-4">
-        Tap the pill to expand · Blue button skips setup
-      </p>
+      {!docked ? (
+        <p className="shrink-0 pb-8 text-center text-[11px] text-neutral-400 px-4">
+          Tap the pill to expand · Blue button skips setup
+        </p>
+      ) : (
+        <p className="shrink-0 pb-8 text-center text-[11px] text-neutral-400 px-4">
+          {serverKeysReady
+            ? 'Meet the council opens automatically when the API reports configured keys.'
+            : 'Back to capsule minimizes to the home pill'}
+        </p>
+      )}
     </div>
   );
 }
