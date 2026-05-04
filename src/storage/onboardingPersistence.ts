@@ -24,7 +24,7 @@ export function loadOnboardingState(): OnboardingState {
  * Survives restarts: completion is in localStorage, not the server.
  * Force the welcome flow with URL `?onboarding` or `?setup`, or (dev) `VITE_SHOW_ONBOARDING=1` in `.env.local`.
  *
- * **Embed / README demos:** `?demo=1` or `?embed=1` skips onboarding so GitHub Pages iframes and
+ * **Embed / README demos:** `?demo=1` or `?embed=1` skips onboarding so iframes and
  * hero screenshots show the council UI without the welcome pill (first-time visitors only).
  */
 export function isOnboardingCompleteForSession(): boolean {

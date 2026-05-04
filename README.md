@@ -1,5 +1,13 @@
 # Council AI
 
+<div align="center">
+
+[![Live demo — hosted app](https://img.shields.io/badge/LIVE_DEMO-council--ai.onrender.com-7c3aed?style=for-the-badge)](https://council-ai.onrender.com/?demo=1)
+
+### Talk to a council of AI advisors at once
+
+Group‑chat UI · multi‑provider LLMs · **OpenAI Agents** path + native Gemini & Claude
+
 <p align="center">
   <a href="https://council-ai.onrender.com/?demo=1" title="Open the live app (main council UI)">
     <img
@@ -14,22 +22,61 @@
   <a href="https://council-ai.onrender.com/?demo=1"><strong>council-ai.onrender.com</strong></a>
   — live API + app (<code>?demo=1</code> skips welcome for demos)
   ·
-  <a href="https://thattutorbot.github.io/council_ai/" title="Interactive embed (GitHub Pages)"><strong>Pages embed</strong></a>
+  <a href="https://thattutorbot.github.io/council_ai/" title="Full-page embed (GitHub Pages)"><strong>Pages embed</strong></a>
   <sup><a href="#github-pages-embedded-demo">*</a></sup>
 </p>
 
 <p align="center">
-  <sub><strong>GitHub README cannot embed live iframes</strong> (unlike gallery sites such as <a href="https://godly.website/">Godly</a>).
-  Use the <strong>Pages embed</strong> link for an in-window interactive demo; the image above is a static snapshot.</sub>
+  <sub><strong>GitHub’s repo page can’t run live iframes inside the README.</strong>
+  Use the <strong>Pages embed</strong> link for a full-window iframe demo; the screenshot above is static.</sub>
 </p>
+
+</div>
 
 ---
 
-A **group-chat style web app** where you talk with several **AI advisors** at once—each with a fixed persona, bilingual replies (Chinese / English depending on the character), and a coordinator model that picks who speaks next. The UI is inspired by mobile messaging.
+## At a glance
 
-The **backend** is Express + TypeScript. LLM calls can use **OpenAI** (OpenAI Agents SDK), **Google Gemini**, or **Anthropic Claude** via env-based routing—**or** point the OpenAI stack at **LiteLLM** for a single proxy.
+Council AI is a **multi‑advisor chat**: you send one message; several personas (see `src/types.ts`) can reply in turn, coordinated by a router model. **LLM credentials stay on the server** for local runs; values you enter in the **hosted** app’s setup UI apply **only to that browser session** — they are **not** written into `.env.local` or committed to this repo.
 
-**Docs index:** [docs/README.md](docs/README.md)
+**Documentation index:** [docs/README.md](docs/README.md)
+
+---
+
+## How to get started
+
+Pick **one** path.
+
+### A · Try it in the browser
+
+Open **[council-ai.onrender.com](https://council-ai.onrender.com/)**. Use **`?demo=1`** on Render if you want to skip the welcome flow and land on the council UI immediately.
+
+If the deployment shows a **setup** step, treat keys you paste there as **session‑scoped** in the browser — they do not create or change a developer’s `.env.local`.
+
+### B · Run on your machine
+
+1. **Node.js 22+** (`package.json` `engines`).
+2. Install and env template:
+
+   ```bash
+   npm install
+   cp .env.example .env.local
+   ```
+
+3. Edit **`.env.local`** — set **`LLM_VENDOR_ADVISOR`** / **`LLM_VENDOR_DECIDE`** (or **`LLM_VENDOR`**) and the API keys for whichever vendors you use. See **[docs/native-providers.md](docs/native-providers.md)** (and **[docs/litellm-setup.md](docs/litellm-setup.md)** if you use LiteLLM for the OpenAI path).
+
+   When the **server** already has the keys it needs (including **`GEMINI_API_KEY`** when Gemini is selected, etc.), onboarding can **skip the setup UI** and go straight to **Meet the Council**.
+
+4. Start development:
+
+   ```bash
+   npm run dev
+   ```
+
+   - **Web UI:** http://localhost:3000  
+   - **API:** http://localhost:3001 (or `PORT` from env)
+
+`npm run dev` runs the API and Vite together; Vite proxies `/api` to the backend.
 
 ---
 
@@ -64,22 +111,6 @@ Browser (Vite :3000)  →  /api proxy  →  Express (:3001)
 
 - **Node.js 22+** (`package.json` `engines`; required by `@openai/agents`)
 - API keys for whichever vendors you select — see **[docs/native-providers.md](docs/native-providers.md)**
-
----
-
-## Quick start
-
-```bash
-npm install
-cp .env.example .env.local
-# Edit .env.local — LLM_VENDOR_* and keys; see docs/native-providers.md (and docs/litellm-setup.md if using LiteLLM)
-npm run dev
-```
-
-- **Web UI:** http://localhost:3000  
-- **API:** http://localhost:3001 (or `PORT` from env)
-
-`npm run dev` runs the API and Vite together; Vite proxies `/api` to the backend.
 
 ---
 
@@ -187,7 +218,7 @@ Issues and pull requests are welcome. Run **`npm run lint`** before submitting. 
 
 ## GitHub Pages embedded demo
 
-The static page **`docs/index.html`** embeds the app at **`https://council-ai.onrender.com/?demo=1`** inside a framed viewport (same-window interaction, similar in spirit to showcases on [Godly](https://godly.website/)). The **`demo=1`** query skips the onboarding pill so the **main council UI** appears immediately for cold visitors (no duplicate backend; API stays on Render).
+The static page **`docs/index.html`** embeds the app at **`https://council-ai.onrender.com/?demo=1`** inside a framed viewport. The **`demo=1`** query skips the onboarding pill so the **main council UI** appears immediately for cold visitors (no duplicate backend; API stays on Render).
 
 **Enable it:** Repository **Settings → Pages → Build and deployment → Branch** → choose **`main`** (or your default branch) and folder **`/docs`**, then save. After the first deploy, the site is typically:
 
