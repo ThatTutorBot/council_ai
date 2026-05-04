@@ -6,7 +6,7 @@
 
 ### Talk to a council of AI advisors at once
 
-Group‑chat UI · multi‑provider LLMs · **OpenAI Agents** path + native Gemini & Claude
+Group‑chat UI · multi‑provider LLMs · OpenAI Agents path + native Gemini & Claude
 
 <p align="center">
   <a href="https://council-ai.onrender.com/" title="Open the live app on Render">
@@ -163,14 +163,6 @@ Errors: **`400`** with `{ "error": "..." }`.
 
 ---
 
-## LiteLLM (optional proxy for the OpenAI path)
-
-Step-by-step: **[docs/litellm-setup.md](docs/litellm-setup.md)**.
-
-Contributor reference: [`.trellis/spec/backend/llm-configuration.md`](.trellis/spec/backend/llm-configuration.md).
-
----
-
 ## Security and privacy
 
 - **API keys stay on the server** — `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, LiteLLM tokens, etc. are read only in Node; never expose them to the browser.
@@ -194,7 +186,7 @@ council_ai/
 │   ├── .nojekyll          # Disable Jekyll so `index.html` is served as-is
 │   ├── README.md          # Doc index
 │   ├── images/
-│   │   └── council-ai-live.png  # README hero snapshot (regenerate with Playwright; see below)
+│   │   └── council-ai-live.png  # README hero image
 │   ├── native-providers.md
 │   └── litellm-setup.md
 ├── .env.example
@@ -218,23 +210,6 @@ The static page **`docs/index.html`** embeds the app at **`https://council-ai.on
 **https://thattutorbot.github.io/council_ai/**
 
 If your GitHub username or repository name differs, update that URL everywhere it appears in this README and the optional **Source** link in **`docs/index.html`**.
-
----
-
-## Live snapshot (README hero)
-
-The image **`docs/images/council-ai-live.png`** is a capture of the main UI (**[`?embed=1`](https://council-ai.onrender.com/?embed=1)** expanded shell) for the repository landing page. To refresh it after UI changes:
-
-```bash
-npx playwright@1.49.1 screenshot --viewport-size=1440,900 --wait-for-timeout=8000 \
-  'https://council-ai.onrender.com/?embed=1' docs/images/council-ai-live.png
-```
-
-(`npx playwright install chromium` first if browsers are not cached.)
-
-If production has not shipped **`?embed=1`** yet, capture against a local preview instead: run **`npm run build`**, start **`npx vite preview --port 4173 --host 127.0.0.1`**, then point Playwright at **`http://127.0.0.1:4173/?embed=1`**.
-
-To change the **social preview image** GitHub shows when the repo link is shared (not the README), add a **1280×640** image under **Repository → Settings → General → Social preview**.
 
 ---
 
